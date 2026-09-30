@@ -566,6 +566,26 @@
       border-color: #176b3a;
     }
 
+    .habit-item input[type="time"] {
+      width: 125px;
+
+      border: 1px solid #d4e3d8;
+
+      border-radius: 8px;
+
+      padding: 8px;
+
+      background: #ffffff;
+
+      outline: none;
+
+      flex-shrink: 0;
+    }
+
+    .habit-item input[type="time"]:focus {
+      border-color: #176b3a;
+    }
+
     .habit-points {
       color: #176b3a;
 
@@ -748,6 +768,7 @@
 
         border-radius: 18px;
       }
+
     }
 
   </style>
@@ -1725,14 +1746,11 @@
           </label>
 
 
-          <label class="habit-item">
+          <!-- SLEEP TIME - TIME INPUT -->
+
+          <div class="habit-item">
 
             <span class="habit-left">
-
-              <input
-                type="checkbox"
-                id="sleepOnTime"
-              >
 
               <span>
                 ഉറങ്ങുന്ന സമയം
@@ -1740,11 +1758,16 @@
 
             </span>
 
+            <input
+              type="time"
+              id="sleepTime"
+            >
+
             <span class="habit-points">
               1 Point
             </span>
 
-          </label>
+          </div>
 
 
           <label class="habit-item">
