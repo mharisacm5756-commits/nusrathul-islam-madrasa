@@ -2506,11 +2506,13 @@ async function loadExistingDailyRecord(studentId) {
 
     const apiMobileUsage =
       record.mobileUsageMinutes ?? record["Mobile Usage Minutes"] ?? "";
+    const hasLocalMobile =
+      Object.prototype.hasOwnProperty.call(localBackup, "mobileUsageMinutes");
+
     const restoredMobileUsage =
-      (apiMobileUsage !== "" && apiMobileUsage !== null && apiMobileUsage !== undefined &&
-       Number(apiMobileUsage) !== 0)
-        ? apiMobileUsage
-        : (localBackup.mobileUsageMinutes ?? apiMobileUsage);
+      hasLocalMobile
+        ? localBackup.mobileUsageMinutes
+        : apiMobileUsage;
 
     setValue(
       "mobileUsageMinutes",
@@ -2522,10 +2524,13 @@ async function loadExistingDailyRecord(studentId) {
     );
     const apiSleepTime =
       record.sleepTime ?? record["Sleep Time"] ?? "";
+    const hasLocalSleep =
+      Object.prototype.hasOwnProperty.call(localBackup, "sleepTime");
+
     const restoredSleepTime =
-      apiSleepTime !== "" && apiSleepTime !== null && apiSleepTime !== undefined
-        ? apiSleepTime
-        : (localBackup.sleepTime ?? apiSleepTime);
+      hasLocalSleep
+        ? localBackup.sleepTime
+        : apiSleepTime;
 
     setTimeValue(
       "sleepTime",
@@ -2772,6 +2777,45 @@ function updateAdminDashboard(data) {
     .textContent =
       summary.activeStreakStudents ?? 0;
 }
+
+/* ==========================================================
+   KEEP MOBILE USAGE + SLEEP TIME SAVED IMMEDIATELY
+========================================================== */
+function saveTodayValueBackup() {
+  try {
+    const storedSession = localStorage.getItem("madrasaSession");
+    if (!storedSession) return;
+
+    const session = JSON.parse(storedSession);
+    const student = session.student || {};
+    const studentId = student.studentId || session.studentId || "";
+    if (!studentId) return;
+
+    const mobile = document.getElementById("mobileUsageMinutes");
+    const sleep = document.getElementById("sleepTime");
+    const raw = localStorage.getItem("madrasaTodayFormBackup");
+    const old = raw ? JSON.parse(raw) : {};
+
+    localStorage.setItem("madrasaTodayFormBackup", JSON.stringify({
+      studentId: studentId,
+      date: getLocalDateString(),
+      mobileUsageMinutes: mobile ? mobile.value : (old.mobileUsageMinutes ?? ""),
+      sleepTime: sleep ? sleep.value : (old.sleepTime ?? "")
+    }));
+  } catch (error) {
+    console.warn("Unable to save today's value backup", error);
+  }
+}
+
+function attachTodayValueBackupListeners() {
+  const mobile = document.getElementById("mobileUsageMinutes");
+  const sleep = document.getElementById("sleepTime");
+  if (mobile) mobile.addEventListener("input", saveTodayValueBackup);
+  if (sleep) sleep.addEventListener("input", saveTodayValueBackup);
+  if (sleep) sleep.addEventListener("change", saveTodayValueBackup);
+}
+
+attachTodayValueBackupListeners();
 
 /* ==========================================================
    GET DAILY HABIT FORM DATA
