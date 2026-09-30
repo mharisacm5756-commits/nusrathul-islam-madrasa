@@ -2020,9 +2020,7 @@
 const API_URL =
   "https://script.google.com/macros/s/AKfycbx-nBChl4X7ArI6qOxHu6XqZW-lvF66bJMPHy9EHXw3VQd84yMpSFyGjpJb2dhflQeuYA/exec";
 
-
 let loginRole = "student";
-
 
 /* ==========================================================
    LOGIN ROLE
@@ -2032,106 +2030,68 @@ function selectLoginRole(role) {
 
   loginRole = role;
 
-
   const studentButton =
-    document.getElementById(
-      "studentRoleButton"
-    );
-
+    document.getElementById("studentRoleButton");
 
   const adminButton =
-    document.getElementById(
-      "adminRoleButton"
-    );
-
+    document.getElementById("adminRoleButton");
 
   const usernameLabel =
-    document.getElementById(
-      "usernameLabel"
-    );
-
+    document.getElementById("usernameLabel");
 
   const usernameInput =
-    document.getElementById(
-      "username"
-    );
-
+    document.getElementById("username");
 
   if (role === "student") {
 
-    studentButton.classList.add(
-      "active"
-    );
+    studentButton.classList.add("active");
+    adminButton.classList.remove("active");
 
-    adminButton.classList.remove(
-      "active"
-    );
-
-
-    usernameLabel.textContent =
-      "Student Username";
-
-
-    usernameInput.placeholder =
-      "Enter student username";
-
+    usernameLabel.textContent = "Student Username";
+    usernameInput.placeholder = "Enter student username";
 
   } else {
 
-    adminButton.classList.add(
-      "active"
-    );
+    adminButton.classList.add("active");
+    studentButton.classList.remove("active");
 
-    studentButton.classList.remove(
-      "active"
-    );
-
-
-    usernameLabel.textContent =
-      "Admin Username";
-
-
-    usernameInput.placeholder =
-      "Enter admin username";
+    usernameLabel.textContent = "Admin Username";
+    usernameInput.placeholder = "Enter admin username";
 
   }
-
 }
-
 
 /* ==========================================================
    LOGIN MESSAGE
 ========================================================== */
 
-function showLoginMessage(
-  message,
-  type
-) {
+function showLoginMessage(message, type) {
 
   const element =
-    document.getElementById(
-      "loginMessage"
-    );
+    document.getElementById("loginMessage");
 
-
-  element.textContent =
-    message;
-
-
-  element.className =
-    "message " + type;
-
+  element.textContent = message;
+  element.className = "message " + type;
 }
 
+/* ==========================================================
+   HABIT MESSAGE
+========================================================== */
+
+function showHabitMessage(message, type) {
+
+  const element =
+    document.getElementById("habitMessage");
+
+  element.textContent = message;
+  element.className = "message " + type;
+}
 
 /* ==========================================================
    API REQUEST
 ========================================================== */
 
-async function apiRequest(
-  action,
-  data = {}
-) {
+async function apiRequest(action, data = {}) {
 
   const response =
     await fetch(
@@ -2140,8 +2100,7 @@ async function apiRequest(
         method: "POST",
 
         headers: {
-          "Content-Type":
-            "text/plain;charset=utf-8"
+          "Content-Type": "text/plain;charset=utf-8"
         },
 
         body: JSON.stringify({
@@ -2151,13 +2110,10 @@ async function apiRequest(
       }
     );
 
-
   const text =
     await response.text();
 
-
   let result;
-
 
   try {
 
@@ -2166,17 +2122,11 @@ async function apiRequest(
 
   } catch (error) {
 
-    console.error(
-      "Server response:",
-      text
-    );
+    console.error("Server response:", text);
 
-    throw new Error(
-      "Invalid server response."
-    );
+    throw new Error("Invalid server response.");
 
   }
-
 
   if (
     result &&
@@ -2190,11 +2140,8 @@ async function apiRequest(
 
   }
 
-
   return result;
-
 }
-
 
 /* ==========================================================
    LOGIN
@@ -2208,13 +2155,11 @@ document
 
       event.preventDefault();
 
-
       const username =
         document
           .getElementById("username")
           .value
           .trim();
-
 
       const password =
         document
@@ -2222,24 +2167,13 @@ document
           .value
           .trim();
 
-
       const loginButton =
-        document.getElementById(
-          "loginButton"
-        );
-
+        document.getElementById("loginButton");
 
       const loading =
-        document.getElementById(
-          "loadingMessage"
-        );
+        document.getElementById("loadingMessage");
 
-
-      showLoginMessage(
-        "",
-        ""
-      );
-
+      showLoginMessage("", "");
 
       if (!username || !password) {
 
@@ -2249,36 +2183,23 @@ document
         );
 
         return;
-
       }
 
-
-      loginButton.disabled =
-        true;
-
-
-      loading.style.display =
-        "block";
-
+      loginButton.disabled = true;
+      loading.style.display = "block";
 
       try {
 
         let result;
 
-
-        if (
-          loginRole === "student"
-        ) {
+        if (loginRole === "student") {
 
           result =
             await apiRequest(
               "loginStudent",
               {
-                username:
-                  username,
-
-                password:
-                  password
+                username: username,
+                password: password
               }
             );
 
@@ -2288,144 +2209,121 @@ document
             await apiRequest(
               "loginAdmin",
               {
-                username:
-                  username,
-
-                password:
-                  password
+                username: username,
+                password: password
               }
             );
 
         }
 
-
         const session =
           result.data ||
           result;
 
-
         localStorage.setItem(
           "madrasaSession",
-          JSON.stringify(
-            session
-          )
+          JSON.stringify(session)
         );
 
-
         document
-          .getElementById(
-            "loginPage"
-          )
-          .classList.add(
-            "hidden"
-          );
+          .getElementById("loginPage")
+          .classList.add("hidden");
 
-
-        if (
-          loginRole === "student"
-        ) {
+        if (loginRole === "student") {
 
           document
-            .getElementById(
-              "studentApp"
-            )
-            .classList.remove(
-              "hidden"
-            );
+            .getElementById("studentApp")
+            .classList.remove("hidden");
 
-
-          loadStudentDashboard(
-            session
-          );
-
+          loadStudentDashboard(session);
 
         } else {
 
           document
-            .getElementById(
-              "adminApp"
-            )
-            .classList.remove(
-              "hidden"
-            );
+            .getElementById("adminApp")
+            .classList.remove("hidden");
 
-
-          loadAdminDashboard(
-            session
-          );
+          loadAdminDashboard(session);
 
         }
 
-
       } catch (error) {
 
-        console.error(
-          "Login error:",
-          error
-        );
-
+        console.error("Login error:", error);
 
         showLoginMessage(
-          error.message ||
-          "Login failed.",
+          error.message || "Login failed.",
           "error"
         );
 
-
       } finally {
 
-        loginButton.disabled =
-          false;
-
-
-        loading.style.display =
-          "none";
+        loginButton.disabled = false;
+        loading.style.display = "none";
 
       }
 
     }
   );
 
+/* ==========================================================
+   LOCAL DATE
+   YYYY-MM-DD
+========================================================== */
+
+function getLocalDateString() {
+
+  const now = new Date();
+
+  const year =
+    now.getFullYear();
+
+  const month =
+    String(now.getMonth() + 1)
+      .padStart(2, "0");
+
+  const day =
+    String(now.getDate())
+      .padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
 
 /* ==========================================================
    STUDENT DASHBOARD
 ========================================================== */
 
-async function loadStudentDashboard(
-  session
-) {
+async function loadStudentDashboard(session) {
 
   const student =
     session.student ||
     {};
-
 
   const studentName =
     student.studentName ||
     session.studentName ||
     "Student";
 
-
   const studentId =
     student.studentId ||
     session.studentId ||
     "";
-
 
   const studentUsername =
     student.username ||
     session.username ||
     "";
 
-
   document
-    .getElementById(
-      "studentWelcome"
-    )
+    .getElementById("studentWelcome")
     .textContent =
       "അസ്സലാമു അലൈക്കും, " +
       studentName;
 
+  if (!studentId) {
+    console.error("Student ID missing from session.");
+    return;
+  }
 
   try {
 
@@ -2433,26 +2331,16 @@ async function loadStudentDashboard(
       await apiRequest(
         "getStudentDashboard",
         {
-
-          studentId:
-            studentId,
-
-          username:
-            studentUsername
-
+          studentId: studentId,
+          username: studentUsername
         }
       );
-
 
     const data =
       result.data ||
       result;
 
-
-    updateStudentDashboard(
-      data
-    );
-
+    updateStudentDashboard(data);
 
   } catch (error) {
 
@@ -2462,73 +2350,166 @@ async function loadStudentDashboard(
     );
 
   }
-
 }
-
 
 /* ==========================================================
    UPDATE STUDENT DASHBOARD
 ========================================================== */
 
-function updateStudentDashboard(
-  data
-) {
+function updateStudentDashboard(data) {
 
   if (!data) {
     return;
   }
 
-
   const summary =
     data.summary ||
     data;
 
+  document
+    .getElementById("todayScore")
+    .textContent =
+      summary.todayScore ?? 0;
 
   document
-    .getElementById(
-      "todayScore"
-    )
+    .getElementById("currentStreak")
     .textContent =
-      summary.todayScore ??
-      0;
-
+      summary.currentStreak ?? 0;
 
   document
-    .getElementById(
-      "currentStreak"
-    )
+    .getElementById("bestStreak")
     .textContent =
-      summary.currentStreak ??
-      0;
-
+      summary.bestStreak ?? 0;
 
   document
-    .getElementById(
-      "bestStreak"
-    )
+    .getElementById("activeDays")
     .textContent =
-      summary.bestStreak ??
-      0;
+      summary.activeDays ?? 0;
 
-
-  document
-    .getElementById(
-      "activeDays"
-    )
-    .textContent =
-      summary.activeDays ??
-      0;
-
+  updateProgressFromData(data);
 }
 
+/* ==========================================================
+   UPDATE PROGRESS
+========================================================== */
+
+function updateProgressFromData(data) {
+
+  const score =
+    data.score ||
+    data.todayScoreBreakdown ||
+    data;
+
+  if (!score) {
+    return;
+  }
+
+  const ibadah =
+    Number(
+      score.ibadahScore ??
+      score.ibadah ??
+      0
+    );
+
+  const study =
+    Number(
+      score.studyScore ??
+      score.study ??
+      0
+    );
+
+  const character =
+    Number(
+      score.characterScore ??
+      score.character ??
+      0
+    );
+
+  const health =
+    Number(
+      score.healthScore ??
+      score.health ??
+      0
+    );
+
+  const digital =
+    Number(
+      score.digitalScore ??
+      score.digital ??
+      0
+    );
+
+  const setProgress =
+    function(textId, progressId, value, max) {
+
+      const text =
+        document.getElementById(textId);
+
+      const progress =
+        document.getElementById(progressId);
+
+      if (text) {
+        text.textContent =
+          `${value} / ${max}`;
+      }
+
+      if (progress) {
+
+        const percentage =
+          Math.max(
+            0,
+            Math.min(
+              100,
+              (value / max) * 100
+            )
+          );
+
+        progress.style.width =
+          percentage + "%";
+      }
+    };
+
+  setProgress(
+    "ibadahText",
+    "ibadahProgress",
+    ibadah,
+    30
+  );
+
+  setProgress(
+    "studyText",
+    "studyProgress",
+    study,
+    20
+  );
+
+  setProgress(
+    "characterText",
+    "characterProgress",
+    character,
+    30
+  );
+
+  setProgress(
+    "healthText",
+    "healthProgress",
+    health,
+    10
+  );
+
+  setProgress(
+    "digitalText",
+    "digitalProgress",
+    digital,
+    10
+  );
+}
 
 /* ==========================================================
    ADMIN DASHBOARD
 ========================================================== */
 
-async function loadAdminDashboard(
-  session
-) {
+async function loadAdminDashboard(session) {
 
   try {
 
@@ -2542,16 +2523,11 @@ async function loadAdminDashboard(
         }
       );
 
-
     const data =
       result.data ||
       result;
 
-
-    updateAdminDashboard(
-      data
-    );
-
+    updateAdminDashboard(data);
 
   } catch (error) {
 
@@ -2561,95 +2537,367 @@ async function loadAdminDashboard(
     );
 
   }
-
 }
-
 
 /* ==========================================================
    UPDATE ADMIN DASHBOARD
 ========================================================== */
 
-function updateAdminDashboard(
-  data
-) {
+function updateAdminDashboard(data) {
 
   if (!data) {
     return;
   }
 
-
   const summary =
     data.summary ||
     data;
 
+  document
+    .getElementById("adminTotalStudents")
+    .textContent =
+      summary.totalStudents ?? 0;
 
   document
-    .getElementById(
-      "adminTotalStudents"
-    )
+    .getElementById("adminTodaySubmitted")
     .textContent =
-      summary.totalStudents ??
-      0;
-
+      summary.todaySubmitted ?? 0;
 
   document
-    .getElementById(
-      "adminTodaySubmitted"
-    )
+    .getElementById("adminTodayAverage")
     .textContent =
-      summary.todaySubmitted ??
-      0;
-
+      summary.todayAverage ?? 0;
 
   document
-    .getElementById(
-      "adminTodayAverage"
-    )
+    .getElementById("adminActiveStreak")
     .textContent =
-      summary.todayAverage ??
-      0;
-
-
-  document
-    .getElementById(
-      "adminActiveStreak"
-    )
-    .textContent =
-      summary.activeStreakStudents ??
-      0;
-
+      summary.activeStreakStudents ?? 0;
 }
 
+/* ==========================================================
+   GET DAILY HABIT FORM DATA
+========================================================== */
+
+function getDailyHabitPayload() {
+
+  const storedSession =
+    localStorage.getItem("madrasaSession");
+
+  if (!storedSession) {
+    throw new Error(
+      "Student session not found. Please login again."
+    );
+  }
+
+  let session;
+
+  try {
+
+    session =
+      JSON.parse(storedSession);
+
+  } catch (error) {
+
+    throw new Error(
+      "Invalid student session. Please login again."
+    );
+
+  }
+
+  const student =
+    session.student ||
+    {};
+
+  const studentId =
+    student.studentId ||
+    session.studentId ||
+    "";
+
+  if (!studentId) {
+
+    throw new Error(
+      "Student ID not found. Please login again."
+    );
+  }
+
+  const checked =
+    function(id) {
+
+      const element =
+        document.getElementById(id);
+
+      return element
+        ? element.checked
+        : false;
+    };
+
+  const value =
+    function(id) {
+
+      const element =
+        document.getElementById(id);
+
+      return element
+        ? element.value
+        : "";
+    };
+
+  const numberValue =
+    function(id) {
+
+      const raw =
+        value(id);
+
+      if (raw === "") {
+        return 0;
+      }
+
+      const number =
+        Number(raw);
+
+      return Number.isFinite(number)
+        ? number
+        : 0;
+    };
+
+  return {
+
+    studentId: studentId,
+
+    date: getLocalDateString(),
+
+    wakeupDua:
+      checked("wakeupDua"),
+
+    tahajjud:
+      checked("tahajjud"),
+
+    fajr:
+      checked("fajr"),
+
+    dhuhr:
+      checked("dhuhr"),
+
+    asr:
+      checked("asr"),
+
+    maghrib:
+      checked("maghrib"),
+
+    isha:
+      checked("isha"),
+
+    quranMinutes:
+      numberValue("quranMinutes"),
+
+    madrasaStudy:
+      checked("madrasaStudy"),
+
+    madrasaHomework:
+      checked("madrasaHomework"),
+
+    schoolStudy:
+      checked("schoolStudy"),
+
+    schoolHomework:
+      checked("schoolHomework"),
+
+    goodBehaviourWithParents:
+      checked("goodBehaviourWithParents"),
+
+    kissMother:
+      checked("kissMother"),
+
+    helpOthers:
+      checked("helpOthers"),
+
+    didNotLie:
+      checked("didNotLie"),
+
+    controlledAnger:
+      checked("controlledAnger"),
+
+    cleanedRoomBelongings:
+      checked("cleanedRoom"),
+
+    helpedParents:
+      checked("helpedParents"),
+
+    water:
+      checked("water"),
+
+    physicalActivity:
+      checked("physicalActivity"),
+
+    healthyFood:
+      checked("healthyFood"),
+
+    mobileUsageMinutes:
+      numberValue("mobileUsageMinutes"),
+
+    bedtimeMobileAvoided:
+      checked("bedtimeMobileAvoided"),
+
+    sleepTime:
+      value("sleepTime"),
+
+    bedtimeDua:
+      checked("bedtimeDua")
+  };
+}
 
 /* ==========================================================
    DAILY HABIT FORM
+   SAVE TO GOOGLE SHEET
 ========================================================== */
 
 document
   .getElementById("dailyHabitForm")
   .addEventListener(
     "submit",
-    function(event) {
+    async function(event) {
 
       event.preventDefault();
 
-
-      const message =
+      const submitButton =
         document.getElementById(
-          "habitMessage"
+          "habitSubmitButton"
         );
 
+      showHabitMessage("", "");
 
-      message.textContent =
-        "ഇന്നത്തെ ശീലങ്ങളുടെ ഫോം തയ്യാറാണ്. അടുത്ത ഘട്ടത്തിൽ Google Sheet-ലേക്ക് save ചെയ്യാം.";
+      let payload;
 
+      try {
 
-      message.className =
-        "message success";
+        payload =
+          getDailyHabitPayload();
+
+      } catch (error) {
+
+        showHabitMessage(
+          error.message,
+          "error"
+        );
+
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent =
+        "⏳ Saving...";
+
+      try {
+
+        const result =
+          await apiRequest(
+            "saveDailyRecord",
+            payload
+          );
+
+        const data =
+          result.data ||
+          result;
+
+        const score =
+          data.score ||
+          {};
+
+        const total =
+          Number(
+            score.total ??
+            score.totalScore ??
+            data.totalScore ??
+            0
+          );
+
+        const ibadah =
+          Number(
+            score.ibadah ??
+            score.ibadahScore ??
+            0
+          );
+
+        const study =
+          Number(
+            score.study ??
+            score.studyScore ??
+            0
+          );
+
+        const character =
+          Number(
+            score.character ??
+            score.characterScore ??
+            0
+          );
+
+        const health =
+          Number(
+            score.health ??
+            score.healthScore ??
+            0
+          );
+
+        const digital =
+          Number(
+            score.digital ??
+            score.digitalScore ??
+            0
+          );
+
+        document
+          .getElementById("todayScore")
+          .textContent =
+            total;
+
+        updateProgressFromData({
+          score: {
+            ibadahScore: ibadah,
+            studyScore: study,
+            characterScore: character,
+            healthScore: health,
+            digitalScore: digital
+          }
+        });
+
+        showHabitMessage(
+          `✅ ഇന്നത്തെ ശീലങ്ങൾ വിജയകരമായി Save ചെയ്തു. Total Score: ${total} / 100`,
+          "success"
+        );
+
+        await loadStudentDashboard(
+          JSON.parse(
+            localStorage.getItem(
+              "madrasaSession"
+            )
+          )
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Daily record save error:",
+          error
+        );
+
+        showHabitMessage(
+          error.message ||
+          "ഇന്നത്തെ ശീലങ്ങൾ save ചെയ്യാൻ കഴിഞ്ഞില്ല.",
+          "error"
+        );
+
+      } finally {
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+          "✅ ഇന്നത്തെ ശീലങ്ങൾ Submit ചെയ്യുക";
+
+      }
 
     }
   );
-
 
 /* ==========================================================
    LOGOUT
@@ -2661,54 +2909,31 @@ function logout() {
     "madrasaSession"
   );
 
+  document
+    .getElementById("studentApp")
+    .classList.add("hidden");
 
   document
-    .getElementById(
-      "studentApp"
-    )
-    .classList.add(
-      "hidden"
-    );
-
+    .getElementById("adminApp")
+    .classList.add("hidden");
 
   document
-    .getElementById(
-      "adminApp"
-    )
-    .classList.add(
-      "hidden"
-    );
-
+    .getElementById("loginPage")
+    .classList.remove("hidden");
 
   document
-    .getElementById(
-      "loginPage"
-    )
-    .classList.remove(
-      "hidden"
-    );
-
-
-  document
-    .getElementById(
-      "username"
-    )
+    .getElementById("username")
     .value = "";
 
-
   document
-    .getElementById(
-      "password"
-    )
+    .getElementById("password")
     .value = "";
 
+  showLoginMessage("", "");
+  showHabitMessage("", "");
 
-  selectLoginRole(
-    "student"
-  );
-
+  selectLoginRole("student");
 }
-
 
 /* ==========================================================
    RESTORE SESSION
@@ -2721,19 +2946,14 @@ function restoreSession() {
       "madrasaSession"
     );
 
-
   if (!stored) {
     return;
   }
 
-
   try {
 
     const session =
-      JSON.parse(
-        stored
-      );
-
+      JSON.parse(stored);
 
     if (
       session.userType ===
@@ -2743,75 +2963,44 @@ function restoreSession() {
       loginRole =
         "student";
 
+      document
+        .getElementById("loginPage")
+        .classList.add("hidden");
 
       document
-        .getElementById(
-          "loginPage"
-        )
-        .classList.add(
-          "hidden"
-        );
-
-
-      document
-        .getElementById(
-          "studentApp"
-        )
-        .classList.remove(
-          "hidden"
-        );
-
+        .getElementById("studentApp")
+        .classList.remove("hidden");
 
       loadStudentDashboard(
         session
       );
 
-
       return;
-
     }
 
-
     if (
-      session.userType ===
-      "admin" ||
-      session.role ===
-      "admin" ||
-      session.Role ===
-      "Admin"
+      session.userType === "admin" ||
+      session.role === "admin" ||
+      session.Role === "Admin"
     ) {
 
       loginRole =
         "admin";
 
+      document
+        .getElementById("loginPage")
+        .classList.add("hidden");
 
       document
-        .getElementById(
-          "loginPage"
-        )
-        .classList.add(
-          "hidden"
-        );
-
-
-      document
-        .getElementById(
-          "adminApp"
-        )
-        .classList.remove(
-          "hidden"
-        );
-
+        .getElementById("adminApp")
+        .classList.remove("hidden");
 
       loadAdminDashboard(
         session
       );
 
-
       return;
-
     }
-
 
   } catch (error) {
 
@@ -2820,15 +3009,11 @@ function restoreSession() {
       error
     );
 
-
     localStorage.removeItem(
       "madrasaSession"
     );
-
   }
-
 }
-
 
 /* ==========================================================
    PAGE LOAD
