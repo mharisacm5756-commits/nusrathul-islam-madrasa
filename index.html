@@ -2325,114 +2325,218 @@ async function loadStudentDashboard(session) {
     return;
   }
 
-  /*
-   * Load today's saved record directly.
-   * The current backend provides getStudentDailyRecord.
-   */
   try {
 
-    const dailyResult =
+    const result =
       await apiRequest(
-        "getStudentDailyRecord",
+        "getStudentStats",
         {
           studentId: studentId,
-          username: studentUsername,
-          date: getLocalDateString()
+          username: studentUsername
         }
       );
 
-    const dailyData =
-      dailyResult.data ||
-      dailyResult;
+    const data =
+      result.data ||
+      result;
 
-    if (
-      dailyData &&
-      dailyData.exists === true &&
-      dailyData.record
-    ) {
+    document
+      .getElementById("todayScore")
+      .textContent =
+        Number(data.todayScore || 0);
 
-      const record =
-        dailyData.record;
+    document
+      .getElementById("currentStreak")
+      .textContent =
+        Number(data.currentStreak || 0);
 
-      const total =
-        Number(
-          record.totalScore ??
-          record.total ??
-          0
-        );
+    document
+      .getElementById("bestStreak")
+      .textContent =
+        Number(data.bestStreak || 0);
 
-      const ibadah =
-        Number(
-          record.ibadahScore ??
-          record.ibadah ??
-          0
-        );
+    document
+      .getElementById("activeDays")
+      .textContent =
+        Number(data.activeDays || 0);
 
-      const study =
-        Number(
-          record.studyScore ??
-          record.study ??
-          0
-        );
+    const record =
+      data.todayRecord;
 
-      const character =
-        Number(
-          record.characterScore ??
-          record.character ??
-          0
-        );
-
-      const health =
-        Number(
-          record.healthScore ??
-          record.health ??
-          0
-        );
-
-      const digital =
-        Number(
-          record.digitalScore ??
-          record.digital ??
-          0
-        );
-
-      document
-        .getElementById("todayScore")
-        .textContent =
-          total;
+    if (record) {
 
       updateProgressFromData({
         score: {
-          ibadahScore: ibadah,
-          studyScore: study,
-          characterScore: character,
-          healthScore: health,
-          digitalScore: digital
+          ibadahScore:
+            Number(record.ibadahScore || 0),
+
+          studyScore:
+            Number(record.studyScore || 0),
+
+          characterScore:
+            Number(record.characterScore || 0),
+
+          healthScore:
+            Number(record.healthScore || 0),
+
+          digitalScore:
+            Number(record.digitalScore || 0)
         }
       });
 
-      document
-        .getElementById("activeDays")
-        .textContent =
-          1;
-
-    } else {
-
-      document
-        .getElementById("todayScore")
-        .textContent =
-          0;
-
+      populateDailyForm(record);
     }
 
   } catch (error) {
 
     console.error(
-      "Student daily record error:",
+      "Student stats error:",
       error
     );
 
   }
+}
+
+
+/* ==========================================================
+   RESTORE TODAY'S SAVED FORM
+========================================================== */
+
+function populateDailyForm(record) {
+
+  if (!record) {
+    return;
+  }
+
+  const setChecked =
+    function(id, value) {
+
+      const element =
+        document.getElementById(id);
+
+      if (element) {
+        element.checked =
+          !!value;
+      }
+    };
+
+  const setValue =
+    function(id, value) {
+
+      const element =
+        document.getElementById(id);
+
+      if (element) {
+        element.value =
+          value === null ||
+          value === undefined
+            ? ""
+            : value;
+      }
+    };
+
+  setChecked("wakeupDua", record.wakeupDua);
+  setChecked("tahajjud", record.tahajjud);
+  setChecked("fajr", record.fajr);
+  setChecked("dhuhr", record.dhuhr);
+  setChecked("asr", record.asr);
+  setChecked("maghrib", record.maghrib);
+  setChecked("isha", record.isha);
+
+  setValue(
+    "quranMinutes",
+    record.quranMinutes
+  );
+
+  setChecked(
+    "madrasaStudy",
+    record.madrasaStudy
+  );
+
+  setChecked(
+    "madrasaHomework",
+    record.madrasaHomework
+  );
+
+  setChecked(
+    "schoolStudy",
+    record.schoolStudy
+  );
+
+  setChecked(
+    "schoolHomework",
+    record.schoolHomework
+  );
+
+  setChecked(
+    "goodBehaviourWithParents",
+    record.goodBehaviourWithParents
+  );
+
+  setChecked(
+    "kissMother",
+    record.kissMother
+  );
+
+  setChecked(
+    "helpOthers",
+    record.helpOthers
+  );
+
+  setChecked(
+    "didNotLie",
+    record.didNotLie
+  );
+
+  setChecked(
+    "controlledAnger",
+    record.controlledAnger
+  );
+
+  setChecked(
+    "cleanedRoom",
+    record.cleanedRoomBelongings
+  );
+
+  setChecked(
+    "helpedParents",
+    record.helpedParents
+  );
+
+  setChecked(
+    "water",
+    record.water
+  );
+
+  setChecked(
+    "physicalActivity",
+    record.physicalActivity
+  );
+
+  setChecked(
+    "healthyFood",
+    record.healthyFood
+  );
+
+  setValue(
+    "mobileUsageMinutes",
+    record.mobileUsageMinutes
+  );
+
+  setChecked(
+    "bedtimeMobileAvoided",
+    record.bedtimeMobileAvoided
+  );
+
+  setValue(
+    "sleepTime",
+    record.sleepTime
+  );
+
+  setChecked(
+    "bedtimeDua",
+    record.bedtimeDua
+  );
 }
 
 /* ==========================================================
