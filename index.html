@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
 
   <meta charset="UTF-8">
@@ -546,9 +546,8 @@
       flex-shrink: 0;
     }
 
-    .habit-item input[type="number"],
-    .habit-item input[type="time"] {
-      width: 110px;
+    .habit-item input[type="number"] {
+      width: 95px;
 
       border: 1px solid #d4e3d8;
 
@@ -559,10 +558,11 @@
       background: #ffffff;
 
       outline: none;
+
+      flex-shrink: 0;
     }
 
-    .habit-item input[type="number"]:focus,
-    .habit-item input[type="time"]:focus {
+    .habit-item input[type="number"]:focus {
       border-color: #176b3a;
     }
 
@@ -572,6 +572,8 @@
       font-weight: 800;
 
       white-space: nowrap;
+
+      font-size: 13px;
     }
 
     .habit-submit-button {
@@ -909,11 +911,11 @@
       <div class="welcome">
 
         <h1 id="studentWelcome">
-          Assalamu Alaikum
+          അസ്സലാമു അലൈക്കും
         </h1>
 
         <p>
-          Daily Habit Tracker
+          ദിവസേനയുള്ള നല്ല ശീലങ്ങളുടെ ട്രാക്കർ
         </p>
 
       </div>
@@ -926,7 +928,7 @@
         <div class="stat-card">
 
           <div class="stat-label">
-            Today's Score
+            ഇന്നത്തെ പോയിന്റ്
           </div>
 
           <div
@@ -942,7 +944,7 @@
         <div class="stat-card">
 
           <div class="stat-label">
-            Current Streak
+            നിലവിലെ തുടർച്ച
           </div>
 
           <div
@@ -958,7 +960,7 @@
         <div class="stat-card">
 
           <div class="stat-label">
-            Best Streak
+            ഏറ്റവും മികച്ച തുടർച്ച
           </div>
 
           <div
@@ -974,7 +976,7 @@
         <div class="stat-card">
 
           <div class="stat-label">
-            Active Days
+            സജീവ ദിവസങ്ങൾ
           </div>
 
           <div
@@ -994,7 +996,7 @@
       <div class="section-card">
 
         <h2>
-          📊 Today's Progress
+          📊 ഇന്നത്തെ പുരോഗതി
         </h2>
 
 
@@ -1003,7 +1005,7 @@
           <div class="progress-header">
 
             <span>
-              Ibadah
+              🕌 ഇബാദത്ത്
             </span>
 
             <span id="ibadahText">
@@ -1029,7 +1031,7 @@
           <div class="progress-header">
 
             <span>
-              Study
+              📚 പഠനം
             </span>
 
             <span id="studyText">
@@ -1055,7 +1057,7 @@
           <div class="progress-header">
 
             <span>
-              Character
+              🌱 സ്വഭാവം
             </span>
 
             <span id="characterText">
@@ -1081,7 +1083,7 @@
           <div class="progress-header">
 
             <span>
-              Health
+              🏃 ആരോഗ്യം
             </span>
 
             <span id="healthText">
@@ -1107,7 +1109,7 @@
           <div class="progress-header">
 
             <span>
-              Digital Discipline
+              📱 ഡിജിറ്റൽ ശീലം
             </span>
 
             <span id="digitalText">
@@ -1137,7 +1139,7 @@
       <div class="section-card">
 
         <h2>
-          🌱 Today's Daily Habits
+          🌱 ഇന്നത്തെ നല്ല ശീലങ്ങൾ
         </h2>
 
 
@@ -1149,7 +1151,7 @@
           ====================== -->
 
           <div class="habit-category-title">
-            🕌 Ibadah — 30 Points
+            🕌 IBADAH — 30 POINTS
           </div>
 
 
@@ -1163,13 +1165,13 @@
               >
 
               <span>
-                Wakeup Dua
+                ഉറക്കിൽ നിന്നും ഉണരുമ്പോൾ ദുആ
               </span>
 
             </span>
 
             <span class="habit-points">
-              2 pts
+              2 Points
             </span>
 
           </label>
@@ -1185,13 +1187,13 @@
               >
 
               <span>
-                Tahajjud
+                തഹജ്ജുദ്
               </span>
 
             </span>
 
             <span class="habit-points">
-              10 pts
+              10 Points
             </span>
 
           </label>
@@ -1207,13 +1209,13 @@
               >
 
               <span>
-                Fajr
+                സുബ്ഹി നമസ്കാരം
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1229,13 +1231,13 @@
               >
 
               <span>
-                Dhuhr
+                ളുഹർ നമസ്കാരം
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1251,13 +1253,13 @@
               >
 
               <span>
-                Asr
+                അസർ നമസ്കാരം
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1273,13 +1275,13 @@
               >
 
               <span>
-                Maghrib
+                മഗ്‌രിബ് നമസ്കാരം
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1295,13 +1297,13 @@
               >
 
               <span>
-                Isha
+                ഇശാ നമസ്കാരം
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1312,7 +1314,7 @@
             <span class="habit-left">
 
               <span>
-                📖 Quran Minutes
+                📖 ഖുർആൻ പാരായണം
               </span>
 
             </span>
@@ -1322,8 +1324,12 @@
               id="quranMinutes"
               min="0"
               max="1440"
-              placeholder="Minutes"
+              placeholder="മിനിറ്റ്"
             >
+
+            <span class="habit-points">
+              15 മിനിറ്റ് = 3 Points
+            </span>
 
           </div>
 
@@ -1333,7 +1339,7 @@
           ====================== -->
 
           <div class="habit-category-title">
-            📚 Study — 20 Points
+            📚 STUDY — 20 POINTS
           </div>
 
 
@@ -1347,13 +1353,13 @@
               >
 
               <span>
-                Madrasa Study
+                മദ്റസ പാഠപഠനം
               </span>
 
             </span>
 
             <span class="habit-points">
-              5 pts
+              5 Points
             </span>
 
           </label>
@@ -1369,13 +1375,13 @@
               >
 
               <span>
-                Madrasa Homework
+                മദ്രസ Homework Completed
               </span>
 
             </span>
 
             <span class="habit-points">
-              5 pts
+              5 Points
             </span>
 
           </label>
@@ -1391,13 +1397,13 @@
               >
 
               <span>
-                School Study
+                സ്കൂൾ പാഠപഠനം
               </span>
 
             </span>
 
             <span class="habit-points">
-              5 pts
+              5 Points
             </span>
 
           </label>
@@ -1413,13 +1419,13 @@
               >
 
               <span>
-                School Homework
+                School Homework Completed
               </span>
 
             </span>
 
             <span class="habit-points">
-              5 pts
+              5 Points
             </span>
 
           </label>
@@ -1430,7 +1436,7 @@
           ====================== -->
 
           <div class="habit-category-title">
-            ❤️ Character — 30 Points
+            🌱 CHARACTER — 30 POINTS
           </div>
 
 
@@ -1444,13 +1450,13 @@
               >
 
               <span>
-                Good Behaviour With Parents
+                മാതാപിതാക്കളോട് നല്ല പെരുമാറ്റം
               </span>
 
             </span>
 
             <span class="habit-points">
-              5 pts
+              5 Points
             </span>
 
           </label>
@@ -1466,13 +1472,13 @@
               >
 
               <span>
-                Kiss Mother
+                ഉമ്മാക്ക് ഒരുമ്മ കൊടുത്തു
               </span>
 
             </span>
 
             <span class="habit-points">
-              5 pts
+              5 Points
             </span>
 
           </label>
@@ -1488,13 +1494,13 @@
               >
 
               <span>
-                Help Others
+                മറ്റുള്ളവരെ സഹായിച്ചു
               </span>
 
             </span>
 
             <span class="habit-points">
-              4 pts
+              4 Points
             </span>
 
           </label>
@@ -1510,13 +1516,13 @@
               >
 
               <span>
-                Did Not Lie
+                കള്ളം പറഞ്ഞില്ല
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1532,13 +1538,13 @@
               >
 
               <span>
-                Controlled Anger
+                കോപം നിയന്ത്രിച്ചു
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1554,13 +1560,13 @@
               >
 
               <span>
-                Cleaned Room / Belongings
+                സ്വന്തം മുറി / സാധനങ്ങൾ വൃത്തിയാക്കി
               </span>
 
             </span>
 
             <span class="habit-points">
-              5 pts
+              5 Points
             </span>
 
           </label>
@@ -1576,13 +1582,13 @@
               >
 
               <span>
-                Helped Parents
+                മാതാപിതാക്കളെ സഹായിച്ചു
               </span>
 
             </span>
 
             <span class="habit-points">
-              5 pts
+              5 Points
             </span>
 
           </label>
@@ -1593,7 +1599,7 @@
           ====================== -->
 
           <div class="habit-category-title">
-            💪 Health — 10 Points
+            🏃 HEALTH — 10 POINTS
           </div>
 
 
@@ -1607,13 +1613,13 @@
               >
 
               <span>
-                Drank Enough Water
+                ആവശ്യത്തിന് വെള്ളം കുടിച്ചു
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1629,13 +1635,13 @@
               >
 
               <span>
-                Physical Activity 20–30 Minutes
+                20–30 മിനിറ്റ് Physical Activity
               </span>
 
             </span>
 
             <span class="habit-points">
-              4 pts
+              4 Points
             </span>
 
           </label>
@@ -1651,24 +1657,24 @@
               >
 
               <span>
-                Healthy Food
+                ആരോഗ്യകരമായ ഭക്ഷണം
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
 
 
           <!-- =====================
-               DIGITAL
+               DIGITAL DISCIPLINE
           ====================== -->
 
           <div class="habit-category-title">
-            📱 Digital Discipline — 10 Points
+            📱 DIGITAL DISCIPLINE — 10 POINTS
           </div>
 
 
@@ -1677,7 +1683,7 @@
             <span class="habit-left">
 
               <span>
-                📱 Mobile Usage Minutes
+                📱 Mobile ഉപയോഗം max (30 മിനിറ്റ്)
               </span>
 
             </span>
@@ -1687,29 +1693,12 @@
               id="mobileUsageMinutes"
               min="0"
               max="1440"
-              placeholder="Minutes"
+              placeholder="മിനിറ്റ്"
             >
 
-          </div>
-
-
-          <div class="habit-item">
-
-            <span class="habit-left">
-
-              <span>
-                🎮 Games Minutes
-              </span>
-
+            <span class="habit-points">
+              3 Points
             </span>
-
-            <input
-              type="number"
-              id="gamesMinutes"
-              min="0"
-              max="1440"
-              placeholder="Minutes"
-            >
 
           </div>
 
@@ -1724,13 +1713,13 @@
               >
 
               <span>
-                Bedtime Mobile Avoided
+                ഉറങ്ങുന്നതിന് മുമ്പ് Mobile ഒഴിവാക്കി
               </span>
 
             </span>
 
             <span class="habit-points">
-              3 pts
+              3 Points
             </span>
 
           </label>
@@ -1746,13 +1735,13 @@
               >
 
               <span>
-                Sleep On Time
+                ഉറങ്ങുന്ന സമയം
               </span>
 
             </span>
 
             <span class="habit-points">
-              2 pts
+              1 Point
             </span>
 
           </label>
@@ -1768,38 +1757,16 @@
               >
 
               <span>
-                Bedtime Dua
+                ഉറങ്ങാൻ കിടക്കുമ്പോൾ ദുആ
               </span>
 
             </span>
 
             <span class="habit-points">
-              2 pts
+              3 Points
             </span>
 
           </label>
-
-
-          <!-- =====================
-               SLEEP TIME
-          ====================== -->
-
-          <div class="habit-item">
-
-            <span class="habit-left">
-
-              <span>
-                😴 Sleep Time
-              </span>
-
-            </span>
-
-            <input
-              type="time"
-              id="sleepTime"
-            >
-
-          </div>
 
 
           <!-- =====================
@@ -1811,7 +1778,7 @@
             class="habit-submit-button"
             type="submit"
           >
-            ✅ Submit Today's Habits
+            ✅ ഇന്നത്തെ ശീലങ്ങൾ Submit ചെയ്യുക
           </button>
 
 
@@ -1822,7 +1789,7 @@
 
 
           <div class="habit-note">
-            Today's habits can be submitted once the backend connection is completed.
+            എല്ലാ ശീലങ്ങളും ശ്രദ്ധയോടെ പൂർത്തിയാക്കി Submit ചെയ്യുക.
           </div>
 
 
@@ -2433,7 +2400,7 @@ async function loadStudentDashboard(
       "studentWelcome"
     )
     .textContent =
-      "Assalamu Alaikum, " +
+      "അസ്സലാമു അലൈക്കും, " +
       studentName;
 
 
@@ -2651,7 +2618,7 @@ document
 
 
       message.textContent =
-        "Daily habit form is ready. Backend connection will be added in the next step.";
+        "ഇന്നത്തെ ശീലങ്ങളുടെ ഫോം തയ്യാറാണ്. അടുത്ത ഘട്ടത്തിൽ Google Sheet-ലേക്ക് save ചെയ്യാം.";
 
 
       message.className =
