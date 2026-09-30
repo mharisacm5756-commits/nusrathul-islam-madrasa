@@ -2394,6 +2394,20 @@ async function loadExistingDailyRecord(studentId) {
 
     const record = currentDailyRecord;
 
+    // Local same-day backup for value fields. This is only a fallback
+    // when the API returns an empty/default value after re-login.
+    let localBackup = {};
+    try {
+      const rawBackup = localStorage.getItem("madrasaTodayFormBackup");
+      const parsedBackup = rawBackup ? JSON.parse(rawBackup) : null;
+      if (parsedBackup && parsedBackup.date === getLocalDateString() &&
+          parsedBackup.studentId === studentId) {
+        localBackup = parsedBackup;
+      }
+    } catch (e) {
+      localBackup = {};
+    }
+
     const setChecked =
       function(id, value) {
         const element = document.getElementById(id);
@@ -2490,17 +2504,32 @@ async function loadExistingDailyRecord(studentId) {
     setChecked("physicalActivity", record.physicalActivity);
     setChecked("healthyFood", record.healthyFood);
 
+    const apiMobileUsage =
+      record.mobileUsageMinutes ?? record["Mobile Usage Minutes"] ?? "";
+    const restoredMobileUsage =
+      (apiMobileUsage !== "" && apiMobileUsage !== null && apiMobileUsage !== undefined &&
+       Number(apiMobileUsage) !== 0)
+        ? apiMobileUsage
+        : (localBackup.mobileUsageMinutes ?? apiMobileUsage);
+
     setValue(
       "mobileUsageMinutes",
-      record.mobileUsageMinutes ?? record["Mobile Usage Minutes"] ?? ""
+      restoredMobileUsage
     );
     setChecked(
       "bedtimeMobileAvoided",
       record.bedtimeMobileAvoided ?? record["Bedtime Mobile Avoided"]
     );
+    const apiSleepTime =
+      record.sleepTime ?? record["Sleep Time"] ?? "";
+    const restoredSleepTime =
+      apiSleepTime !== "" && apiSleepTime !== null && apiSleepTime !== undefined
+        ? apiSleepTime
+        : (localBackup.sleepTime ?? apiSleepTime);
+
     setTimeValue(
       "sleepTime",
-      record.sleepTime ?? record["Sleep Time"] ?? ""
+      restoredSleepTime
     );
     setChecked(
       "bedtimeDua",
@@ -3027,6 +3056,22 @@ document
         "⏳ Saving...";
 
       try {
+
+        // Keep a same-day browser backup of the two value fields.
+        // The Google Sheet/API remains the primary source; this is only a fallback.
+        try {
+          localStorage.setItem(
+            "madrasaTodayFormBackup",
+            JSON.stringify({
+              studentId: payload.studentId,
+              date: payload.date,
+              mobileUsageMinutes: payload.mobileUsageMinutes,
+              sleepTime: payload.sleepTime
+            })
+          );
+        } catch (backupError) {
+          console.warn("Unable to save local form backup", backupError);
+        }
 
         const result =
           await apiRequest(
