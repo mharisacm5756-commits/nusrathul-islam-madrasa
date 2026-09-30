@@ -2666,17 +2666,20 @@ async function loadStudentDashboard(session) {
 
     updateStudentDashboard(data);
 
-    // Active Day = at least one completed habit / valid point-bearing entry.
+    // Use the backend's authoritative all-time Active Days / Streak values.
+    // Do not recalculate Active Days from the current month here, because
+    // that would drop yesterday's September active day when the date becomes October.
     try {
-      const today = getLocalDateString();
-      const startOfMonth = today.substring(0, 8) + "01";
-      const monthDays = Number(today.substring(8, 10));
-      const dates = [];
-      for (let day = 0; day < monthDays; day++) dates.push(progressAddDays(startOfMonth, day));
-      const monthRecords = await getProgressRecordsForDates(studentId, dates);
-      setProgressText("activeDays", monthRecords.filter(isActiveProgressRecord).length);
-    } catch (activeDayError) {
-      console.warn("Active day recalculation failed:", activeDayError);
+      const statsResult = await apiRequest("getStudentStats", {
+        studentId: studentId
+      });
+      const stats = statsResult.data || statsResult || {};
+      setProgressText("todayScore", Number(stats.todayScore || 0));
+      setProgressText("currentStreak", Number(stats.currentStreak || 0));
+      setProgressText("bestStreak", Number(stats.bestStreak || 0));
+      setProgressText("activeDays", Number(stats.activeDays || 0));
+    } catch (statsError) {
+      console.warn("Student stats refresh failed:", statsError);
     }
 
     // Load today's saved habit values so previously submitted
