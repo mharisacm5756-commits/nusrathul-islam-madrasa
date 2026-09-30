@@ -2104,6 +2104,7 @@
       <button
         class="nav-button"
         type="button"
+        onclick="showStudentPage('achievements')"
       >
         <span>🏆</span>
         <span>Achievements</span>
@@ -2123,55 +2124,46 @@
   </section>
 
 
-  <!-- =========================
-       ADMIN APP
-  ========================== -->
 
-  
-<!-- ACHIEVEMENTS PAGE -->
-<section id="studentAchievementsPage" class="page-section" style="display:none;">
-  <div class="section-header">
+<!-- =========================
+     STUDENT ACHIEVEMENTS PAGE
+========================== -->
+<section id="studentAchievementsPage" class="progress-page" style="display:none;">
+  <div class="page-title-card section-card">
     <h2>🏆 Achievements</h2>
     <p>നല്ല ശീലങ്ങൾ തുടരൂ — നിങ്ങളുടെ നേട്ടങ്ങൾ ഇവിടെ കാണാം.</p>
   </div>
 
-  <div class="dashboard-grid">
-    <div class="dashboard-card">
-      <div class="card-icon">🔥</div>
-      <div class="card-label">Current Streak</div>
-      <div class="card-value" id="achievementCurrentStreak">0</div>
-      <div class="card-subtitle">days</div>
+  <div class="progress-summary-grid">
+    <div class="progress-summary-card">
+      <div class="progress-summary-label">Current Streak</div>
+      <div id="achievementCurrentStreak" class="progress-summary-value">0</div>
     </div>
-
-    <div class="dashboard-card">
-      <div class="card-icon">⭐</div>
-      <div class="card-label">Best Streak</div>
-      <div class="card-value" id="achievementBestStreak">0</div>
-      <div class="card-subtitle">days</div>
+    <div class="progress-summary-card">
+      <div class="progress-summary-label">Best Streak</div>
+      <div id="achievementBestStreak" class="progress-summary-value">0</div>
     </div>
-
-    <div class="dashboard-card">
-      <div class="card-icon">📅</div>
-      <div class="card-label">Active Days</div>
-      <div class="card-value" id="achievementActiveDays">0</div>
-      <div class="card-subtitle">days</div>
+    <div class="progress-summary-card">
+      <div class="progress-summary-label">Active Days</div>
+      <div id="achievementActiveDays" class="progress-summary-value">0</div>
     </div>
-
-    <div class="dashboard-card">
-      <div class="card-icon">💯</div>
-      <div class="card-label">Best Score</div>
-      <div class="card-value" id="achievementBestScore">0</div>
-      <div class="card-subtitle">/ 100</div>
+    <div class="progress-summary-card">
+      <div class="progress-summary-label">Best Score</div>
+      <div id="achievementBestScore" class="progress-summary-value">0%</div>
     </div>
   </div>
 
-  <div class="content-card" style="margin-top:18px;">
-    <h3>🎖️ My Badges</h3>
-    <div id="achievementBadges" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:14px;"></div>
+  <div class="section-card">
+    <h2>🎖️ My Badges</h2>
+    <div id="achievementBadges" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px;"></div>
   </div>
 </section>
 
-<section
+  <!-- =========================
+       ADMIN APP
+  ========================== -->
+
+  <section
     id="adminApp"
     class="main-app hidden"
   >
@@ -2802,7 +2794,7 @@ async function loadExistingDailyRecord(studentId) {
     const restoredMobileUsage =
       hasLocalMobile
         ? localBackup.mobileUsageMinutes
-        : apiMobileUsage;
+        : (Number(apiMobileUsage) === 0 ? "" : apiMobileUsage);
 
     setValue(
       "mobileUsageMinutes",
@@ -3008,17 +3000,9 @@ let studentProgressLoaded = false;
 
 function showStudentPage(page) {
 
-  if (page === "achievements") {
-    document.querySelectorAll(".page-section").forEach(el => el.style.display = "none");
-    const achievements = document.getElementById("studentAchievementsPage");
-    if (achievements) achievements.style.display = "";
-    loadStudentAchievements();
-    return;
-  }
-
-
   const home = document.getElementById("studentHomePage");
   const progress = document.getElementById("studentProgressPage");
+  const achievements = document.getElementById("studentAchievementsPage");
 
   if (!home || !progress) {
     return;
@@ -3030,6 +3014,18 @@ function showStudentPage(page) {
   buttons.forEach(function(button) {
     button.classList.remove("active");
   });
+
+  if (page === "achievements") {
+    home.style.display = "none";
+    progress.classList.remove("show");
+    if (achievements) achievements.style.display = "block";
+    if (buttons[3]) buttons[3].classList.add("active");
+    loadStudentAchievements();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  if (achievements) achievements.style.display = "none";
 
   if (page === "progress") {
     home.style.display = "none";
@@ -3079,6 +3075,92 @@ function progressFormatDate(dateString) {
     day: "2-digit",
     month: "short"
   });
+}
+
+
+async function loadStudentAchievements() {
+  const stored = localStorage.getItem("madrasaSession");
+  if (!stored) return;
+
+  let session;
+  try {
+    session = JSON.parse(stored);
+  } catch (error) {
+    return;
+  }
+
+  const student = session.student || {};
+  const studentId = student.studentId || session.studentId || "";
+  if (!studentId) return;
+
+  try {
+    const statsResult = await apiRequest("getStudentStats", {
+      studentId: studentId
+    });
+    const stats = statsResult.data || statsResult || {};
+
+    setProgressText("achievementCurrentStreak", Number(stats.currentStreak || 0));
+    setProgressText("achievementBestStreak", Number(stats.bestStreak || 0));
+    setProgressText("achievementActiveDays", Number(stats.activeDays || 0));
+
+    const today = getLocalDateString();
+    const startOfMonth = today.substring(0, 8) + "01";
+    const days = Number(today.substring(8, 10));
+    const dates = [];
+    for (let day = 0; day < days; day++) {
+      dates.push(progressAddDays(startOfMonth, day));
+    }
+
+    const results = await Promise.all(
+      dates.map(function(date) {
+        return apiRequest("getStudentDailyRecord", {
+          studentId: studentId,
+          date: date
+        }).then(function(result) {
+          const data = result.data || result || {};
+          return data.record || null;
+        }).catch(function() {
+          return null;
+        });
+      })
+    );
+
+    const records = results.filter(function(record) {
+      return record && record.date;
+    });
+
+    const bestScore = records.reduce(function(max, record) {
+      return Math.max(max, Number(record.totalScore || 0));
+    }, 0);
+
+    setProgressText("achievementBestScore", `${bestScore}%`);
+
+    const current = Number(stats.currentStreak || 0);
+    const best = Number(stats.bestStreak || 0);
+    const active = Number(stats.activeDays || 0);
+
+    const badges = [];
+    if (active >= 1) badges.push(["🌱", "First Step", "First active day"]);
+    if (current >= 7 || best >= 7) badges.push(["🔥", "7 Day Streak", "7 consecutive days"]);
+    if (current >= 30 || best >= 30) badges.push(["🏆", "30 Day Streak", "30 consecutive days"]);
+    if (active >= 7) badges.push(["📅", "7 Active Days", "7 submitted days"]);
+    if (active >= 30) badges.push(["🌟", "30 Active Days", "30 submitted days"]);
+    if (bestScore >= 100) badges.push(["💯", "Perfect 100", "A full 100-point day"]);
+
+    const box = document.getElementById("achievementBadges");
+    if (box) {
+      box.innerHTML = (badges.length ? badges : [["🌱", "Keep Going", "Complete habits to unlock badges"]])
+        .map(function(b) {
+          return `<div style="padding:16px;border:1px solid #dcebdc;border-radius:16px;background:#f8fff8;text-align:center;">
+            <div style="font-size:34px;">${b[0]}</div>
+            <div style="font-weight:700;margin-top:7px;">${b[1]}</div>
+            <div style="font-size:13px;opacity:.75;margin-top:4px;">${b[2]}</div>
+          </div>`;
+        }).join("");
+    }
+  } catch (error) {
+    console.error("Achievements loading error:", error);
+  }
 }
 
 async function loadStudentProgress() {
@@ -3155,8 +3237,8 @@ async function loadStudentProgress() {
 
     const stats = statsResult.data || statsResult || {};
 
-    setProgressText("progressWeeklyAverage", weeklyAverage);
-    setProgressText("progressMonthlyAverage", monthlyAverage);
+    setProgressText("progressWeeklyAverage", `${weeklyAverage}%`);
+    setProgressText("progressMonthlyAverage", `${monthlyAverage}%`);
     setProgressText("progressActiveDays", records.length);
     setProgressText("progressCurrentStreak", stats.currentStreak || 0);
     setProgressText("progressBestStreak", stats.bestStreak || 0);
@@ -3190,6 +3272,16 @@ function renderWeeklyProgress(records, today) {
     range.textContent = `${progressFormatDate(start)} – ${progressFormatDate(today)}`;
   }
 
+  const weekScores = records.reduce(function(sum, record) {
+    return sum + Number(record.totalScore || 0);
+  }, 0);
+  const weekCount = records.filter(function(record) {
+    return record && record.date >= start && record.date <= today;
+  }).length;
+  const weekAverage = weekCount ? Math.round((weekScores / weekCount) * 10) / 10 : 0;
+  const weekPercentage = document.getElementById("progressWeekPercentage");
+  if (weekPercentage) weekPercentage.textContent = `This Week: ${weekAverage}%`;
+
   const map = {};
   records.forEach(function(record) {
     map[record.date] = Number(record.totalScore || 0);
@@ -3199,7 +3291,7 @@ function renderWeeklyProgress(records, today) {
   for (let i = 0; i < 7; i++) {
     const date = progressAddDays(start, i);
     const score = map[date] || 0;
-    const height = Math.max(2, Math.min(100, score));
+    const height = score === 0 ? 8 : Math.max(8, Math.min(100, score));
     const label = new Date(date + "T00:00:00").toLocaleDateString("en-IN", { weekday: "short" });
 
     html += `
@@ -3584,6 +3676,11 @@ function getDailyHabitPayload() {
         saved.mobileUsageMinutes ?? saved["Mobile Usage Minutes"]
       ),
 
+    mobileUsageEntered:
+      String(
+        document.getElementById("mobileUsageMinutes")?.value ?? ""
+      ).trim() !== "",
+
     bedtimeMobileAvoided:
       mergedChecked(
         "bedtimeMobileAvoided",
@@ -3923,68 +4020,6 @@ document.addEventListener(
 
   }
 );
-
-
-/* ================= ACHIEVEMENTS ================= */
-function loadStudentAchievements() {
-  try {
-    const data = window.studentDashboardData || window.dashboardData || {};
-    const streak = Number(
-      data.currentStreak ?? data.CurrentStreak ?? data.current_streak ?? 0
-    ) || 0;
-    const bestStreak = Number(
-      data.bestStreak ?? data.BestStreak ?? data.best_streak ?? 0
-    ) || 0;
-    const activeDays = Number(
-      data.activeDays ?? data.ActiveDays ?? data.active_days ?? 0
-    ) || 0;
-
-    let bestScore = 0;
-    if (Array.isArray(data.dailyScores)) {
-      bestScore = Math.max(0, ...data.dailyScores.map(x =>
-        Number(x.score ?? x.Score ?? x.totalScore ?? x["Total Score"] ?? 0) || 0
-      ));
-    }
-    if (Array.isArray(window.studentDailyScores)) {
-      bestScore = Math.max(bestScore, ...window.studentDailyScores.map(x =>
-        Number(x.score ?? x.Score ?? x.totalScore ?? x["Total Score"] ?? 0) || 0
-      ));
-    }
-
-    const ids = {
-      current: document.getElementById("achievementCurrentStreak"),
-      best: document.getElementById("achievementBestStreak"),
-      active: document.getElementById("achievementActiveDays"),
-      score: document.getElementById("achievementBestScore")
-    };
-    if (ids.current) ids.current.textContent = streak;
-    if (ids.best) ids.best.textContent = bestStreak;
-    if (ids.active) ids.active.textContent = activeDays;
-    if (ids.score) ids.score.textContent = bestScore;
-
-    const badges = [];
-    if (streak >= 1) badges.push(["🔥","First Streak","1 day streak completed"]);
-    if (streak >= 7 || bestStreak >= 7) badges.push(["🔥","7 Day Streak","7 days consistency"]);
-    if (streak >= 30 || bestStreak >= 30) badges.push(["🏆","30 Day Streak","30 days consistency"]);
-    if (activeDays >= 7) badges.push(["📅","7 Active Days","7 active days completed"]);
-    if (activeDays >= 30) badges.push(["🌟","30 Active Days","30 active days completed"]);
-    if (bestScore >= 100) badges.push(["💯","Perfect 100","Scored 100 points"]);
-    if (!badges.length) badges.push(["🌱","Getting Started","Keep going to unlock badges"]);
-
-    const box = document.getElementById("achievementBadges");
-    if (box) {
-      box.innerHTML = badges.map(b => `
-        <div style="padding:16px;border:1px solid #dcebdc;border-radius:16px;background:#f8fff8;text-align:center;">
-          <div style="font-size:34px;">${b[0]}</div>
-          <div style="font-weight:700;margin-top:7px;">${b[1]}</div>
-          <div style="font-size:13px;opacity:.75;margin-top:4px;">${b[2]}</div>
-        </div>
-      `).join("");
-    }
-  } catch (e) {
-    console.error("Achievements load error:", e);
-  }
-}
 
 </script>
 
