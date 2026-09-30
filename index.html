@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Nusrathul Islam Madrasa</title>
 
   <meta
     name="description"
     content="Nusrathul Islam Madrasa Daily Habit Tracker"
-  />
+  >
 
   <style>
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -53,6 +59,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+
       background:
         linear-gradient(
           135deg,
@@ -65,65 +72,94 @@
     .login-card {
       width: 100%;
       max-width: 430px;
+
       background: #ffffff;
+
       border-radius: 24px;
+
       padding: 30px 22px;
-      box-shadow: 0 15px 45px rgba(18, 74, 39, 0.12);
+
+      box-shadow:
+        0 15px 45px
+        rgba(18, 74, 39, 0.12);
     }
 
     .logo-circle {
       width: 78px;
       height: 78px;
+
       margin: 0 auto 16px;
+
       border-radius: 50%;
+
       display: flex;
       align-items: center;
       justify-content: center;
+
       background: #176b3a;
       color: #ffffff;
+
       font-size: 34px;
     }
 
     .login-title {
       text-align: center;
+
       font-size: 24px;
       font-weight: 800;
+
       color: #125b31;
     }
 
     .login-subtitle {
       text-align: center;
+
       margin-top: 7px;
+
       color: #6a7d70;
+
       font-size: 14px;
     }
 
     .tagline {
       text-align: center;
+
       margin: 18px 0 25px;
+
       color: #b58a20;
+
       font-weight: 700;
     }
 
     .role-buttons {
       display: grid;
+
       grid-template-columns: 1fr 1fr;
+
       gap: 10px;
+
       margin-bottom: 20px;
     }
 
     .role-button {
       border: 1px solid #d4e6d9;
+
       background: #f8fcf9;
+
       color: #23623a;
+
       border-radius: 14px;
+
       padding: 13px 8px;
+
       font-weight: 700;
     }
 
     .role-button.active {
       background: #176b3a;
+
       color: #ffffff;
+
       border-color: #176b3a;
     }
 
@@ -133,33 +169,51 @@
 
     .form-group label {
       display: block;
+
       margin-bottom: 7px;
+
       font-size: 14px;
+
       font-weight: 700;
     }
 
     .form-group input {
       width: 100%;
+
       border: 1px solid #d4e3d8;
+
       border-radius: 12px;
+
       padding: 13px 14px;
+
       outline: none;
+
       background: #fbfefc;
     }
 
     .form-group input:focus {
       border-color: #176b3a;
-      box-shadow: 0 0 0 3px rgba(23, 107, 58, 0.08);
+
+      box-shadow:
+        0 0 0 3px
+        rgba(23, 107, 58, 0.08);
     }
 
     .primary-button {
       width: 100%;
+
       border: 0;
+
       border-radius: 13px;
+
       padding: 14px;
+
       background: #176b3a;
+
       color: white;
+
       font-weight: 800;
+
       margin-top: 5px;
     }
 
@@ -167,31 +221,49 @@
       background: #11572f;
     }
 
+    .primary-button:disabled {
+      opacity: 0.6;
+
+      cursor: not-allowed;
+    }
+
     .message {
       margin-top: 15px;
+
       padding: 12px;
+
       border-radius: 10px;
+
       font-size: 14px;
+
       display: none;
     }
 
     .message.error {
       display: block;
+
       background: #fff0f0;
+
       color: #a32929;
     }
 
     .message.success {
       display: block;
+
       background: #edf9f0;
+
       color: #176b3a;
     }
 
     .loading {
       text-align: center;
+
       margin-top: 12px;
+
       color: #55715e;
+
       font-size: 14px;
+
       display: none;
     }
 
@@ -201,40 +273,63 @@
 
     .main-app {
       min-height: 100vh;
+
       padding-bottom: 80px;
     }
 
     .topbar {
       background: #176b3a;
+
       color: #ffffff;
-      padding: 18px 18px;
+
+      padding: 18px;
+
       position: sticky;
+
       top: 0;
+
       z-index: 20;
-      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+
+      box-shadow:
+        0 3px 15px
+        rgba(0, 0, 0, 0.08);
     }
 
     .topbar-inner {
       max-width: 1100px;
+
       margin: auto;
+
       display: flex;
+
       align-items: center;
+
       justify-content: space-between;
+
       gap: 15px;
     }
 
     .brand {
       font-weight: 800;
+
       font-size: 17px;
     }
 
     .logout-button {
-      border: 1px solid rgba(255,255,255,0.4);
+      border:
+        1px solid
+        rgba(255,255,255,0.4);
+
       background: transparent;
+
       color: #ffffff;
+
       border-radius: 10px;
+
       padding: 8px 12px;
+
       font-size: 13px;
+
       font-weight: 700;
     }
 
@@ -244,8 +339,11 @@
 
     .content {
       width: 100%;
+
       max-width: 1100px;
+
       margin: 0 auto;
+
       padding: 22px 16px;
     }
 
@@ -255,52 +353,76 @@
 
     .welcome h1 {
       font-size: 25px;
+
       color: #125b31;
     }
 
     .welcome p {
       margin-top: 5px;
+
       color: #6d7f73;
+
       font-size: 14px;
     }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+
+      grid-template-columns:
+        repeat(2, 1fr);
+
       gap: 12px;
+
       margin-bottom: 20px;
     }
 
     .stat-card {
       background: #ffffff;
+
       border-radius: 17px;
+
       padding: 17px;
-      box-shadow: 0 5px 20px rgba(18, 74, 39, 0.07);
+
+      box-shadow:
+        0 5px 20px
+        rgba(18, 74, 39, 0.07);
     }
 
     .stat-label {
       color: #6d7f73;
+
       font-size: 12px;
+
       margin-bottom: 7px;
     }
 
     .stat-value {
       font-size: 25px;
+
       font-weight: 800;
+
       color: #176b3a;
     }
 
     .section-card {
       background: #ffffff;
+
       border-radius: 18px;
+
       padding: 18px;
+
       margin-bottom: 16px;
-      box-shadow: 0 5px 20px rgba(18, 74, 39, 0.07);
+
+      box-shadow:
+        0 5px 20px
+        rgba(18, 74, 39, 0.07);
     }
 
     .section-card h2 {
       color: #125b31;
+
       font-size: 18px;
+
       margin-bottom: 15px;
     }
 
@@ -310,31 +432,45 @@
 
     .progress-header {
       display: flex;
+
       justify-content: space-between;
+
       margin-bottom: 6px;
+
       font-size: 13px;
+
       font-weight: 700;
     }
 
     .progress-track {
       width: 100%;
+
       height: 10px;
+
       background: #e5eee7;
+
       border-radius: 20px;
+
       overflow: hidden;
     }
 
     .progress-fill {
       height: 100%;
+
       background: #23934e;
+
       border-radius: 20px;
+
       width: 0;
     }
 
     .empty-state {
       text-align: center;
+
       padding: 30px 15px;
+
       color: #728378;
+
       font-size: 14px;
     }
 
@@ -344,28 +480,49 @@
 
     .bottom-nav {
       position: fixed;
+
       bottom: 0;
+
       left: 0;
+
       right: 0;
+
       height: 68px;
+
       background: #ffffff;
-      border-top: 1px solid #dfe9e2;
+
+      border-top:
+        1px solid #dfe9e2;
+
       display: flex;
-      justify-content: space-around;
+
+      justify-content:
+        space-around;
+
       align-items: center;
+
       z-index: 30;
     }
 
     .nav-button {
       border: 0;
+
       background: transparent;
+
       color: #718076;
+
       font-size: 11px;
+
       font-weight: 700;
+
       display: flex;
+
       flex-direction: column;
+
       align-items: center;
+
       gap: 3px;
+
       padding: 5px 10px;
     }
 
@@ -383,25 +540,36 @@
 
     .admin-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+
+      grid-template-columns:
+        repeat(2, 1fr);
+
       gap: 12px;
     }
 
     .admin-card {
       background: #ffffff;
+
       border-radius: 16px;
+
       padding: 18px;
-      box-shadow: 0 5px 20px rgba(18, 74, 39, 0.07);
+
+      box-shadow:
+        0 5px 20px
+        rgba(18, 74, 39, 0.07);
     }
 
     .admin-card h3 {
       font-size: 14px;
+
       color: #5e7064;
+
       margin-bottom: 8px;
     }
 
     .admin-card strong {
       font-size: 25px;
+
       color: #176b3a;
     }
 
@@ -416,11 +584,13 @@
       }
 
       .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns:
+          repeat(4, 1fr);
       }
 
       .admin-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns:
+          repeat(4, 1fr);
       }
 
       .content {
@@ -429,43 +599,60 @@
 
       .bottom-nav {
         position: static;
+
         max-width: 1100px;
-        margin: 0 auto;
+
+        margin: 0 auto 20px;
+
         border: 0;
+
         border-radius: 18px;
-        margin-bottom: 20px;
       }
     }
+
   </style>
+
 </head>
+
 
 <body>
 
 <div id="app" class="app">
 
+
   <!-- =========================
        LOGIN PAGE
   ========================== -->
 
-  <section id="loginPage" class="login-page">
+  <section
+    id="loginPage"
+    class="login-page"
+  >
 
     <div class="login-card">
+
 
       <div class="logo-circle">
         🌱
       </div>
 
+
       <div class="login-title">
         NUSRATHUL ISLAM MADRASA
       </div>
+
 
       <div class="login-subtitle">
         NADUVATHUR
       </div>
 
+
       <div class="tagline">
         🌱 നല്ല ശീലങ്ങൾ നല്ലൊരു ഭാവി
       </div>
+
+
+      <!-- ROLE BUTTONS -->
 
       <div class="role-buttons">
 
@@ -478,6 +665,7 @@
           👨‍🎓 Student
         </button>
 
+
         <button
           id="adminRoleButton"
           class="role-button"
@@ -489,29 +677,40 @@
 
       </div>
 
+
+      <!-- LOGIN FORM -->
+
       <form id="loginForm">
+
+
+        <!-- STUDENT USERNAME -->
 
         <div class="form-group">
 
           <label id="usernameLabel">
-            Student ID / Username
+            Student Username
           </label>
+
 
           <input
             id="username"
             type="text"
             autocomplete="username"
-            placeholder="Enter username"
+            placeholder="Enter student username"
             required
-          />
+          >
 
         </div>
 
+
+        <!-- PASSWORD -->
+
         <div class="form-group">
 
-          <label>
+          <label for="password">
             Password
           </label>
+
 
           <input
             id="password"
@@ -519,9 +718,12 @@
             autocomplete="current-password"
             placeholder="Enter password"
             required
-          />
+          >
 
         </div>
+
+
+        <!-- LOGIN BUTTON -->
 
         <button
           id="loginButton"
@@ -531,11 +733,24 @@
           Login
         </button>
 
-        <div id="loadingMessage" class="loading">
+
+        <!-- LOADING -->
+
+        <div
+          id="loadingMessage"
+          class="loading"
+        >
           Please wait...
         </div>
 
-        <div id="loginMessage" class="message"></div>
+
+        <!-- MESSAGE -->
+
+        <div
+          id="loginMessage"
+          class="message"
+        ></div>
+
 
       </form>
 
@@ -544,11 +759,16 @@
   </section>
 
 
+
   <!-- =========================
        STUDENT APP
   ========================== -->
 
-  <section id="studentApp" class="main-app hidden">
+  <section
+    id="studentApp"
+    class="main-app hidden"
+  >
+
 
     <header class="topbar">
 
@@ -557,6 +777,7 @@
         <div class="brand">
           🌱 Nusrathul Islam
         </div>
+
 
         <button
           class="logout-button"
@@ -573,6 +794,7 @@
 
     <main class="content">
 
+
       <div class="welcome">
 
         <h1 id="studentWelcome">
@@ -586,7 +808,10 @@
       </div>
 
 
+      <!-- STUDENT STATS -->
+
       <div class="stats-grid">
+
 
         <div class="stat-card">
 
@@ -651,8 +876,11 @@
 
         </div>
 
+
       </div>
 
+
+      <!-- PROGRESS -->
 
       <div class="section-card">
 
@@ -660,6 +888,8 @@
           📊 Today's Progress
         </h2>
 
+
+        <!-- IBADAH -->
 
         <div class="progress-row">
 
@@ -675,6 +905,7 @@
 
           </div>
 
+
           <div class="progress-track">
 
             <div
@@ -686,6 +917,8 @@
 
         </div>
 
+
+        <!-- STUDY -->
 
         <div class="progress-row">
 
@@ -701,6 +934,7 @@
 
           </div>
 
+
           <div class="progress-track">
 
             <div
@@ -712,6 +946,8 @@
 
         </div>
 
+
+        <!-- CHARACTER -->
 
         <div class="progress-row">
 
@@ -727,6 +963,7 @@
 
           </div>
 
+
           <div class="progress-track">
 
             <div
@@ -738,6 +975,8 @@
 
         </div>
 
+
+        <!-- HEALTH -->
 
         <div class="progress-row">
 
@@ -753,6 +992,7 @@
 
           </div>
 
+
           <div class="progress-track">
 
             <div
@@ -764,6 +1004,8 @@
 
         </div>
 
+
+        <!-- DIGITAL -->
 
         <div class="progress-row">
 
@@ -779,6 +1021,7 @@
 
           </div>
 
+
           <div class="progress-track">
 
             <div
@@ -790,8 +1033,11 @@
 
         </div>
 
+
       </div>
 
+
+      <!-- DAILY HABIT -->
 
       <div class="section-card">
 
@@ -805,10 +1051,14 @@
 
       </div>
 
+
     </main>
 
 
+    <!-- STUDENT NAVIGATION -->
+
     <nav class="bottom-nav">
+
 
       <button
         class="nav-button active"
@@ -818,6 +1068,7 @@
         <span>Home</span>
       </button>
 
+
       <button
         class="nav-button"
         type="button"
@@ -825,6 +1076,7 @@
         <span>📝</span>
         <span>Today</span>
       </button>
+
 
       <button
         class="nav-button"
@@ -834,6 +1086,7 @@
         <span>Progress</span>
       </button>
 
+
       <button
         class="nav-button"
         type="button"
@@ -841,6 +1094,7 @@
         <span>🏆</span>
         <span>Achievements</span>
       </button>
+
 
       <button
         class="nav-button"
@@ -850,16 +1104,22 @@
         <span>Profile</span>
       </button>
 
+
     </nav>
 
   </section>
+
 
 
   <!-- =========================
        ADMIN APP
   ========================== -->
 
-  <section id="adminApp" class="main-app hidden">
+  <section
+    id="adminApp"
+    class="main-app hidden"
+  >
+
 
     <header class="topbar">
 
@@ -868,6 +1128,7 @@
         <div class="brand">
           🌱 Nusrathul Islam — Admin
         </div>
+
 
         <button
           class="logout-button"
@@ -884,6 +1145,7 @@
 
     <main class="content">
 
+
       <div class="welcome">
 
         <h1>
@@ -899,13 +1161,16 @@
 
       <div class="admin-grid">
 
+
         <div class="admin-card">
 
           <h3>
             Total Students
           </h3>
 
-          <strong id="adminTotalStudents">
+          <strong
+            id="adminTotalStudents"
+          >
             0
           </strong>
 
@@ -918,7 +1183,9 @@
             Today's Submitted
           </h3>
 
-          <strong id="adminTodaySubmitted">
+          <strong
+            id="adminTodaySubmitted"
+          >
             0
           </strong>
 
@@ -931,7 +1198,9 @@
             Today's Average
           </h3>
 
-          <strong id="adminTodayAverage">
+          <strong
+            id="adminTodayAverage"
+          >
             0
           </strong>
 
@@ -944,11 +1213,14 @@
             Active Streak Students
           </h3>
 
-          <strong id="adminActiveStreak">
+          <strong
+            id="adminActiveStreak"
+          >
             0
           </strong>
 
         </div>
+
 
       </div>
 
@@ -965,746 +1237,863 @@
 
       </div>
 
+
     </main>
 
   </section>
 
+
 </div>
 
 
+<!-- ==========================================================
+     JAVASCRIPT
+========================================================== -->
+
 <script>
 
-  /*
-   * ==========================================================
-   * CONFIG
-   * ==========================================================
-   */
-
-  const API_URL =
-    "https://script.google.com/macros/s/AKfycbx-nBChl4X7ArI6qOxHu6XqZW-lvF66bJMPHy9EHXw3VQd84yMpSFyGjpJb2dhflQeuYA/exec";
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbx-nBChl4X7ArI6qOxHu6XqZW-lvF66bJMPHy9EHXw3VQd84yMpSFyGjpJb2dhflQeuYA/exec";
 
 
-  let loginRole = "student";
+let loginRole = "student";
 
 
-  /*
-   * ==========================================================
-   * LOGIN ROLE
-   * ==========================================================
-   */
+/* ==========================================================
+   LOGIN ROLE
+========================================================== */
 
-  function selectLoginRole(role) {
+function selectLoginRole(role) {
 
-    loginRole = role;
-
-    const studentButton =
-      document.getElementById(
-        "studentRoleButton"
-      );
-
-    const adminButton =
-      document.getElementById(
-        "adminRoleButton"
-      );
-
-    const usernameLabel =
-      document.getElementById(
-        "usernameLabel"
-      );
-
-    const usernameInput =
-      document.getElementById(
-        "username"
-      );
+  loginRole = role;
 
 
-    if (role === "student") {
+  const studentButton =
+    document.getElementById(
+      "studentRoleButton"
+    );
 
-      studentButton.classList.add(
-        "active"
-      );
 
-      adminButton.classList.remove(
-        "active"
-      );
+  const adminButton =
+    document.getElementById(
+      "adminRoleButton"
+    );
 
-      usernameLabel.textContent =
-        "Student ID / Username";
 
-      usernameInput.placeholder =
-        "Enter Student ID or Username";
+  const usernameLabel =
+    document.getElementById(
+      "usernameLabel"
+    );
 
-    } else {
 
-      adminButton.classList.add(
-        "active"
-      );
+  const usernameInput =
+    document.getElementById(
+      "username"
+    );
 
-      studentButton.classList.remove(
-        "active"
-      );
 
-      usernameLabel.textContent =
-        "Admin Username";
+  if (role === "student") {
 
-      usernameInput.placeholder =
-        "Enter admin username";
+    studentButton.classList.add(
+      "active"
+    );
 
-    }
+    adminButton.classList.remove(
+      "active"
+    );
 
+
+    usernameLabel.textContent =
+      "Student Username";
+
+
+    usernameInput.placeholder =
+      "Enter student username";
+
+
+  } else {
+
+    adminButton.classList.add(
+      "active"
+    );
+
+    studentButton.classList.remove(
+      "active"
+    );
+
+
+    usernameLabel.textContent =
+      "Admin Username";
+
+
+    usernameInput.placeholder =
+      "Enter admin username";
+  }
+
+}
+
+
+/* ==========================================================
+   LOGIN MESSAGE
+========================================================== */
+
+function showLoginMessage(
+  message,
+  type
+) {
+
+  const element =
+    document.getElementById(
+      "loginMessage"
+    );
+
+
+  element.textContent =
+    message;
+
+
+  element.className =
+    "message " + type;
+}
+
+
+/* ==========================================================
+   API REQUEST
+========================================================== */
+
+async function apiRequest(
+  action,
+  data = {}
+) {
+
+  const response =
+    await fetch(
+      API_URL,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+
+        body: JSON.stringify({
+          action: action,
+          ...data
+        })
+      }
+    );
+
+
+  const text =
+    await response.text();
+
+
+  let result;
+
+
+  try {
+
+    result =
+      JSON.parse(text);
+
+  } catch (error) {
+
+    console.error(
+      "Server response:",
+      text
+    );
+
+    throw new Error(
+      "Invalid server response."
+    );
   }
 
 
-  /*
-   * ==========================================================
-   * MESSAGE
-   * ==========================================================
-   */
-
-  function showLoginMessage(
-    message,
-    type
+  if (
+    result &&
+    result.success === false
   ) {
 
-    const element =
-      document.getElementById(
-        "loginMessage"
-      );
-
-    element.textContent =
-      message;
-
-    element.className =
-      "message " + type;
-
+    throw new Error(
+      result.message ||
+      "Request failed."
+    );
   }
 
 
-  /*
-   * ==========================================================
-   * API REQUEST
-   * ==========================================================
-   */
+  return result;
+}
 
-  async function apiRequest(
-    action,
-    data = {}
-  ) {
 
-    const response =
-      await fetch(
-        API_URL,
-        {
-          method: "POST",
+/* ==========================================================
+   LOGIN
+========================================================== */
 
-          headers: {
-            "Content-Type":
-              "text/plain;charset=utf-8"
-          },
+document
+  .getElementById("loginForm")
+  .addEventListener(
+    "submit",
+    async function(event) {
 
-          body: JSON.stringify({
-            action: action,
-            ...data
-          })
+
+      event.preventDefault();
+
+
+      const username =
+        document
+          .getElementById("username")
+          .value
+          .trim();
+
+
+      const password =
+        document
+          .getElementById("password")
+          .value
+          .trim();
+
+
+      const loginButton =
+        document.getElementById(
+          "loginButton"
+        );
+
+
+      const loading =
+        document.getElementById(
+          "loadingMessage"
+        );
+
+
+      showLoginMessage(
+        "",
+        ""
+      );
+
+
+      if (!username || !password) {
+
+        showLoginMessage(
+          "Username and password are required.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      loginButton.disabled =
+        true;
+
+
+      loading.style.display =
+        "block";
+
+
+      try {
+
+        let result;
+
+
+        /* =========================
+           STUDENT LOGIN
+        ========================== */
+
+        if (
+          loginRole === "student"
+        ) {
+
+          result =
+            await apiRequest(
+              "loginStudent",
+              {
+                username:
+                  username,
+
+                password:
+                  password
+              }
+            );
+
+
         }
-      );
-
-    const text =
-      await response.text();
-
-    let result;
-
-    try {
-
-      result =
-        JSON.parse(text);
-
-    } catch (error) {
-
-      throw new Error(
-        "Invalid server response."
-      );
-
-    }
-
-    if (
-      result &&
-      result.success === false
-    ) {
-
-      throw new Error(
-        result.message ||
-        "Request failed."
-      );
-
-    }
-
-    return result;
-
-  }
 
 
-  /*
-   * ==========================================================
-   * LOGIN
-   * ==========================================================
-   */
+        /* =========================
+           ADMIN LOGIN
+        ========================== */
 
-  document
-    .getElementById("loginForm")
-    .addEventListener(
-      "submit",
-      async function(event) {
+        else {
 
-        event.preventDefault();
+          result =
+            await apiRequest(
+              "loginAdmin",
+              {
+                username:
+                  username,
 
-        const username =
-          document
-            .getElementById("username")
-            .value
-            .trim();
+                password:
+                  password
+              }
+            );
 
-        const password =
-          document
-            .getElementById("password")
-            .value;
+        }
 
-        const loginButton =
-          document.getElementById(
-            "loginButton"
+
+        const session =
+          result.data ||
+          result;
+
+
+        /* =========================
+           SAVE SESSION
+        ========================== */
+
+        localStorage.setItem(
+          "madrasaSession",
+          JSON.stringify(
+            session
+          )
+        );
+
+
+        /* =========================
+           HIDE LOGIN
+        ========================== */
+
+        document
+          .getElementById(
+            "loginPage"
+          )
+          .classList.add(
+            "hidden"
           );
 
-        const loading =
-          document.getElementById(
-            "loadingMessage"
+
+        /* =========================
+           STUDENT
+        ========================== */
+
+        if (
+          loginRole === "student"
+        ) {
+
+          document
+            .getElementById(
+              "studentApp"
+            )
+            .classList.remove(
+              "hidden"
+            );
+
+
+          loadStudentDashboard(
+            session
           );
+
+
+        }
+
+
+        /* =========================
+           ADMIN
+        ========================== */
+
+        else {
+
+          document
+            .getElementById(
+              "adminApp"
+            )
+            .classList.remove(
+              "hidden"
+            );
+
+
+          loadAdminDashboard(
+            session
+          );
+        }
+
+
+      } catch (error) {
+
+        console.error(
+          "Login error:",
+          error
+        );
 
 
         showLoginMessage(
-          "",
-          ""
+          error.message ||
+          "Login failed.",
+          "error"
         );
 
-        if (!username || !password) {
 
-          showLoginMessage(
-            "Username and password are required.",
-            "error"
-          );
-
-          return;
-        }
-
+      } finally {
 
         loginButton.disabled =
-          true;
+          false;
+
 
         loading.style.display =
-          "block";
-
-
-        try {
-
-          let result;
-
-
-          if (
-            loginRole ===
-            "student"
-          ) {
-
-            result =
-              await apiRequest(
-                "loginStudent",
-                {
-                  username:
-                    username,
-                  password:
-                    password
-                }
-              );
-
-          } else {
-
-            result =
-              await apiRequest(
-                "loginAdmin",
-                {
-                  username:
-                    username,
-                  password:
-                    password
-                }
-              );
-
-          }
-
-
-          if (
-            result &&
-            result.success !== false
-          ) {
-
-            const session =
-              result.data ||
-              result;
-
-            localStorage.setItem(
-              "madrasaSession",
-              JSON.stringify(
-                session
-              )
-            );
-
-
-            document
-              .getElementById(
-                "loginPage"
-              )
-              .classList.add(
-                "hidden"
-              );
-
-
-            if (
-              loginRole ===
-              "student"
-            ) {
-
-              document
-                .getElementById(
-                  "studentApp"
-                )
-                .classList.remove(
-                  "hidden"
-                );
-
-              loadStudentDashboard(
-                session
-              );
-
-            } else {
-
-              document
-                .getElementById(
-                  "adminApp"
-                )
-                .classList.remove(
-                  "hidden"
-                );
-
-              loadAdminDashboard(
-                session
-              );
-
-            }
-
-          } else {
-
-            throw new Error(
-              "Login failed."
-            );
-
-          }
-
-        } catch (error) {
-
-          console.error(
-            error
-          );
-
-          showLoginMessage(
-            error.message ||
-            "Login failed.",
-            "error"
-          );
-
-        } finally {
-
-          loginButton.disabled =
-            false;
-
-          loading.style.display =
-            "none";
-
-        }
-
+          "none";
       }
-    );
-
-
-  /*
-   * ==========================================================
-   * STUDENT DASHBOARD
-   * ==========================================================
-   */
-
-  async function loadStudentDashboard(
-    session
-  ) {
-
-    const name =
-      session.studentName ||
-      session.name ||
-      "Student";
-
-
-    document
-      .getElementById(
-        "studentWelcome"
-      )
-      .textContent =
-      "Assalamu Alaikum, " +
-      name;
-
-
-    try {
-
-      const result =
-        await apiRequest(
-          "getStudentDashboard",
-          {
-            studentId:
-              session.studentId,
-            username:
-              session.username,
-            token:
-              session.token
-          }
-        );
-
-
-      const data =
-        result.data ||
-        result;
-
-
-      updateStudentDashboard(
-        data
-      );
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-    }
-
-  }
-
-
-  function updateStudentDashboard(
-    data
-  ) {
-
-    if (!data) {
-      return;
-    }
-
-
-    const summary =
-      data.summary ||
-      data;
-
-
-    document
-      .getElementById(
-        "todayScore"
-      )
-      .textContent =
-      summary.todayScore ||
-      0;
-
-
-    document
-      .getElementById(
-        "currentStreak"
-      )
-      .textContent =
-      summary.currentStreak ||
-      0;
-
-
-    document
-      .getElementById(
-        "bestStreak"
-      )
-      .textContent =
-      summary.bestStreak ||
-      0;
-
-
-    document
-      .getElementById(
-        "activeDays"
-      )
-      .textContent =
-      summary.activeDays ||
-      0;
-
-  }
-
-
-  /*
-   * ==========================================================
-   * ADMIN DASHBOARD
-   * ==========================================================
-   */
-
-  async function loadAdminDashboard(
-    session
-  ) {
-
-    try {
-
-      const result =
-        await apiRequest(
-          "getAdminDashboard",
-          {
-            username:
-              session.username,
-            token:
-              session.token
-          }
-        );
-
-
-      const data =
-        result.data ||
-        result;
-
-
-      updateAdminDashboard(
-        data
-      );
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-    }
-
-  }
-
-
-  function updateAdminDashboard(
-    data
-  ) {
-
-    if (!data) {
-      return;
-    }
-
-
-    const summary =
-      data.summary ||
-      data;
-
-
-    document
-      .getElementById(
-        "adminTotalStudents"
-      )
-      .textContent =
-      summary.totalStudents ||
-      0;
-
-
-    document
-      .getElementById(
-        "adminTodaySubmitted"
-      )
-      .textContent =
-      summary.todaySubmitted ||
-      0;
-
-
-    document
-      .getElementById(
-        "adminTodayAverage"
-      )
-      .textContent =
-      summary.todayAverage ||
-      0;
-
-
-    document
-      .getElementById(
-        "adminActiveStreak"
-      )
-      .textContent =
-      summary.activeStreakStudents ||
-      0;
-
-  }
-
-
-  /*
-   * ==========================================================
-   * LOGOUT
-   * ==========================================================
-   */
-
-  function logout() {
-
-    localStorage.removeItem(
-      "madrasaSession"
-    );
-
-    document
-      .getElementById(
-        "studentApp"
-      )
-      .classList.add(
-        "hidden"
-      );
-
-    document
-      .getElementById(
-        "adminApp"
-      )
-      .classList.add(
-        "hidden"
-      );
-
-    document
-      .getElementById(
-        "loginPage"
-      )
-      .classList.remove(
-        "hidden"
-      );
-
-    document
-      .getElementById(
-        "username"
-      )
-      .value = "";
-
-    document
-      .getElementById(
-        "password"
-      )
-      .value = "";
-
-  }
-
-
-  /*
-   * ==========================================================
-   * RESTORE SESSION
-   * ==========================================================
-   */
-
-  function restoreSession() {
-
-    const stored =
-      localStorage.getItem(
-        "madrasaSession"
-      );
-
-    if (!stored) {
-      return;
-    }
-
-
-    try {
-
-      const session =
-        JSON.parse(
-          stored
-        );
-
-
-      if (
-        session.role ===
-        "student"
-      ) {
-
-        loginRole =
-          "student";
-
-        document
-          .getElementById(
-            "loginPage"
-          )
-          .classList.add(
-            "hidden"
-          );
-
-        document
-          .getElementById(
-            "studentApp"
-          )
-          .classList.remove(
-            "hidden"
-          );
-
-        loadStudentDashboard(
-          session
-        );
-
-
-      } else if (
-        session.role ===
-        "admin"
-      ) {
-
-        loginRole =
-          "admin";
-
-        document
-          .getElementById(
-            "loginPage"
-          )
-          .classList.add(
-            "hidden"
-          );
-
-        document
-          .getElementById(
-            "adminApp"
-          )
-          .classList.remove(
-            "hidden"
-          );
-
-        loadAdminDashboard(
-          session
-        );
-
-      }
-
-    } catch (error) {
-
-      localStorage.removeItem(
-        "madrasaSession"
-      );
-
-    }
-
-  }
-
-
-  /*
-   * ==========================================================
-   * START
-   * ==========================================================
-   */
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-      restoreSession();
 
     }
   );
 
+
+/* ==========================================================
+   STUDENT DASHBOARD
+========================================================== */
+
+async function loadStudentDashboard(
+  session
+) {
+
+
+  /*
+   * Backend login response:
+   *
+   * session.student.studentId
+   * session.student.studentName
+   * session.student.username
+   *
+   * അതിനനുസരിച്ചാണ് ഇവിടെ എടുത്തിരിക്കുന്നത്.
+   */
+
+
+  const student =
+    session.student ||
+    {};
+
+
+  const studentName =
+    student.studentName ||
+    session.studentName ||
+    "Student";
+
+
+  const studentId =
+    student.studentId ||
+    session.studentId ||
+    "";
+
+
+  const studentUsername =
+    student.username ||
+    session.username ||
+    "";
+
+
+  document
+    .getElementById(
+      "studentWelcome"
+    )
+    .textContent =
+      "Assalamu Alaikum, " +
+      studentName;
+
+
+  try {
+
+    const result =
+      await apiRequest(
+        "getStudentDashboard",
+        {
+
+          studentId:
+            studentId,
+
+          username:
+            studentUsername
+
+        }
+      );
+
+
+    const data =
+      result.data ||
+      result;
+
+
+    updateStudentDashboard(
+      data
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Student dashboard error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   UPDATE STUDENT DASHBOARD
+========================================================== */
+
+function updateStudentDashboard(
+  data
+) {
+
+  if (!data) {
+    return;
+  }
+
+
+  const summary =
+    data.summary ||
+    data;
+
+
+  document
+    .getElementById(
+      "todayScore"
+    )
+    .textContent =
+      summary.todayScore ??
+      0;
+
+
+  document
+    .getElementById(
+      "currentStreak"
+    )
+    .textContent =
+      summary.currentStreak ??
+      0;
+
+
+  document
+    .getElementById(
+      "bestStreak"
+    )
+    .textContent =
+      summary.bestStreak ??
+      0;
+
+
+  document
+    .getElementById(
+      "activeDays"
+    )
+    .textContent =
+      summary.activeDays ??
+      0;
+
+}
+
+
+/* ==========================================================
+   ADMIN DASHBOARD
+========================================================== */
+
+async function loadAdminDashboard(
+  session
+) {
+
+  try {
+
+    const result =
+      await apiRequest(
+        "getAdminDashboard",
+        {
+          username:
+            session.username ||
+            ""
+        }
+      );
+
+
+    const data =
+      result.data ||
+      result;
+
+
+    updateAdminDashboard(
+      data
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Admin dashboard error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   UPDATE ADMIN DASHBOARD
+========================================================== */
+
+function updateAdminDashboard(
+  data
+) {
+
+  if (!data) {
+    return;
+  }
+
+
+  const summary =
+    data.summary ||
+    data;
+
+
+  document
+    .getElementById(
+      "adminTotalStudents"
+    )
+    .textContent =
+      summary.totalStudents ??
+      0;
+
+
+  document
+    .getElementById(
+      "adminTodaySubmitted"
+    )
+    .textContent =
+      summary.todaySubmitted ??
+      0;
+
+
+  document
+    .getElementById(
+      "adminTodayAverage"
+    )
+    .textContent =
+      summary.todayAverage ??
+      0;
+
+
+  document
+    .getElementById(
+      "adminActiveStreak"
+    )
+    .textContent =
+      summary.activeStreakStudents ??
+      0;
+
+}
+
+
+/* ==========================================================
+   LOGOUT
+========================================================== */
+
+function logout() {
+
+  localStorage.removeItem(
+    "madrasaSession"
+  );
+
+
+  document
+    .getElementById(
+      "studentApp"
+    )
+    .classList.add(
+      "hidden"
+    );
+
+
+  document
+    .getElementById(
+      "adminApp"
+    )
+    .classList.add(
+      "hidden"
+    );
+
+
+  document
+    .getElementById(
+      "loginPage"
+    )
+    .classList.remove(
+      "hidden"
+    );
+
+
+  document
+    .getElementById(
+      "username"
+    )
+    .value = "";
+
+
+  document
+    .getElementById(
+      "password"
+    )
+    .value = "";
+
+
+  selectLoginRole(
+    "student"
+  );
+
+}
+
+
+/* ==========================================================
+   RESTORE SESSION
+========================================================== */
+
+function restoreSession() {
+
+  const stored =
+    localStorage.getItem(
+      "madrasaSession"
+    );
+
+
+  if (!stored) {
+    return;
+  }
+
+
+  try {
+
+    const session =
+      JSON.parse(
+        stored
+      );
+
+
+    /*
+     * Student session
+     */
+
+    if (
+      session.userType ===
+      "student"
+    ) {
+
+      loginRole =
+        "student";
+
+
+      document
+        .getElementById(
+          "loginPage"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+
+      document
+        .getElementById(
+          "studentApp"
+        )
+        .classList.remove(
+          "hidden"
+        );
+
+
+      loadStudentDashboard(
+        session
+      );
+
+
+      return;
+    }
+
+
+    /*
+     * Admin session
+     */
+
+    if (
+      session.userType ===
+      "admin" ||
+      session.role ===
+      "admin" ||
+      session.Role ===
+      "Admin"
+    ) {
+
+      loginRole =
+        "admin";
+
+
+      document
+        .getElementById(
+          "loginPage"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+
+      document
+        .getElementById(
+          "adminApp"
+        )
+        .classList.remove(
+          "hidden"
+        );
+
+
+      loadAdminDashboard(
+        session
+      );
+
+
+      return;
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      "Session restore error:",
+      error
+    );
+
+
+    localStorage.removeItem(
+      "madrasaSession"
+    );
+  }
+
+}
+
+
+/* ==========================================================
+   PAGE LOAD
+========================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    selectLoginRole(
+      "student"
+    );
+
+    restoreSession();
+
+  }
+);
+
 </script>
-<script src="app.js"></script>
+
 </body>
 </html>
