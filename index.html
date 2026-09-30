@@ -2325,14 +2325,24 @@ async function loadStudentDashboard(session) {
     return;
   }
 
+  /*
+   * Use the existing backend API:
+   * getStudentDailyRecord
+   *
+   * The current deployed backend does not expose
+   * getStudentStats, so calling it makes the dashboard
+   * stay at 0.
+   */
+
   try {
 
     const result =
       await apiRequest(
-        "getStudentStats",
+        "getStudentDailyRecord",
         {
           studentId: studentId,
-          username: studentUsername
+          username: studentUsername,
+          date: getLocalDateString()
         }
       );
 
@@ -2340,62 +2350,123 @@ async function loadStudentDashboard(session) {
       result.data ||
       result;
 
-    document
-      .getElementById("todayScore")
-      .textContent =
-        Number(data.todayScore || 0);
-
-    document
-      .getElementById("currentStreak")
-      .textContent =
-        Number(data.currentStreak || 0);
-
-    document
-      .getElementById("bestStreak")
-      .textContent =
-        Number(data.bestStreak || 0);
-
-    document
-      .getElementById("activeDays")
-      .textContent =
-        Number(data.activeDays || 0);
-
     const record =
-      data.todayRecord;
+      data && data.record
+        ? data.record
+        : null;
 
-    if (record) {
+    if (
+      data &&
+      data.exists === true &&
+      record
+    ) {
+
+      const total =
+        Number(
+          record.totalScore ??
+          record.total ??
+          0
+        );
+
+      const ibadah =
+        Number(
+          record.ibadahScore ??
+          record.ibadah ??
+          0
+        );
+
+      const study =
+        Number(
+          record.studyScore ??
+          record.study ??
+          0
+        );
+
+      const character =
+        Number(
+          record.characterScore ??
+          record.character ??
+          0
+        );
+
+      const health =
+        Number(
+          record.healthScore ??
+          record.health ??
+          0
+        );
+
+      const digital =
+        Number(
+          record.digitalScore ??
+          record.digital ??
+          0
+        );
+
+      document
+        .getElementById("todayScore")
+        .textContent =
+          total;
+
+      document
+        .getElementById("activeDays")
+        .textContent =
+          1;
 
       updateProgressFromData({
         score: {
-          ibadahScore:
-            Number(record.ibadahScore || 0),
-
-          studyScore:
-            Number(record.studyScore || 0),
-
-          characterScore:
-            Number(record.characterScore || 0),
-
-          healthScore:
-            Number(record.healthScore || 0),
-
-          digitalScore:
-            Number(record.digitalScore || 0)
+          ibadahScore: ibadah,
+          studyScore: study,
+          characterScore: character,
+          healthScore: health,
+          digitalScore: digital
         }
       });
 
       populateDailyForm(record);
+
+      console.log(
+        "Today's record loaded successfully:",
+        record
+      );
+
+    } else {
+
+      document
+        .getElementById("todayScore")
+        .textContent =
+          0;
+
+      document
+        .getElementById("activeDays")
+        .textContent =
+          0;
+
+      updateProgressFromData({
+        score: {
+          ibadahScore: 0,
+          studyScore: 0,
+          characterScore: 0,
+          healthScore: 0,
+          digitalScore: 0
+        }
+      });
+
+      console.log(
+        "No record submitted for today."
+      );
     }
 
   } catch (error) {
 
     console.error(
-      "Student stats error:",
+      "Student daily record error:",
       error
     );
 
   }
 }
+
 
 
 /* ==========================================================
