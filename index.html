@@ -2490,10 +2490,22 @@ async function loadExistingDailyRecord(studentId) {
     setChecked("physicalActivity", record.physicalActivity);
     setChecked("healthyFood", record.healthyFood);
 
-    setValue("mobileUsageMinutes", record.mobileUsageMinutes);
-    setChecked("bedtimeMobileAvoided", record.bedtimeMobileAvoided);
-    setTimeValue("sleepTime", record.sleepTime);
-    setChecked("bedtimeDua", record.bedtimeDua);
+    setValue(
+      "mobileUsageMinutes",
+      record.mobileUsageMinutes ?? record["Mobile Usage Minutes"] ?? ""
+    );
+    setChecked(
+      "bedtimeMobileAvoided",
+      record.bedtimeMobileAvoided ?? record["Bedtime Mobile Avoided"]
+    );
+    setTimeValue(
+      "sleepTime",
+      record.sleepTime ?? record["Sleep Time"] ?? ""
+    );
+    setChecked(
+      "bedtimeDua",
+      record.bedtimeDua ?? record["Bedtime Dua"]
+    );
 
     return true;
 
@@ -2932,16 +2944,28 @@ function getDailyHabitPayload() {
       mergedChecked("healthyFood", saved.healthyFood),
 
     mobileUsageMinutes:
-      mergedNumber("mobileUsageMinutes", saved.mobileUsageMinutes),
+      mergedNumber(
+        "mobileUsageMinutes",
+        saved.mobileUsageMinutes ?? saved["Mobile Usage Minutes"]
+      ),
 
     bedtimeMobileAvoided:
-      mergedChecked("bedtimeMobileAvoided", saved.bedtimeMobileAvoided),
+      mergedChecked(
+        "bedtimeMobileAvoided",
+        saved.bedtimeMobileAvoided ?? saved["Bedtime Mobile Avoided"]
+      ),
 
     sleepTime:
-      mergedText("sleepTime", saved.sleepTime),
+      mergedText(
+        "sleepTime",
+        saved.sleepTime ?? saved["Sleep Time"]
+      ),
 
     bedtimeDua:
-      mergedChecked("bedtimeDua", saved.bedtimeDua)
+      mergedChecked(
+        "bedtimeDua",
+        saved.bedtimeDua ?? saved["Bedtime Dua"]
+      )
   };
 }
 
