@@ -2022,6 +2022,11 @@ const API_URL =
 
 let loginRole = "student";
 
+// Keep the already-saved values for today in memory.
+// This prevents a later submit from accidentally reducing
+// the score when the student completes habits in stages.
+let currentDailyRecord = null;
+
 /* ==========================================================
    LOGIN ROLE
 ========================================================== */
@@ -2342,6 +2347,10 @@ async function loadStudentDashboard(session) {
 
     updateStudentDashboard(data);
 
+    // Load today's saved habit values so previously submitted
+    // checkboxes/inputs remain filled after logout/login or refresh.
+    await loadExistingDailyRecord(studentId);
+
   } catch (error) {
 
     console.error(
@@ -2351,6 +2360,108 @@ async function loadStudentDashboard(session) {
 
   }
 }
+
+/* ==========================================================
+   LOAD TODAY'S SAVED HABITS
+   RESTORE CHECKBOXES / INPUTS
+========================================================== */
+
+async function loadExistingDailyRecord(studentId) {
+
+  try {
+
+    const result =
+      await apiRequest(
+        "getStudentDailyRecord",
+        {
+          studentId: studentId,
+          date: getLocalDateString()
+        }
+      );
+
+    const data =
+      result.data ||
+      result;
+
+    currentDailyRecord =
+      data && data.exists && data.record
+        ? data.record
+        : null;
+
+    if (!currentDailyRecord) {
+      return true;
+    }
+
+    const record = currentDailyRecord;
+
+    const setChecked =
+      function(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+          element.checked =
+            value === true ||
+            String(value).toUpperCase() === "TRUE" ||
+            String(value) === "1";
+        }
+      };
+
+    const setValue =
+      function(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+          element.value =
+            value === null || value === undefined
+              ? ""
+              : String(value);
+        }
+      };
+
+    setChecked("wakeupDua", record.wakeupDua);
+    setChecked("tahajjud", record.tahajjud);
+    setChecked("fajr", record.fajr);
+    setChecked("dhuhr", record.dhuhr);
+    setChecked("asr", record.asr);
+    setChecked("maghrib", record.maghrib);
+    setChecked("isha", record.isha);
+
+    setValue("quranMinutes", record.quranMinutes);
+
+    setChecked("madrasaStudy", record.madrasaStudy);
+    setChecked("madrasaHomework", record.madrasaHomework);
+    setChecked("schoolStudy", record.schoolStudy);
+    setChecked("schoolHomework", record.schoolHomework);
+
+    setChecked("goodBehaviourWithParents", record.goodBehaviourWithParents);
+    setChecked("kissMother", record.kissMother);
+    setChecked("helpOthers", record.helpOthers);
+    setChecked("didNotLie", record.didNotLie);
+    setChecked("controlledAnger", record.controlledAnger);
+    setChecked("cleanedRoom", record.cleanedRoomBelongings);
+    setChecked("helpedParents", record.helpedParents);
+
+    setChecked("water", record.water);
+    setChecked("physicalActivity", record.physicalActivity);
+    setChecked("healthyFood", record.healthyFood);
+
+    setValue("mobileUsageMinutes", record.mobileUsageMinutes);
+    setChecked("bedtimeMobileAvoided", record.bedtimeMobileAvoided);
+    setValue("sleepTime", record.sleepTime);
+    setChecked("bedtimeDua", record.bedtimeDua);
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "Unable to restore today's saved habits:",
+      error
+    );
+
+    return false;
+
+  }
+}
+
 
 /* ==========================================================
    UPDATE STUDENT DASHBOARD
@@ -2660,6 +2771,47 @@ function getDailyHabitPayload() {
         : 0;
     };
 
+  // Existing values are intentionally preserved for the same day.
+  // This prevents a second submit from changing a previously completed
+  // habit back to FALSE/blank just because the browser sent an empty value.
+  const saved = currentDailyRecord || {};
+
+  const mergedChecked =
+    function(id, savedValue) {
+      const current = checked(id);
+      return current ||
+        savedValue === true ||
+        String(savedValue).toUpperCase() === "TRUE" ||
+        String(savedValue) === "1";
+    };
+
+  const mergedNumber =
+    function(id, savedValue) {
+      const element = document.getElementById(id);
+      const raw = element ? String(element.value ?? "").trim() : "";
+
+      if (raw !== "") {
+        const number = Number(raw);
+        if (Number.isFinite(number)) {
+          return number;
+        }
+      }
+
+      const savedNumber = Number(savedValue);
+      return Number.isFinite(savedNumber) ? savedNumber : 0;
+    };
+
+  const mergedText =
+    function(id, savedValue) {
+      const element = document.getElementById(id);
+      const raw = element ? String(element.value ?? "").trim() : "";
+      return raw !== ""
+        ? raw
+        : (savedValue === null || savedValue === undefined
+            ? ""
+            : String(savedValue));
+    };
+
   return {
 
     studentId: studentId,
@@ -2667,82 +2819,82 @@ function getDailyHabitPayload() {
     date: getLocalDateString(),
 
     wakeupDua:
-      checked("wakeupDua"),
+      mergedChecked("wakeupDua", saved.wakeupDua),
 
     tahajjud:
-      checked("tahajjud"),
+      mergedChecked("tahajjud", saved.tahajjud),
 
     fajr:
-      checked("fajr"),
+      mergedChecked("fajr", saved.fajr),
 
     dhuhr:
-      checked("dhuhr"),
+      mergedChecked("dhuhr", saved.dhuhr),
 
     asr:
-      checked("asr"),
+      mergedChecked("asr", saved.asr),
 
     maghrib:
-      checked("maghrib"),
+      mergedChecked("maghrib", saved.maghrib),
 
     isha:
-      checked("isha"),
+      mergedChecked("isha", saved.isha),
 
     quranMinutes:
-      numberValue("quranMinutes"),
+      mergedNumber("quranMinutes", saved.quranMinutes),
 
     madrasaStudy:
-      checked("madrasaStudy"),
+      mergedChecked("madrasaStudy", saved.madrasaStudy),
 
     madrasaHomework:
-      checked("madrasaHomework"),
+      mergedChecked("madrasaHomework", saved.madrasaHomework),
 
     schoolStudy:
-      checked("schoolStudy"),
+      mergedChecked("schoolStudy", saved.schoolStudy),
 
     schoolHomework:
-      checked("schoolHomework"),
+      mergedChecked("schoolHomework", saved.schoolHomework),
 
     goodBehaviourWithParents:
-      checked("goodBehaviourWithParents"),
+      mergedChecked("goodBehaviourWithParents", saved.goodBehaviourWithParents),
 
     kissMother:
-      checked("kissMother"),
+      mergedChecked("kissMother", saved.kissMother),
 
     helpOthers:
-      checked("helpOthers"),
+      mergedChecked("helpOthers", saved.helpOthers),
 
     didNotLie:
-      checked("didNotLie"),
+      mergedChecked("didNotLie", saved.didNotLie),
 
     controlledAnger:
-      checked("controlledAnger"),
+      mergedChecked("controlledAnger", saved.controlledAnger),
 
     cleanedRoomBelongings:
-      checked("cleanedRoom"),
+      mergedChecked("cleanedRoom", saved.cleanedRoomBelongings),
 
     helpedParents:
-      checked("helpedParents"),
+      mergedChecked("helpedParents", saved.helpedParents),
 
     water:
-      checked("water"),
+      mergedChecked("water", saved.water),
 
     physicalActivity:
-      checked("physicalActivity"),
+      mergedChecked("physicalActivity", saved.physicalActivity),
 
     healthyFood:
-      checked("healthyFood"),
+      mergedChecked("healthyFood", saved.healthyFood),
 
     mobileUsageMinutes:
-      numberValue("mobileUsageMinutes"),
+      mergedNumber("mobileUsageMinutes", saved.mobileUsageMinutes),
 
     bedtimeMobileAvoided:
-      checked("bedtimeMobileAvoided"),
+      mergedChecked("bedtimeMobileAvoided", saved.bedtimeMobileAvoided),
 
     sleepTime:
-      value("sleepTime"),
+      mergedText("sleepTime", saved.sleepTime),
 
     bedtimeDua:
-      checked("bedtimeDua")
+      mergedChecked("bedtimeDua", saved.bedtimeDua)
   };
 }
 
@@ -2769,6 +2921,22 @@ document
       let payload;
 
       try {
+
+        const storedSession =
+          localStorage.getItem("madrasaSession");
+
+        if (storedSession) {
+          const session = JSON.parse(storedSession);
+          const student = session.student || {};
+          const studentId =
+            student.studentId ||
+            session.studentId ||
+            "";
+
+          if (studentId) {
+            await loadExistingDailyRecord(studentId);
+          }
+        }
 
         payload =
           getDailyHabitPayload();
@@ -2904,6 +3072,8 @@ document
 ========================================================== */
 
 function logout() {
+
+  currentDailyRecord = null;
 
   localStorage.removeItem(
     "madrasaSession"
