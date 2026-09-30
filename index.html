@@ -2664,6 +2664,19 @@ async function loadStudentDashboard(session) {
 
     updateStudentDashboard(data);
 
+    // Active Day = at least one completed habit / valid point-bearing entry.
+    try {
+      const today = getLocalDateString();
+      const startOfMonth = today.substring(0, 8) + "01";
+      const monthDays = Number(today.substring(8, 10));
+      const dates = [];
+      for (let day = 0; day < monthDays; day++) dates.push(progressAddDays(startOfMonth, day));
+      const monthRecords = await getProgressRecordsForDates(studentId, dates);
+      setProgressText("activeDays", monthRecords.filter(isActiveProgressRecord).length);
+    } catch (activeDayError) {
+      console.warn("Active day recalculation failed:", activeDayError);
+    }
+
     // Load today's saved habit values so previously submitted
     // checkboxes/inputs remain filled after logout/login or refresh.
     await loadExistingDailyRecord(studentId);
@@ -3278,6 +3291,25 @@ function progressFormatDate(dateString) {
   });
 }
 
+function isActiveProgressRecord(record) {
+  return !!(record && record.date && Number(record.totalScore || 0) > 0);
+}
+
+async function getProgressRecordsForDates(studentId, dates) {
+  const results = await Promise.all(
+    dates.map(function(date) {
+      return apiRequest("getStudentDailyRecord", {
+        studentId: studentId,
+        date: date
+      }).then(function(result) {
+        const data = result.data || result || {};
+        return data.record || data.todayRecord || null;
+      }).catch(function() { return null; });
+    })
+  );
+  return results.filter(function(record) { return record && record.date; });
+}
+
 
 async function loadStudentAchievements() {
   const stored = localStorage.getItem("madrasaSession");
@@ -3338,7 +3370,8 @@ async function loadStudentAchievements() {
 
     const current = Number(stats.currentStreak || 0);
     const best = Number(stats.bestStreak || 0);
-    const active = Number(stats.activeDays || 0);
+    const active = records.filter(isActiveProgressRecord).length;
+    setProgressText("achievementActiveDays", active);
 
     const badges = [];
     if (active >= 1) badges.push(["🌱", "First Step", "First active day"]);
@@ -3352,10 +3385,10 @@ async function loadStudentAchievements() {
     if (box) {
       box.innerHTML = (badges.length ? badges : [["🌱", "Keep Going", "Complete habits to unlock badges"]])
         .map(function(b) {
-          return `<div style="padding:16px;border:1px solid #dcebdc;border-radius:16px;background:#f8fff8;text-align:center;">
-            <div style="font-size:34px;">${b[0]}</div>
-            <div style="font-weight:700;margin-top:7px;">${b[1]}</div>
-            <div style="font-size:13px;opacity:.75;margin-top:4px;">${b[2]}</div>
+          return `<div class="achievement-badge-card">
+            <div class="achievement-badge-title">${b[1]}</div>
+            <div class="achievement-badge-description">${b[2]}</div>
+            <div class="achievement-badge-icon">${b[0]}</div>
           </div>`;
         }).join("");
     }
@@ -3370,11 +3403,7 @@ async function loadStudentProgress() {
   if (!stored) return;
 
   let session;
-  try {
-    session = JSON.parse(stored);
-  } catch (error) {
-    return;
-  }
+  try { session = JSON.parse(stored); } catch (error) { return; }
 
   const student = session.student || {};
   const studentId = student.studentId || session.studentId || "";
@@ -3383,75 +3412,42 @@ async function loadStudentProgress() {
   const today = getLocalDateString();
   const startOfMonth = today.substring(0, 8) + "01";
   const monthDays = Number(today.substring(8, 10));
-  const dates = [];
+  const monthDates = [];
+  for (let day = 0; day < monthDays; day++) monthDates.push(progressAddDays(startOfMonth, day));
 
-  for (let day = 0; day < monthDays; day++) {
-    dates.push(progressAddDays(startOfMonth, day));
-  }
+  // Rolling 7-day week. It crosses month boundaries when necessary.
+  const weekStart = progressAddDays(today, -6);
+  const weekDates = [];
+  for (let day = 0; day < 7; day++) weekDates.push(progressAddDays(weekStart, day));
 
   const list = document.getElementById("monthlyDailyScoreList");
   if (list) list.innerHTML = '<div class="habit-note">Loading progress...</div>';
 
   try {
+    const monthRecords = await getProgressRecordsForDates(studentId, monthDates);
+    const weekRecords = await getProgressRecordsForDates(studentId, weekDates);
+    const activeMonthRecords = monthRecords.filter(isActiveProgressRecord);
+    const activeWeekRecords = weekRecords.filter(isActiveProgressRecord);
 
-    const results = await Promise.all(
-      dates.map(function(date) {
-        return apiRequest("getStudentDailyRecord", {
-          studentId: studentId,
-          date: date
-        }).then(function(result) {
-          const data = result.data || result || {};
-          return data.record || data.todayRecord || null;
-        }).catch(function() {
-          return null;
-        });
-      })
-    );
+    const monthlyTotal = activeMonthRecords.reduce((sum, record) => sum + Number(record.totalScore || 0), 0);
+    const monthlyAverage = activeMonthRecords.length ? Math.round((monthlyTotal / activeMonthRecords.length) * 10) / 10 : 0;
+    const weeklyTotal = activeWeekRecords.reduce((sum, record) => sum + Number(record.totalScore || 0), 0);
+    const weeklyAverage = activeWeekRecords.length ? Math.round((weeklyTotal / activeWeekRecords.length) * 10) / 10 : 0;
 
-    const records = results.filter(function(record) {
-      return record && record.date;
-    });
-
-    const totals = records.reduce(function(sum, record) {
-      return sum + Number(record.totalScore || 0);
-    }, 0);
-
-    const monthlyAverage = records.length
-      ? Math.round((totals / records.length) * 10) / 10
-      : 0;
-
-    const weeklyRecords = records.filter(function(record) {
-      return record.date >= progressAddDays(today, -6) && record.date <= today;
-    });
-
-    const weeklyTotal = weeklyRecords.reduce(function(sum, record) {
-      return sum + Number(record.totalScore || 0);
-    }, 0);
-
-    const weeklyAverage = weeklyRecords.length
-      ? Math.round((weeklyTotal / weeklyRecords.length) * 10) / 10
-      : 0;
-
-    const statsResult = await apiRequest("getStudentStats", {
-      studentId: studentId
-    }).catch(function() { return { data: {} }; });
-
+    const statsResult = await apiRequest("getStudentStats", { studentId: studentId }).catch(() => ({ data: {} }));
     const stats = statsResult.data || statsResult || {};
 
     setProgressText("progressWeeklyAverage", `${weeklyAverage}%`);
     setProgressText("progressMonthlyAverage", `${monthlyAverage}%`);
-    setProgressText("progressActiveDays", records.length);
+    setProgressText("progressActiveDays", activeMonthRecords.length);
     setProgressText("progressCurrentStreak", stats.currentStreak || 0);
     setProgressText("progressBestStreak", stats.bestStreak || 0);
 
-    renderWeeklyProgress(weeklyRecords, today);
-    renderMonthlyCategories(records);
-    renderMonthlyDailyScores(records);
-
+    renderWeeklyProgress(activeWeekRecords, today);
+    renderMonthlyCategories(activeMonthRecords);
+    renderMonthlyDailyScores(activeMonthRecords);
     studentProgressLoaded = true;
-
   } catch (error) {
-
     console.error("Progress loading error:", error);
     if (list) list.innerHTML = '<div class="habit-note">Progress load ചെയ്യാൻ കഴിഞ്ഞില്ല. വീണ്ടും try ചെയ്യുക.</div>';
   }
