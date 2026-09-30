@@ -2026,6 +2026,9 @@
       <div class="section-card">
         <h2>📅 Weekly Progress</h2>
         <p id="progressWeekRange" class="habit-note">Loading...</p>
+        <div id="progressWeekPercentage" class="habit-note" style="font-weight:800;color:#176b3a;margin-bottom:12px;">
+          This Week: 0%
+        </div>
         <div id="weeklyProgressChart" class="progress-chart"></div>
       </div>
 
@@ -2114,6 +2117,7 @@
       <button
         class="nav-button"
         type="button"
+        onclick="showStudentPage('profile')"
       >
         <span>👤</span>
         <span>Profile</span>
@@ -2124,6 +2128,37 @@
   </section>
 
 
+
+<!-- =========================
+     STUDENT PROFILE PAGE
+========================== -->
+<section id="studentProfilePage" class="progress-page" style="display:none;">
+  <div class="page-title-card section-card">
+    <h2>👤 Profile</h2>
+    <p>നിങ്ങളുടെ student വിവരങ്ങൾ.</p>
+  </div>
+
+  <div class="section-card">
+    <div class="progress-list">
+      <div class="progress-list-row">
+        <span>Student ID</span>
+        <strong id="profileStudentId">—</strong>
+      </div>
+      <div class="progress-list-row">
+        <span>Name</span>
+        <strong id="profileStudentName">—</strong>
+      </div>
+      <div class="progress-list-row">
+        <span>Class</span>
+        <strong id="profileStudentClass">—</strong>
+      </div>
+      <div class="progress-list-row">
+        <span>Division</span>
+        <strong id="profileStudentDivision">—</strong>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- =========================
      STUDENT ACHIEVEMENTS PAGE
@@ -3000,58 +3035,224 @@ let studentProgressLoaded = false;
 
 function showStudentPage(page) {
 
-  const home = document.getElementById("studentHomePage");
-  const progress = document.getElementById("studentProgressPage");
-  const achievements = document.getElementById("studentAchievementsPage");
+  const home =
+    document.getElementById("studentHomePage");
+
+  const progress =
+    document.getElementById("studentProgressPage");
+
+  const achievements =
+    document.getElementById("studentAchievementsPage");
+
+  const profile =
+    document.getElementById("studentProfilePage");
 
   if (!home || !progress) {
     return;
   }
 
-  const nav = document.querySelector("#studentApp .bottom-nav");
-  const buttons = nav ? nav.querySelectorAll(".nav-button") : [];
+  const nav =
+    document.querySelector("#studentApp .bottom-nav");
+
+  const buttons =
+    nav ? nav.querySelectorAll(".nav-button") : [];
 
   buttons.forEach(function(button) {
     button.classList.remove("active");
   });
 
   if (page === "achievements") {
+
     home.style.display = "none";
     progress.classList.remove("show");
-    if (achievements) achievements.style.display = "block";
-    if (buttons[3]) buttons[3].classList.add("active");
+
+    if (profile) {
+      profile.style.display = "none";
+    }
+
+    if (achievements) {
+      achievements.style.display = "block";
+    }
+
+    if (buttons[3]) {
+      buttons[3].classList.add("active");
+    }
+
     loadStudentAchievements();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
     return;
   }
 
-  if (achievements) achievements.style.display = "none";
-
   if (page === "progress") {
+
     home.style.display = "none";
+
+    if (achievements) {
+      achievements.style.display = "none";
+    }
+
+    if (profile) {
+      profile.style.display = "none";
+    }
+
     progress.classList.add("show");
-    if (buttons[2]) buttons[2].classList.add("active");
+
+    if (buttons[2]) {
+      buttons[2].classList.add("active");
+    }
+
     loadStudentProgress();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
     return;
+  }
+
+  if (page === "profile") {
+
+    home.style.display = "none";
+    progress.classList.remove("show");
+
+    if (achievements) {
+      achievements.style.display = "none";
+    }
+
+    if (profile) {
+      profile.style.display = "block";
+    }
+
+    if (buttons[4]) {
+      buttons[4].classList.add("active");
+    }
+
+    loadStudentProfile();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+    return;
+  }
+
+  if (achievements) {
+    achievements.style.display = "none";
+  }
+
+  if (profile) {
+    profile.style.display = "none";
   }
 
   progress.classList.remove("show");
   home.style.display = "block";
 
   if (page === "today") {
-    if (buttons[1]) buttons[1].classList.add("active");
-    const form = document.getElementById("dailyHabitForm");
+
+    if (buttons[1]) {
+      buttons[1].classList.add("active");
+    }
+
+    const form =
+      document.getElementById("dailyHabitForm");
+
     if (form) {
       setTimeout(function() {
-        form.scrollIntoView({ behavior: "smooth", block: "start" });
+        form.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
       }, 50);
     }
+
     return;
   }
 
-  if (buttons[0]) buttons[0].classList.add("active");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (buttons[0]) {
+    buttons[0].classList.add("active");
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function loadStudentProfile() {
+
+  const stored =
+    localStorage.getItem("madrasaSession");
+
+  if (!stored) {
+    return;
+  }
+
+  try {
+
+    const session =
+      JSON.parse(stored);
+
+    const student =
+      session.student || {};
+
+    const getValue = function() {
+      for (const value of arguments) {
+        if (
+          value !== undefined &&
+          value !== null &&
+          String(value).trim() !== ""
+        ) {
+          return String(value);
+        }
+      }
+      return "—";
+    };
+
+    setProgressText(
+      "profileStudentId",
+      getValue(
+        student.studentId,
+        session.studentId
+      )
+    );
+
+    setProgressText(
+      "profileStudentName",
+      getValue(
+        student.studentName,
+        session.studentName
+      )
+    );
+
+    setProgressText(
+      "profileStudentClass",
+      getValue(
+        student.class,
+        student.Class
+      )
+    );
+
+    setProgressText(
+      "profileStudentDivision",
+      getValue(
+        student.division,
+        student.Division
+      )
+    );
+
+  } catch (error) {
+    console.error(
+      "Profile loading error:",
+      error
+    );
+  }
 }
 
 function progressDateString(date) {
@@ -3272,13 +3473,22 @@ function renderWeeklyProgress(records, today) {
     range.textContent = `${progressFormatDate(start)} – ${progressFormatDate(today)}`;
   }
 
-  const weekScores = records.reduce(function(sum, record) {
+  const weekRecords = records.filter(function(record) {
+    return record &&
+      record.date >= start &&
+      record.date <= today;
+  });
+
+  const weekScores = weekRecords.reduce(function(sum, record) {
     return sum + Number(record.totalScore || 0);
   }, 0);
-  const weekCount = records.filter(function(record) {
-    return record && record.date >= start && record.date <= today;
-  }).length;
-  const weekAverage = weekCount ? Math.round((weekScores / weekCount) * 10) / 10 : 0;
+
+  const weekCount = weekRecords.length;
+
+  const weekAverage =
+    weekCount
+      ? Math.round((weekScores / weekCount) * 10) / 10
+      : 0;
   const weekPercentage = document.getElementById("progressWeekPercentage");
   if (weekPercentage) weekPercentage.textContent = `This Week: ${weekAverage}%`;
 
@@ -3290,8 +3500,17 @@ function renderWeeklyProgress(records, today) {
   let html = "";
   for (let i = 0; i < 7; i++) {
     const date = progressAddDays(start, i);
-    const score = map[date] || 0;
-    const height = score === 0 ? 8 : Math.max(8, Math.min(100, score));
+    const hasRecord =
+      Object.prototype.hasOwnProperty.call(map, date);
+
+    const score = hasRecord
+      ? Number(map[date] || 0)
+      : 0;
+
+    const height =
+      score === 0
+        ? 4
+        : Math.max(8, Math.min(100, score));
     const label = new Date(date + "T00:00:00").toLocaleDateString("en-IN", { weekday: "short" });
 
     html += `
@@ -3489,16 +3708,11 @@ function getDailyHabitPayload() {
   let session;
 
   try {
-
-    session =
-      JSON.parse(storedSession);
-
+    session = JSON.parse(storedSession);
   } catch (error) {
-
     throw new Error(
       "Invalid student session. Please login again."
     );
-
   }
 
   const student =
@@ -3511,92 +3725,154 @@ function getDailyHabitPayload() {
     "";
 
   if (!studentId) {
-
     throw new Error(
       "Student ID not found. Please login again."
     );
   }
 
-  const checked =
-    function(id) {
+  const checked = function(id) {
+    const element = document.getElementById(id);
+    return element ? element.checked : false;
+  };
 
-      const element =
-        document.getElementById(id);
+  const value = function(id) {
+    const element = document.getElementById(id);
+    return element ? element.value : "";
+  };
 
-      return element
-        ? element.checked
-        : false;
-    };
+  /*
+   * IMPORTANT:
+   * Blank number input must stay blank.
+   * Explicitly typing 0 must stay 0.
+   */
+  const rawNumberValue = function(id) {
+    const raw = String(value(id) ?? "").trim();
 
-  const value =
-    function(id) {
+    if (raw === "") {
+      return "";
+    }
 
-      const element =
-        document.getElementById(id);
+    const number = Number(raw);
 
-      return element
-        ? element.value
-        : "";
-    };
+    return Number.isFinite(number)
+      ? number
+      : "";
+  };
 
-  const numberValue =
-    function(id) {
-
-      const raw =
-        value(id);
-
-      if (raw === "") {
-        return 0;
-      }
-
-      const number =
-        Number(raw);
-
-      return Number.isFinite(number)
-        ? number
-        : 0;
-    };
-
-  // Existing values are intentionally preserved for the same day.
-  // This prevents a second submit from changing a previously completed
-  // habit back to FALSE/blank just because the browser sent an empty value.
   const saved = currentDailyRecord || {};
 
-  const mergedChecked =
-    function(id, savedValue) {
-      const current = checked(id);
-      return current ||
-        savedValue === true ||
-        String(savedValue).toUpperCase() === "TRUE" ||
-        String(savedValue) === "1";
-    };
+  /*
+   * Local backup is used only to distinguish an explicitly-entered
+   * zero from an old/default Google Sheet zero.
+   */
+  let localBackup = {};
+  try {
+    const rawBackup =
+      localStorage.getItem("madrasaTodayFormBackup");
 
-  const mergedNumber =
-    function(id, savedValue) {
-      const element = document.getElementById(id);
-      const raw = element ? String(element.value ?? "").trim() : "";
+    const parsedBackup =
+      rawBackup ? JSON.parse(rawBackup) : null;
 
-      if (raw !== "") {
-        const number = Number(raw);
-        if (Number.isFinite(number)) {
-          return number;
-        }
+    if (
+      parsedBackup &&
+      parsedBackup.date === getLocalDateString() &&
+      parsedBackup.studentId === studentId
+    ) {
+      localBackup = parsedBackup;
+    }
+  } catch (error) {
+    localBackup = {};
+  }
+
+  const mergedChecked = function(id, savedValue) {
+    const current = checked(id);
+
+    return current ||
+      savedValue === true ||
+      String(savedValue).toUpperCase() === "TRUE" ||
+      String(savedValue) === "1";
+  };
+
+  const mergedNumber = function(id, savedValue, backupKey) {
+    const raw = String(value(id) ?? "").trim();
+
+    /* Student has entered a value now — including 0. */
+    if (raw !== "") {
+      const number = Number(raw);
+
+      if (Number.isFinite(number)) {
+        return number;
       }
 
-      const savedNumber = Number(savedValue);
-      return Number.isFinite(savedNumber) ? savedNumber : 0;
-    };
+      return "";
+    }
 
-  const mergedText =
-    function(id, savedValue) {
-      const element = document.getElementById(id);
-      const raw = element ? String(element.value ?? "").trim() : "";
-      return raw !== ""
-        ? raw
-        : (savedValue === null || savedValue === undefined
-            ? ""
-            : String(savedValue));
-    };
+    /*
+     * If this field was explicitly saved locally as 0, preserve it.
+     * This prevents a real 0-minute mobile entry from disappearing.
+     */
+    if (
+      backupKey &&
+      Object.prototype.hasOwnProperty.call(localBackup, backupKey)
+    ) {
+      const backupRaw =
+        String(localBackup[backupKey] ?? "").trim();
+
+      if (backupRaw !== "") {
+        const backupNumber = Number(backupRaw);
+
+        if (Number.isFinite(backupNumber)) {
+          return backupNumber;
+        }
+      }
+    }
+
+    /*
+     * Preserve an already-completed positive value on a later submit.
+     * A stored/default 0 is treated as blank so it cannot create
+     * accidental points.
+     */
+    const savedNumber = Number(savedValue);
+
+    if (
+      Number.isFinite(savedNumber) &&
+      savedNumber > 0
+    ) {
+      return savedNumber;
+    }
+
+    return "";
+  };
+
+  const mergedText = function(id, savedValue, backupKey) {
+    const raw = String(value(id) ?? "").trim();
+
+    if (raw !== "") {
+      return raw;
+    }
+
+    if (
+      backupKey &&
+      Object.prototype.hasOwnProperty.call(localBackup, backupKey)
+    ) {
+      const backupValue = localBackup[backupKey];
+
+      if (
+        backupValue !== null &&
+        backupValue !== undefined &&
+        String(backupValue).trim() !== ""
+      ) {
+        return String(backupValue);
+      }
+    }
+
+    return (
+      savedValue === null ||
+      savedValue === undefined
+    )
+      ? ""
+      : String(savedValue);
+  };
 
   return {
 
@@ -3626,7 +3902,7 @@ function getDailyHabitPayload() {
       mergedChecked("isha", saved.isha),
 
     quranMinutes:
-      mergedNumber("quranMinutes", saved.quranMinutes),
+      mergedNumber("quranMinutes", saved.quranMinutes, "quranMinutes"),
 
     madrasaStudy:
       mergedChecked("madrasaStudy", saved.madrasaStudy),
@@ -3641,7 +3917,10 @@ function getDailyHabitPayload() {
       mergedChecked("schoolHomework", saved.schoolHomework),
 
     goodBehaviourWithParents:
-      mergedChecked("goodBehaviourWithParents", saved.goodBehaviourWithParents),
+      mergedChecked(
+        "goodBehaviourWithParents",
+        saved.goodBehaviourWithParents
+      ),
 
     kissMother:
       mergedChecked("kissMother", saved.kissMother),
@@ -3656,7 +3935,10 @@ function getDailyHabitPayload() {
       mergedChecked("controlledAnger", saved.controlledAnger),
 
     cleanedRoomBelongings:
-      mergedChecked("cleanedRoom", saved.cleanedRoomBelongings),
+      mergedChecked(
+        "cleanedRoom",
+        saved.cleanedRoomBelongings
+      ),
 
     helpedParents:
       mergedChecked("helpedParents", saved.helpedParents),
@@ -3673,7 +3955,9 @@ function getDailyHabitPayload() {
     mobileUsageMinutes:
       mergedNumber(
         "mobileUsageMinutes",
-        saved.mobileUsageMinutes ?? saved["Mobile Usage Minutes"]
+        saved.mobileUsageMinutes ??
+          saved["Mobile Usage Minutes"],
+        "mobileUsageMinutes"
       ),
 
     mobileUsageEntered:
@@ -3684,19 +3968,23 @@ function getDailyHabitPayload() {
     bedtimeMobileAvoided:
       mergedChecked(
         "bedtimeMobileAvoided",
-        saved.bedtimeMobileAvoided ?? saved["Bedtime Mobile Avoided"]
+        saved.bedtimeMobileAvoided ??
+          saved["Bedtime Mobile Avoided"]
       ),
 
     sleepTime:
       mergedText(
         "sleepTime",
-        saved.sleepTime ?? saved["Sleep Time"]
+        saved.sleepTime ??
+          saved["Sleep Time"],
+        "sleepTime"
       ),
 
     bedtimeDua:
       mergedChecked(
         "bedtimeDua",
-        saved.bedtimeDua ?? saved["Bedtime Dua"]
+        saved.bedtimeDua ??
+          saved["Bedtime Dua"]
       )
   };
 }
