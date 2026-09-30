@@ -1812,7 +1812,7 @@
 
 
           <div class="habit-note">
-            എല്ലാ ശീലങ്ങളും പൂർത്തിയാക്കി Submit ചെയ്യുക. Submit ചെയ്താൽ Google Sheet-ലേക്ക് save ചെയ്യും.
+            എല്ലാ ശീലങ്ങളും ശ്രദ്ധയോടെ പൂർത്തിയാക്കി Submit ചെയ്യുക.
           </div>
 
 
@@ -2019,6 +2019,7 @@
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbxkMDUvFnqgvWryB93sFeP48iwXJbMwkhOeRU4fFbWnJ88W67u-wQrXQvTjGWt_h4JKYQ/exec";
+
 let loginRole = "student";
 
 /* ==========================================================
@@ -2324,24 +2325,14 @@ async function loadStudentDashboard(session) {
     return;
   }
 
-  /*
-   * Use the existing backend API:
-   * getStudentDailyRecord
-   *
-   * The current deployed backend does not expose
-   * getStudentStats, so calling it makes the dashboard
-   * stay at 0.
-   */
-
   try {
 
     const result =
       await apiRequest(
-        "getStudentDailyRecord",
+        "getStudentDashboard",
         {
           studentId: studentId,
-          username: studentUsername,
-          date: getLocalDateString()
+          username: studentUsername
         }
       );
 
@@ -2349,264 +2340,16 @@ async function loadStudentDashboard(session) {
       result.data ||
       result;
 
-    const record =
-      data && data.record
-        ? data.record
-        : null;
-
-    if (
-      data &&
-      data.exists === true &&
-      record
-    ) {
-
-      const total =
-        Number(
-          record.totalScore ??
-          record.total ??
-          0
-        );
-
-      const ibadah =
-        Number(
-          record.ibadahScore ??
-          record.ibadah ??
-          0
-        );
-
-      const study =
-        Number(
-          record.studyScore ??
-          record.study ??
-          0
-        );
-
-      const character =
-        Number(
-          record.characterScore ??
-          record.character ??
-          0
-        );
-
-      const health =
-        Number(
-          record.healthScore ??
-          record.health ??
-          0
-        );
-
-      const digital =
-        Number(
-          record.digitalScore ??
-          record.digital ??
-          0
-        );
-
-      document
-        .getElementById("todayScore")
-        .textContent =
-          total;
-
-      document
-        .getElementById("activeDays")
-        .textContent =
-          1;
-
-      updateProgressFromData({
-        score: {
-          ibadahScore: ibadah,
-          studyScore: study,
-          characterScore: character,
-          healthScore: health,
-          digitalScore: digital
-        }
-      });
-
-      populateDailyForm(record);
-
-      console.log(
-        "Today's record loaded successfully:",
-        record
-      );
-
-    } else {
-
-      document
-        .getElementById("todayScore")
-        .textContent =
-          0;
-
-      document
-        .getElementById("activeDays")
-        .textContent =
-          0;
-
-      updateProgressFromData({
-        score: {
-          ibadahScore: 0,
-          studyScore: 0,
-          characterScore: 0,
-          healthScore: 0,
-          digitalScore: 0
-        }
-      });
-
-      console.log(
-        "No record submitted for today."
-      );
-    }
+    updateStudentDashboard(data);
 
   } catch (error) {
 
     console.error(
-      "Student daily record error:",
+      "Student dashboard error:",
       error
     );
 
   }
-}
-
-
-
-/* ==========================================================
-   RESTORE TODAY'S SAVED FORM
-========================================================== */
-
-function populateDailyForm(record) {
-
-  if (!record) {
-    return;
-  }
-
-  const setChecked =
-    function(id, value) {
-
-      const element =
-        document.getElementById(id);
-
-      if (element) {
-        element.checked =
-          !!value;
-      }
-    };
-
-  const setValue =
-    function(id, value) {
-
-      const element =
-        document.getElementById(id);
-
-      if (element) {
-        element.value =
-          value === null ||
-          value === undefined
-            ? ""
-            : value;
-      }
-    };
-
-  setChecked("wakeupDua", record.wakeupDua);
-  setChecked("tahajjud", record.tahajjud);
-  setChecked("fajr", record.fajr);
-  setChecked("dhuhr", record.dhuhr);
-  setChecked("asr", record.asr);
-  setChecked("maghrib", record.maghrib);
-  setChecked("isha", record.isha);
-
-  setValue(
-    "quranMinutes",
-    record.quranMinutes
-  );
-
-  setChecked(
-    "madrasaStudy",
-    record.madrasaStudy
-  );
-
-  setChecked(
-    "madrasaHomework",
-    record.madrasaHomework
-  );
-
-  setChecked(
-    "schoolStudy",
-    record.schoolStudy
-  );
-
-  setChecked(
-    "schoolHomework",
-    record.schoolHomework
-  );
-
-  setChecked(
-    "goodBehaviourWithParents",
-    record.goodBehaviourWithParents
-  );
-
-  setChecked(
-    "kissMother",
-    record.kissMother
-  );
-
-  setChecked(
-    "helpOthers",
-    record.helpOthers
-  );
-
-  setChecked(
-    "didNotLie",
-    record.didNotLie
-  );
-
-  setChecked(
-    "controlledAnger",
-    record.controlledAnger
-  );
-
-  setChecked(
-    "cleanedRoom",
-    record.cleanedRoomBelongings
-  );
-
-  setChecked(
-    "helpedParents",
-    record.helpedParents
-  );
-
-  setChecked(
-    "water",
-    record.water
-  );
-
-  setChecked(
-    "physicalActivity",
-    record.physicalActivity
-  );
-
-  setChecked(
-    "healthyFood",
-    record.healthyFood
-  );
-
-  setValue(
-    "mobileUsageMinutes",
-    record.mobileUsageMinutes
-  );
-
-  setChecked(
-    "bedtimeMobileAvoided",
-    record.bedtimeMobileAvoided
-  );
-
-  setValue(
-    "sleepTime",
-    record.sleepTime
-  );
-
-  setChecked(
-    "bedtimeDua",
-    record.bedtimeDua
-  );
 }
 
 /* ==========================================================
@@ -2921,11 +2664,6 @@ function getDailyHabitPayload() {
 
     studentId: studentId,
 
-    username:
-      student.username ||
-      session.username ||
-      "",
-
     date: getLocalDateString(),
 
     wakeupDua:
@@ -3061,130 +2799,51 @@ document
           result.data ||
           result;
 
-        /*
-         * SAVE RESPONSE SCORE
-         * Backend versions may return the score in slightly
-         * different places. Read all supported shapes first.
-         */
         const score =
           data.score ||
-          data.record?.score ||
-          data.dailyScore ||
-          data.todayScoreBreakdown ||
-          result.score ||
           {};
-
-        let ibadah =
-          Number(
-            score.ibadah ??
-            score.ibadahScore ??
-            score.ibadahPoints ??
-            data.ibadah ??
-            data.ibadahScore ??
-            0
-          );
-
-        let study =
-          Number(
-            score.study ??
-            score.studyScore ??
-            score.studyPoints ??
-            data.study ??
-            data.studyScore ??
-            0
-          );
-
-        let character =
-          Number(
-            score.character ??
-            score.characterScore ??
-            score.characterPoints ??
-            data.character ??
-            data.characterScore ??
-            0
-          );
-
-        let health =
-          Number(
-            score.health ??
-            score.healthScore ??
-            score.healthPoints ??
-            data.health ??
-            data.healthScore ??
-            0
-          );
-
-        let digital =
-          Number(
-            score.digital ??
-            score.digitalScore ??
-            score.digitalPoints ??
-            data.digital ??
-            data.digitalScore ??
-            0
-          );
-
-        /*
-         * If the API does not return a score object, calculate the
-         * same 100-point breakdown from the submitted form values.
-         * This keeps the screen correct even when an older backend
-         * response only returns recordId/message.
-         */
-        if (
-          ibadah === 0 &&
-          study === 0 &&
-          character === 0 &&
-          health === 0 &&
-          digital === 0
-        ) {
-          ibadah =
-            (payload.wakeupDua ? 2 : 0) +
-            (payload.tahajjud ? 10 : 0) +
-            (payload.fajr ? 3 : 0) +
-            (payload.dhuhr ? 3 : 0) +
-            (payload.asr ? 3 : 0) +
-            (payload.maghrib ? 3 : 0) +
-            (payload.isha ? 3 : 0) +
-            (payload.quranMinutes >= 15 ? 3 : 0);
-
-          study =
-            (payload.madrasaStudy ? 5 : 0) +
-            (payload.madrasaHomework ? 5 : 0) +
-            (payload.schoolStudy ? 5 : 0) +
-            (payload.schoolHomework ? 5 : 0);
-
-          character =
-            (payload.goodBehaviourWithParents ? 5 : 0) +
-            (payload.kissMother ? 5 : 0) +
-            (payload.helpOthers ? 4 : 0) +
-            (payload.didNotLie ? 3 : 0) +
-            (payload.controlledAnger ? 3 : 0) +
-            (payload.cleanedRoomBelongings ? 5 : 0) +
-            (payload.helpedParents ? 5 : 0);
-
-          health =
-            (payload.water ? 3 : 0) +
-            (payload.physicalActivity ? 4 : 0) +
-            (payload.healthyFood ? 3 : 0);
-
-          digital =
-            (payload.mobileUsageMinutes >= 0 &&
-             payload.mobileUsageMinutes <= 30 &&
-             payload.mobileUsageMinutes !== null
-              ? 3
-              : 0) +
-            (payload.bedtimeMobileAvoided ? 3 : 0) +
-            (payload.sleepTime ? 1 : 0) +
-            (payload.bedtimeDua ? 3 : 0);
-        }
 
         const total =
           Number(
             score.total ??
             score.totalScore ??
             data.totalScore ??
-            data.total ??
-            (ibadah + study + character + health + digital)
+            0
+          );
+
+        const ibadah =
+          Number(
+            score.ibadah ??
+            score.ibadahScore ??
+            0
+          );
+
+        const study =
+          Number(
+            score.study ??
+            score.studyScore ??
+            0
+          );
+
+        const character =
+          Number(
+            score.character ??
+            score.characterScore ??
+            0
+          );
+
+        const health =
+          Number(
+            score.health ??
+            score.healthScore ??
+            0
+          );
+
+        const digital =
+          Number(
+            score.digital ??
+            score.digitalScore ??
+            0
           );
 
         document
