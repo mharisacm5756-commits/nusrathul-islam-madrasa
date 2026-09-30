@@ -9,17 +9,22 @@ const API_URL =
 
 let currentSession = null;
 
+
 // ==========================================
 // API REQUEST
 // ==========================================
 
 async function apiRequest(action, data = {}) {
+
   try {
+
     const response = await fetch(API_URL, {
       method: "POST",
+
       headers: {
         "Content-Type": "text/plain;charset=utf-8"
       },
+
       body: JSON.stringify({
         action: action,
         ...data
@@ -31,29 +36,49 @@ async function apiRequest(action, data = {}) {
     let result;
 
     try {
+
       result = JSON.parse(text);
+
     } catch (error) {
-      console.error("Invalid JSON response:", text);
-      throw new Error("Server response ശരിയായ format-ൽ അല്ല.");
+
+      console.error(
+        "Invalid JSON response:",
+        text
+      );
+
+      throw new Error(
+        "Server response ശരിയായ format-ൽ അല്ല."
+      );
     }
 
     if (result.success === false) {
-      throw new Error(result.message || "Request failed.");
+
+      throw new Error(
+        result.message ||
+        "Request failed."
+      );
     }
 
     return result;
 
   } catch (error) {
-    console.error("API Error:", error);
+
+    console.error(
+      "API Error:",
+      error
+    );
+
     throw error;
   }
 }
+
 
 // ==========================================
 // LOCAL STORAGE
 // ==========================================
 
 function saveSession(session) {
+
   localStorage.setItem(
     "nusrathul_islam_session",
     JSON.stringify(session)
@@ -62,23 +87,36 @@ function saveSession(session) {
   currentSession = session;
 }
 
-function getSession() {
-  try {
-    const saved = localStorage.getItem(
-      "nusrathul_islam_session"
-    );
 
-    if (!saved) return null;
+function getSession() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        "nusrathul_islam_session"
+      );
+
+    if (!saved) {
+      return null;
+    }
 
     return JSON.parse(saved);
 
   } catch (error) {
-    console.error("Session error:", error);
+
+    console.error(
+      "Session error:",
+      error
+    );
+
     return null;
   }
 }
 
+
 function clearSession() {
+
   localStorage.removeItem(
     "nusrathul_islam_session"
   );
@@ -86,17 +124,28 @@ function clearSession() {
   currentSession = null;
 }
 
+
 // ==========================================
 // UI HELPERS
 // ==========================================
 
-function showLoading(message = "Loading...") {
-  const overlay = document.getElementById("loadingOverlay");
+function showLoading(
+  message = "Loading..."
+) {
+
+  const overlay =
+    document.getElementById(
+      "loadingOverlay"
+    );
 
   if (overlay) {
+
     overlay.style.display = "flex";
 
-    const text = overlay.querySelector(".loading-text");
+    const text =
+      overlay.querySelector(
+        ".loading-text"
+      );
 
     if (text) {
       text.textContent = message;
@@ -104,52 +153,83 @@ function showLoading(message = "Loading...") {
   }
 }
 
+
 function hideLoading() {
-  const overlay = document.getElementById("loadingOverlay");
+
+  const overlay =
+    document.getElementById(
+      "loadingOverlay"
+    );
 
   if (overlay) {
     overlay.style.display = "none";
   }
 }
 
-function showMessage(message, type = "success") {
+
+function showMessage(
+  message,
+  type = "success"
+) {
+
   const container =
-    document.getElementById("messageContainer");
+    document.getElementById(
+      "messageContainer"
+    );
 
   if (!container) {
+
     alert(message);
+
     return;
   }
 
   container.innerHTML = "";
 
-  const messageBox = document.createElement("div");
+  const messageBox =
+    document.createElement(
+      "div"
+    );
 
   messageBox.className =
     "message-box " + type;
 
-  messageBox.textContent = message;
+  messageBox.textContent =
+    message;
 
-  container.appendChild(messageBox);
+  container.appendChild(
+    messageBox
+  );
 
-  setTimeout(() => {
-    messageBox.remove();
-  }, 4000);
+  setTimeout(
+    () => {
+      messageBox.remove();
+    },
+    4000
+  );
 }
+
 
 // ==========================================
 // PAGE SWITCHING
 // ==========================================
 
 function showLoginPage() {
+
   const loginPage =
-    document.getElementById("loginPage");
+    document.getElementById(
+      "loginPage"
+    );
 
   const studentDashboard =
-    document.getElementById("studentDashboard");
+    document.getElementById(
+      "studentDashboard"
+    );
 
   const adminDashboard =
-    document.getElementById("adminDashboard");
+    document.getElementById(
+      "adminDashboard"
+    );
 
   if (loginPage) {
     loginPage.style.display = "block";
@@ -164,15 +244,23 @@ function showLoginPage() {
   }
 }
 
+
 function showStudentDashboard() {
+
   const loginPage =
-    document.getElementById("loginPage");
+    document.getElementById(
+      "loginPage"
+    );
 
   const studentDashboard =
-    document.getElementById("studentDashboard");
+    document.getElementById(
+      "studentDashboard"
+    );
 
   const adminDashboard =
-    document.getElementById("adminDashboard");
+    document.getElementById(
+      "adminDashboard"
+    );
 
   if (loginPage) {
     loginPage.style.display = "none";
@@ -187,15 +275,23 @@ function showStudentDashboard() {
   }
 }
 
+
 function showAdminDashboard() {
+
   const loginPage =
-    document.getElementById("loginPage");
+    document.getElementById(
+      "loginPage"
+    );
 
   const studentDashboard =
-    document.getElementById("studentDashboard");
+    document.getElementById(
+      "studentDashboard"
+    );
 
   const adminDashboard =
-    document.getElementById("adminDashboard");
+    document.getElementById(
+      "adminDashboard"
+    );
 
   if (loginPage) {
     loginPage.style.display = "none";
@@ -210,81 +306,179 @@ function showAdminDashboard() {
   }
 }
 
+
+// ==========================================
+// NORMALIZE LOGIN INPUT
+// ==========================================
+
+function normalizeLoginInput(value) {
+
+  let input =
+    String(value || "").trim();
+
+  // Student ID:
+  // stu0001
+  // STU0001
+  // stu-0001
+  // STU-0001
+  // stu 0001
+  // എല്ലാം STU-0001 ആക്കും
+
+  if (/^stu[\s-]*\d+$/i.test(input)) {
+
+    const number =
+      input
+        .replace(/^stu[\s-]*/i, "")
+        .replace(/\s+/g, "");
+
+    input =
+      "STU-" + number;
+  }
+
+  return input;
+}
+
+
 // ==========================================
 // LOGIN
 // ==========================================
 
 async function handleLogin(event) {
+
   event.preventDefault();
 
   const usernameElement =
-    document.getElementById("username");
+    document.getElementById(
+      "username"
+    );
 
   const passwordElement =
-    document.getElementById("password");
+    document.getElementById(
+      "password"
+    );
 
   const roleElement =
-    document.getElementById("loginRole");
+    document.getElementById(
+      "loginRole"
+    );
 
-  if (!usernameElement || !passwordElement) {
+  if (
+    !usernameElement ||
+    !passwordElement
+  ) {
+
     return;
   }
 
+
+  // ========================================
+  // IMPORTANT:
+  // Student ID / Username
+  // ========================================
+
   const username =
-    usernameElement.value.trim();
+    normalizeLoginInput(
+      usernameElement.value
+    );
+
 
   const password =
-    passwordElement.value.trim();
+    String(
+      passwordElement.value || ""
+    ).trim();
+
 
   const role =
     roleElement
       ? roleElement.value
       : "student";
 
+
   if (!username || !password) {
+
     showMessage(
-      "Username, Student ID അല്ലെങ്കിൽ Password നൽകുക.",
+      "Student ID / Username, Password നൽകുക.",
       "error"
     );
 
     return;
   }
 
+
   try {
-    showLoading("Login ചെയ്യുന്നു...");
+
+    showLoading(
+      "Login ചെയ്യുന്നു..."
+    );
+
 
     let result;
 
+
+    // ======================================
+    // ADMIN LOGIN
+    // ======================================
+
     if (role === "admin") {
 
-      result = await apiRequest(
-        "loginAdmin",
-        {
-          username: username,
-          password: password
-        }
-      );
+      result =
+        await apiRequest(
+          "loginAdmin",
+          {
+            username:
+              username,
 
-    } else {
+            password:
+              password
+          }
+        );
 
-      result = await apiRequest(
-        "loginStudent",
-        {
-          username: username,
-          password: password
-        }
-      );
     }
 
-    const session =
-      result.data || result;
 
-    saveSession(session);
+    // ======================================
+    // STUDENT LOGIN
+    // ======================================
+
+    else {
+
+      result =
+        await apiRequest(
+          "loginStudent",
+          {
+            username:
+              username,
+
+            password:
+              password
+          }
+        );
+    }
+
+
+    // ======================================
+    // SAVE SESSION
+    // ======================================
+
+    const session =
+      result.data ||
+      result;
+
+
+    saveSession(
+      session
+    );
+
 
     showMessage(
       "Login വിജയിച്ചു.",
       "success"
     );
+
+
+    // ======================================
+    // ADMIN
+    // ======================================
 
     if (role === "admin") {
 
@@ -292,16 +486,28 @@ async function handleLogin(event) {
 
       await loadAdminDashboard();
 
-    } else {
+    }
+
+
+    // ======================================
+    // STUDENT
+    // ======================================
+
+    else {
 
       showStudentDashboard();
 
       await loadStudentDashboard();
     }
 
+
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Login error:",
+      error
+    );
+
 
     showMessage(
       error.message ||
@@ -309,11 +515,13 @@ async function handleLogin(event) {
       "error"
     );
 
+
   } finally {
 
     hideLoading();
   }
 }
+
 
 // ==========================================
 // STUDENT DASHBOARD
@@ -321,7 +529,10 @@ async function handleLogin(event) {
 
 async function loadStudentDashboard() {
 
-  if (!currentSession) return;
+  if (!currentSession) {
+    return;
+  }
+
 
   try {
 
@@ -329,33 +540,48 @@ async function loadStudentDashboard() {
       "Student dashboard loading..."
     );
 
+
     const studentId =
       currentSession.studentId ||
       currentSession.StudentID ||
       currentSession.id;
 
+
     if (!studentId) {
+
       throw new Error(
         "Student ID session-ൽ ലഭ്യമല്ല."
       );
     }
 
+
     const result =
       await apiRequest(
         "getStudentDashboard",
         {
-          studentId: studentId
+          studentId:
+            studentId
         }
       );
 
-    const data =
-      result.data || result;
 
-    renderStudentDashboard(data);
+    const data =
+      result.data ||
+      result;
+
+
+    renderStudentDashboard(
+      data
+    );
+
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Student dashboard error:",
+      error
+    );
+
 
     showMessage(
       error.message ||
@@ -363,31 +589,51 @@ async function loadStudentDashboard() {
       "error"
     );
 
+
   } finally {
 
     hideLoading();
   }
 }
 
+
 // ==========================================
 // RENDER STUDENT DASHBOARD
 // ==========================================
 
-function renderStudentDashboard(data) {
+function renderStudentDashboard(
+  data
+) {
 
-  if (!data) return;
+  if (!data) {
+    return;
+  }
+
 
   const student =
-    data.student || {};
+    data.student ||
+    {};
+
 
   const today =
-    data.today || {};
+    data.today ||
+    {};
+
 
   const stats =
-    data.stats || {};
+    data.stats ||
+    {};
+
+
+  // ========================================
+  // STUDENT NAME
+  // ========================================
 
   const nameElement =
-    document.getElementById("studentName");
+    document.getElementById(
+      "studentName"
+    );
+
 
   if (nameElement) {
 
@@ -398,8 +644,16 @@ function renderStudentDashboard(data) {
       "Student";
   }
 
+
+  // ========================================
+  // TODAY SCORE
+  // ========================================
+
   const todayScoreElement =
-    document.getElementById("todayScore");
+    document.getElementById(
+      "todayScore"
+    );
+
 
   if (todayScoreElement) {
 
@@ -409,8 +663,16 @@ function renderStudentDashboard(data) {
       0;
   }
 
+
+  // ========================================
+  // CURRENT STREAK
+  // ========================================
+
   const streakElement =
-    document.getElementById("currentStreak");
+    document.getElementById(
+      "currentStreak"
+    );
+
 
   if (streakElement) {
 
@@ -420,8 +682,16 @@ function renderStudentDashboard(data) {
       0;
   }
 
+
+  // ========================================
+  // BEST STREAK
+  // ========================================
+
   const bestStreakElement =
-    document.getElementById("bestStreak");
+    document.getElementById(
+      "bestStreak"
+    );
+
 
   if (bestStreakElement) {
 
@@ -431,8 +701,16 @@ function renderStudentDashboard(data) {
       0;
   }
 
+
+  // ========================================
+  // ACTIVE DAYS
+  // ========================================
+
   const activeDaysElement =
-    document.getElementById("activeDays");
+    document.getElementById(
+      "activeDays"
+    );
+
 
   if (activeDaysElement) {
 
@@ -442,8 +720,16 @@ function renderStudentDashboard(data) {
       0;
   }
 
+
+  // ========================================
+  // MONTHLY AVERAGE
+  // ========================================
+
   const monthlyAverageElement =
-    document.getElementById("monthlyAverage");
+    document.getElementById(
+      "monthlyAverage"
+    );
+
 
   if (monthlyAverageElement) {
 
@@ -454,19 +740,24 @@ function renderStudentDashboard(data) {
   }
 }
 
+
 // ==========================================
 // ADMIN DASHBOARD
 // ==========================================
 
 async function loadAdminDashboard() {
 
-  if (!currentSession) return;
+  if (!currentSession) {
+    return;
+  }
+
 
   try {
 
     showLoading(
       "Admin dashboard loading..."
     );
+
 
     const result =
       await apiRequest(
@@ -479,14 +770,24 @@ async function loadAdminDashboard() {
         }
       );
 
-    const data =
-      result.data || result;
 
-    renderAdminDashboard(data);
+    const data =
+      result.data ||
+      result;
+
+
+    renderAdminDashboard(
+      data
+    );
+
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Admin dashboard error:",
+      error
+    );
+
 
     showMessage(
       error.message ||
@@ -494,29 +795,42 @@ async function loadAdminDashboard() {
       "error"
     );
 
+
   } finally {
 
     hideLoading();
   }
 }
 
+
 // ==========================================
 // RENDER ADMIN DASHBOARD
 // ==========================================
 
-function renderAdminDashboard(data) {
+function renderAdminDashboard(
+  data
+) {
 
-  if (!data) return;
+  if (!data) {
+    return;
+  }
+
 
   const stats =
     data.stats ||
     data.summary ||
     {};
 
+
+  // ========================================
+  // TOTAL STUDENTS
+  // ========================================
+
   const totalStudentsElement =
     document.getElementById(
       "totalStudents"
     );
+
 
   if (totalStudentsElement) {
 
@@ -526,10 +840,16 @@ function renderAdminDashboard(data) {
       0;
   }
 
+
+  // ========================================
+  // TODAY SUBMITTED
+  // ========================================
+
   const todaySubmittedElement =
     document.getElementById(
       "todaySubmitted"
     );
+
 
   if (todaySubmittedElement) {
 
@@ -539,10 +859,16 @@ function renderAdminDashboard(data) {
       0;
   }
 
+
+  // ========================================
+  // TODAY AVERAGE
+  // ========================================
+
   const todayAverageElement =
     document.getElementById(
       "todayAverage"
     );
+
 
   if (todayAverageElement) {
 
@@ -552,10 +878,16 @@ function renderAdminDashboard(data) {
       0;
   }
 
+
+  // ========================================
+  // ACTIVE STREAK STUDENTS
+  // ========================================
+
   const activeStreakStudentsElement =
     document.getElementById(
       "activeStreakStudents"
     );
+
 
   if (activeStreakStudentsElement) {
 
@@ -566,6 +898,7 @@ function renderAdminDashboard(data) {
   }
 }
 
+
 // ==========================================
 // LOGOUT
 // ==========================================
@@ -574,27 +907,38 @@ function logout() {
 
   clearSession();
 
+
   showLoginPage();
 
+
   const username =
-    document.getElementById("username");
+    document.getElementById(
+      "username"
+    );
+
 
   const password =
-    document.getElementById("password");
+    document.getElementById(
+      "password"
+    );
+
 
   if (username) {
     username.value = "";
   }
 
+
   if (password) {
     password.value = "";
   }
+
 
   showMessage(
     "Logout വിജയിച്ചു.",
     "success"
   );
 }
+
 
 // ==========================================
 // RESTORE SESSION
@@ -605,6 +949,7 @@ async function restoreSession() {
   const session =
     getSession();
 
+
   if (!session) {
 
     showLoginPage();
@@ -612,8 +957,10 @@ async function restoreSession() {
     return;
   }
 
+
   currentSession =
     session;
+
 
   try {
 
@@ -634,6 +981,7 @@ async function restoreSession() {
       await loadStudentDashboard();
     }
 
+
   } catch (error) {
 
     console.error(
@@ -641,11 +989,13 @@ async function restoreSession() {
       error
     );
 
+
     clearSession();
 
     showLoginPage();
   }
 }
+
 
 // ==========================================
 // LOGIN ROLE
@@ -658,10 +1008,12 @@ function setupLoginRole() {
       "[data-role]"
     );
 
+
   const roleInput =
     document.getElementById(
       "loginRole"
     );
+
 
   roleButtons.forEach(
     function(button) {
@@ -673,17 +1025,23 @@ function setupLoginRole() {
           const role =
             button.dataset.role;
 
+
           if (roleInput) {
-            roleInput.value = role;
+
+            roleInput.value =
+              role;
           }
+
 
           roleButtons.forEach(
             function(item) {
+
               item.classList.remove(
                 "active"
               );
             }
           );
+
 
           button.classList.add(
             "active"
@@ -694,6 +1052,7 @@ function setupLoginRole() {
   );
 }
 
+
 // ==========================================
 // EVENT LISTENERS
 // ==========================================
@@ -702,12 +1061,17 @@ document.addEventListener(
   "DOMContentLoaded",
   function() {
 
+
+    // Login role
     setupLoginRole();
 
+
+    // Login form
     const loginForm =
       document.getElementById(
         "loginForm"
       );
+
 
     if (loginForm) {
 
@@ -717,10 +1081,13 @@ document.addEventListener(
       );
     }
 
+
+    // Logout buttons
     const logoutButtons =
       document.querySelectorAll(
         "[data-action='logout']"
       );
+
 
     logoutButtons.forEach(
       function(button) {
@@ -732,6 +1099,9 @@ document.addEventListener(
       }
     );
 
+
+    // Restore previous session
     restoreSession();
+
   }
 );
