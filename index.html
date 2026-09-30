@@ -2327,6 +2327,7 @@ async function loadStudentDashboard(session) {
 
   try {
 
+    /* Load the normal dashboard summary */
     const result =
       await apiRequest(
         "getStudentDashboard",
@@ -2342,6 +2343,102 @@ async function loadStudentDashboard(session) {
 
     updateStudentDashboard(data);
 
+    /* Load today's actual saved record as well.
+       This makes Today's Points / category progress update
+       even when getStudentDashboard does not include the
+       today's score breakdown. */
+    try {
+
+      const dailyResult =
+        await apiRequest(
+          "getStudentDailyRecord",
+          {
+            studentId: studentId,
+            username: studentUsername,
+            date: getLocalDateString()
+          }
+        );
+
+      const dailyData =
+        dailyResult.data ||
+        dailyResult;
+
+      const record =
+        dailyData.record ||
+        dailyData.dailyRecord ||
+        dailyData.todayRecord ||
+        dailyData;
+
+      if (record && typeof record === "object") {
+
+        const total = Number(
+          record.totalScore ??
+          record.total ??
+          0
+        );
+
+        const ibadah = Number(
+          record.ibadahScore ??
+          record.ibadah ??
+          0
+        );
+
+        const study = Number(
+          record.studyScore ??
+          record.study ??
+          0
+        );
+
+        const character = Number(
+          record.characterScore ??
+          record.character ??
+          0
+        );
+
+        const health = Number(
+          record.healthScore ??
+          record.health ??
+          0
+        );
+
+        const digital = Number(
+          record.digitalScore ??
+          record.digital ??
+          0
+        );
+
+        /* Only update when a real daily record exists. */
+        if (
+          record.submitted === true ||
+          record.submitted === "TRUE" ||
+          record.totalScore !== undefined ||
+          record.total !== undefined
+        ) {
+
+          document
+            .getElementById("todayScore")
+            .textContent = total;
+
+          updateProgressFromData({
+            score: {
+              ibadahScore: ibadah,
+              studyScore: study,
+              characterScore: character,
+              healthScore: health,
+              digitalScore: digital
+            }
+          });
+        }
+      }
+
+    } catch (dailyError) {
+
+      console.warn(
+        "Today's record could not be loaded:",
+        dailyError
+      );
+    }
+
   } catch (error) {
 
     console.error(
@@ -2351,6 +2448,7 @@ async function loadStudentDashboard(session) {
 
   }
 }
+
 
 /* ==========================================================
    UPDATE STUDENT DASHBOARD
