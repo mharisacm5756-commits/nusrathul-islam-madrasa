@@ -2804,51 +2804,130 @@ document
           result.data ||
           result;
 
+        /*
+         * SAVE RESPONSE SCORE
+         * Backend versions may return the score in slightly
+         * different places. Read all supported shapes first.
+         */
         const score =
           data.score ||
+          data.record?.score ||
+          data.dailyScore ||
+          data.todayScoreBreakdown ||
+          result.score ||
           {};
+
+        let ibadah =
+          Number(
+            score.ibadah ??
+            score.ibadahScore ??
+            score.ibadahPoints ??
+            data.ibadah ??
+            data.ibadahScore ??
+            0
+          );
+
+        let study =
+          Number(
+            score.study ??
+            score.studyScore ??
+            score.studyPoints ??
+            data.study ??
+            data.studyScore ??
+            0
+          );
+
+        let character =
+          Number(
+            score.character ??
+            score.characterScore ??
+            score.characterPoints ??
+            data.character ??
+            data.characterScore ??
+            0
+          );
+
+        let health =
+          Number(
+            score.health ??
+            score.healthScore ??
+            score.healthPoints ??
+            data.health ??
+            data.healthScore ??
+            0
+          );
+
+        let digital =
+          Number(
+            score.digital ??
+            score.digitalScore ??
+            score.digitalPoints ??
+            data.digital ??
+            data.digitalScore ??
+            0
+          );
+
+        /*
+         * If the API does not return a score object, calculate the
+         * same 100-point breakdown from the submitted form values.
+         * This keeps the screen correct even when an older backend
+         * response only returns recordId/message.
+         */
+        if (
+          ibadah === 0 &&
+          study === 0 &&
+          character === 0 &&
+          health === 0 &&
+          digital === 0
+        ) {
+          ibadah =
+            (payload.wakeupDua ? 2 : 0) +
+            (payload.tahajjud ? 10 : 0) +
+            (payload.fajr ? 3 : 0) +
+            (payload.dhuhr ? 3 : 0) +
+            (payload.asr ? 3 : 0) +
+            (payload.maghrib ? 3 : 0) +
+            (payload.isha ? 3 : 0) +
+            (payload.quranMinutes >= 15 ? 3 : 0);
+
+          study =
+            (payload.madrasaStudy ? 5 : 0) +
+            (payload.madrasaHomework ? 5 : 0) +
+            (payload.schoolStudy ? 5 : 0) +
+            (payload.schoolHomework ? 5 : 0);
+
+          character =
+            (payload.goodBehaviourWithParents ? 5 : 0) +
+            (payload.kissMother ? 5 : 0) +
+            (payload.helpOthers ? 4 : 0) +
+            (payload.didNotLie ? 3 : 0) +
+            (payload.controlledAnger ? 3 : 0) +
+            (payload.cleanedRoomBelongings ? 5 : 0) +
+            (payload.helpedParents ? 5 : 0);
+
+          health =
+            (payload.water ? 3 : 0) +
+            (payload.physicalActivity ? 4 : 0) +
+            (payload.healthyFood ? 3 : 0);
+
+          digital =
+            (payload.mobileUsageMinutes >= 0 &&
+             payload.mobileUsageMinutes <= 30 &&
+             payload.mobileUsageMinutes !== null
+              ? 3
+              : 0) +
+            (payload.bedtimeMobileAvoided ? 3 : 0) +
+            (payload.sleepTime ? 1 : 0) +
+            (payload.bedtimeDua ? 3 : 0);
+        }
 
         const total =
           Number(
             score.total ??
             score.totalScore ??
             data.totalScore ??
-            0
-          );
-
-        const ibadah =
-          Number(
-            score.ibadah ??
-            score.ibadahScore ??
-            0
-          );
-
-        const study =
-          Number(
-            score.study ??
-            score.studyScore ??
-            0
-          );
-
-        const character =
-          Number(
-            score.character ??
-            score.characterScore ??
-            0
-          );
-
-        const health =
-          Number(
-            score.health ??
-            score.healthScore ??
-            0
-          );
-
-        const digital =
-          Number(
-            score.digital ??
-            score.digitalScore ??
-            0
+            data.total ??
+            (ibadah + study + character + health + digital)
           );
 
         document
