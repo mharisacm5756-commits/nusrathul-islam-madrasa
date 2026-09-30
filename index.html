@@ -55,9 +55,13 @@
 
     .login-page {
       min-height: 100vh;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       padding: 20px;
 
       background:
@@ -71,6 +75,7 @@
 
     .login-card {
       width: 100%;
+
       max-width: 430px;
 
       background: #ffffff;
@@ -86,6 +91,7 @@
 
     .logo-circle {
       width: 78px;
+
       height: 78px;
 
       margin: 0 auto 16px;
@@ -93,10 +99,13 @@
       border-radius: 50%;
 
       display: flex;
+
       align-items: center;
+
       justify-content: center;
 
       background: #176b3a;
+
       color: #ffffff;
 
       font-size: 34px;
@@ -106,6 +115,7 @@
       text-align: center;
 
       font-size: 24px;
+
       font-weight: 800;
 
       color: #125b31;
@@ -475,6 +485,134 @@
     }
 
     /* =========================
+       DAILY HABIT FORM
+    ========================== */
+
+    .habit-category-title {
+      margin: 24px 0 12px;
+
+      color: #176b3a;
+
+      font-size: 17px;
+
+      font-weight: 800;
+    }
+
+    .habit-category-title:first-of-type {
+      margin-top: 5px;
+    }
+
+    .habit-item {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 12px;
+
+      padding: 13px 12px;
+
+      margin-bottom: 8px;
+
+      background: #f8fcf9;
+
+      border: 1px solid #e1ece4;
+
+      border-radius: 12px;
+
+      font-size: 14px;
+
+      color: #31533d;
+    }
+
+    .habit-left {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      flex: 1;
+    }
+
+    .habit-item input[type="checkbox"] {
+      width: 21px;
+
+      height: 21px;
+
+      accent-color: #176b3a;
+
+      flex-shrink: 0;
+    }
+
+    .habit-item input[type="number"],
+    .habit-item input[type="time"] {
+      width: 110px;
+
+      border: 1px solid #d4e3d8;
+
+      border-radius: 8px;
+
+      padding: 8px;
+
+      background: #ffffff;
+
+      outline: none;
+    }
+
+    .habit-item input[type="number"]:focus,
+    .habit-item input[type="time"]:focus {
+      border-color: #176b3a;
+    }
+
+    .habit-points {
+      color: #176b3a;
+
+      font-weight: 800;
+
+      white-space: nowrap;
+    }
+
+    .habit-submit-button {
+      width: 100%;
+
+      border: 0;
+
+      border-radius: 13px;
+
+      padding: 15px;
+
+      background: #176b3a;
+
+      color: #ffffff;
+
+      font-weight: 800;
+
+      margin-top: 20px;
+    }
+
+    .habit-submit-button:hover {
+      background: #11572f;
+    }
+
+    .habit-submit-button:disabled {
+      opacity: 0.6;
+
+      cursor: not-allowed;
+    }
+
+    .habit-note {
+      margin-top: 10px;
+
+      text-align: center;
+
+      font-size: 12px;
+
+      color: #718076;
+    }
+
+    /* =========================
        BOTTOM NAV
     ========================== */
 
@@ -631,28 +769,21 @@
 
     <div class="login-card">
 
-
       <div class="logo-circle">
         🌱
       </div>
-
 
       <div class="login-title">
         NUSRATHUL ISLAM MADRASA
       </div>
 
-
       <div class="login-subtitle">
         NADUVATHUR
       </div>
 
-
       <div class="tagline">
         🌱 നല്ല ശീലങ്ങൾ നല്ലൊരു ഭാവി
       </div>
-
-
-      <!-- ROLE BUTTONS -->
 
       <div class="role-buttons">
 
@@ -664,7 +795,6 @@
         >
           👨‍🎓 Student
         </button>
-
 
         <button
           id="adminRoleButton"
@@ -678,19 +808,13 @@
       </div>
 
 
-      <!-- LOGIN FORM -->
-
       <form id="loginForm">
-
-
-        <!-- STUDENT USERNAME -->
 
         <div class="form-group">
 
           <label id="usernameLabel">
             Student Username
           </label>
-
 
           <input
             id="username"
@@ -703,14 +827,11 @@
         </div>
 
 
-        <!-- PASSWORD -->
-
         <div class="form-group">
 
           <label for="password">
             Password
           </label>
-
 
           <input
             id="password"
@@ -723,8 +844,6 @@
         </div>
 
 
-        <!-- LOGIN BUTTON -->
-
         <button
           id="loginButton"
           class="primary-button"
@@ -734,8 +853,6 @@
         </button>
 
 
-        <!-- LOADING -->
-
         <div
           id="loadingMessage"
           class="loading"
@@ -744,20 +861,16 @@
         </div>
 
 
-        <!-- MESSAGE -->
-
         <div
           id="loginMessage"
           class="message"
         ></div>
-
 
       </form>
 
     </div>
 
   </section>
-
 
 
   <!-- =========================
@@ -769,7 +882,6 @@
     class="main-app hidden"
   >
 
-
     <header class="topbar">
 
       <div class="topbar-inner">
@@ -777,7 +889,6 @@
         <div class="brand">
           🌱 Nusrathul Islam
         </div>
-
 
         <button
           class="logout-button"
@@ -811,7 +922,6 @@
       <!-- STUDENT STATS -->
 
       <div class="stats-grid">
-
 
         <div class="stat-card">
 
@@ -876,7 +986,6 @@
 
         </div>
 
-
       </div>
 
 
@@ -888,8 +997,6 @@
           📊 Today's Progress
         </h2>
 
-
-        <!-- IBADAH -->
 
         <div class="progress-row">
 
@@ -905,7 +1012,6 @@
 
           </div>
 
-
           <div class="progress-track">
 
             <div
@@ -917,8 +1023,6 @@
 
         </div>
 
-
-        <!-- STUDY -->
 
         <div class="progress-row">
 
@@ -934,7 +1038,6 @@
 
           </div>
 
-
           <div class="progress-track">
 
             <div
@@ -946,8 +1049,6 @@
 
         </div>
 
-
-        <!-- CHARACTER -->
 
         <div class="progress-row">
 
@@ -963,7 +1064,6 @@
 
           </div>
 
-
           <div class="progress-track">
 
             <div
@@ -975,8 +1075,6 @@
 
         </div>
 
-
-        <!-- HEALTH -->
 
         <div class="progress-row">
 
@@ -992,7 +1090,6 @@
 
           </div>
 
-
           <div class="progress-track">
 
             <div
@@ -1004,8 +1101,6 @@
 
         </div>
 
-
-        <!-- DIGITAL -->
 
         <div class="progress-row">
 
@@ -1021,7 +1116,6 @@
 
           </div>
 
-
           <div class="progress-track">
 
             <div
@@ -1033,21 +1127,706 @@
 
         </div>
 
-
       </div>
 
 
-      <!-- DAILY HABIT -->
+      <!-- =========================
+           DAILY HABIT FORM
+      ========================== -->
 
       <div class="section-card">
 
         <h2>
-          🌱 Daily Habit
+          🌱 Today's Daily Habits
         </h2>
 
-        <div class="empty-state">
-          Daily habit form will appear here.
-        </div>
+
+        <form id="dailyHabitForm">
+
+
+          <!-- =====================
+               IBADAH
+          ====================== -->
+
+          <div class="habit-category-title">
+            🕌 Ibadah — 30 Points
+          </div>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="wakeupDua"
+              >
+
+              <span>
+                Wakeup Dua
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              2 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="tahajjud"
+              >
+
+              <span>
+                Tahajjud
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              10 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="fajr"
+              >
+
+              <span>
+                Fajr
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="dhuhr"
+              >
+
+              <span>
+                Dhuhr
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="asr"
+              >
+
+              <span>
+                Asr
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="maghrib"
+              >
+
+              <span>
+                Maghrib
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="isha"
+              >
+
+              <span>
+                Isha
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <div class="habit-item">
+
+            <span class="habit-left">
+
+              <span>
+                📖 Quran Minutes
+              </span>
+
+            </span>
+
+            <input
+              type="number"
+              id="quranMinutes"
+              min="0"
+              max="1440"
+              placeholder="Minutes"
+            >
+
+          </div>
+
+
+          <!-- =====================
+               STUDY
+          ====================== -->
+
+          <div class="habit-category-title">
+            📚 Study — 20 Points
+          </div>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="madrasaStudy"
+              >
+
+              <span>
+                Madrasa Study
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              5 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="madrasaHomework"
+              >
+
+              <span>
+                Madrasa Homework
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              5 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="schoolStudy"
+              >
+
+              <span>
+                School Study
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              5 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="schoolHomework"
+              >
+
+              <span>
+                School Homework
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              5 pts
+            </span>
+
+          </label>
+
+
+          <!-- =====================
+               CHARACTER
+          ====================== -->
+
+          <div class="habit-category-title">
+            ❤️ Character — 30 Points
+          </div>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="goodBehaviourWithParents"
+              >
+
+              <span>
+                Good Behaviour With Parents
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              5 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="kissMother"
+              >
+
+              <span>
+                Kiss Mother
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              5 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="helpOthers"
+              >
+
+              <span>
+                Help Others
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              4 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="didNotLie"
+              >
+
+              <span>
+                Did Not Lie
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="controlledAnger"
+              >
+
+              <span>
+                Controlled Anger
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="cleanedRoom"
+              >
+
+              <span>
+                Cleaned Room / Belongings
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              5 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="helpedParents"
+              >
+
+              <span>
+                Helped Parents
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              5 pts
+            </span>
+
+          </label>
+
+
+          <!-- =====================
+               HEALTH
+          ====================== -->
+
+          <div class="habit-category-title">
+            💪 Health — 10 Points
+          </div>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="water"
+              >
+
+              <span>
+                Drank Enough Water
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="physicalActivity"
+              >
+
+              <span>
+                Physical Activity 20–30 Minutes
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              4 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="healthyFood"
+              >
+
+              <span>
+                Healthy Food
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <!-- =====================
+               DIGITAL
+          ====================== -->
+
+          <div class="habit-category-title">
+            📱 Digital Discipline — 10 Points
+          </div>
+
+
+          <div class="habit-item">
+
+            <span class="habit-left">
+
+              <span>
+                📱 Mobile Usage Minutes
+              </span>
+
+            </span>
+
+            <input
+              type="number"
+              id="mobileUsageMinutes"
+              min="0"
+              max="1440"
+              placeholder="Minutes"
+            >
+
+          </div>
+
+
+          <div class="habit-item">
+
+            <span class="habit-left">
+
+              <span>
+                🎮 Games Minutes
+              </span>
+
+            </span>
+
+            <input
+              type="number"
+              id="gamesMinutes"
+              min="0"
+              max="1440"
+              placeholder="Minutes"
+            >
+
+          </div>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="bedtimeMobileAvoided"
+              >
+
+              <span>
+                Bedtime Mobile Avoided
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              3 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="sleepOnTime"
+              >
+
+              <span>
+                Sleep On Time
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              2 pts
+            </span>
+
+          </label>
+
+
+          <label class="habit-item">
+
+            <span class="habit-left">
+
+              <input
+                type="checkbox"
+                id="bedtimeDua"
+              >
+
+              <span>
+                Bedtime Dua
+              </span>
+
+            </span>
+
+            <span class="habit-points">
+              2 pts
+            </span>
+
+          </label>
+
+
+          <!-- =====================
+               SLEEP TIME
+          ====================== -->
+
+          <div class="habit-item">
+
+            <span class="habit-left">
+
+              <span>
+                😴 Sleep Time
+              </span>
+
+            </span>
+
+            <input
+              type="time"
+              id="sleepTime"
+            >
+
+          </div>
+
+
+          <!-- =====================
+               SUBMIT
+          ====================== -->
+
+          <button
+            id="habitSubmitButton"
+            class="habit-submit-button"
+            type="submit"
+          >
+            ✅ Submit Today's Habits
+          </button>
+
+
+          <div
+            id="habitMessage"
+            class="message"
+          ></div>
+
+
+          <div class="habit-note">
+            Today's habits can be submitted once the backend connection is completed.
+          </div>
+
+
+        </form>
 
       </div>
 
@@ -1058,7 +1837,6 @@
     <!-- STUDENT NAVIGATION -->
 
     <nav class="bottom-nav">
-
 
       <button
         class="nav-button active"
@@ -1104,11 +1882,9 @@
         <span>Profile</span>
       </button>
 
-
     </nav>
 
   </section>
-
 
 
   <!-- =========================
@@ -1119,7 +1895,6 @@
     id="adminApp"
     class="main-app hidden"
   >
-
 
     <header class="topbar">
 
@@ -1328,6 +2103,7 @@ function selectLoginRole(role) {
 
     usernameInput.placeholder =
       "Enter admin username";
+
   }
 
 }
@@ -1354,6 +2130,7 @@ function showLoginMessage(
 
   element.className =
     "message " + type;
+
 }
 
 
@@ -1407,6 +2184,7 @@ async function apiRequest(
     throw new Error(
       "Invalid server response."
     );
+
   }
 
 
@@ -1419,10 +2197,12 @@ async function apiRequest(
       result.message ||
       "Request failed."
     );
+
   }
 
 
   return result;
+
 }
 
 
@@ -1435,7 +2215,6 @@ document
   .addEventListener(
     "submit",
     async function(event) {
-
 
       event.preventDefault();
 
@@ -1480,6 +2259,7 @@ document
         );
 
         return;
+
       }
 
 
@@ -1495,10 +2275,6 @@ document
 
         let result;
 
-
-        /* =========================
-           STUDENT LOGIN
-        ========================== */
 
         if (
           loginRole === "student"
@@ -1516,15 +2292,7 @@ document
               }
             );
 
-
-        }
-
-
-        /* =========================
-           ADMIN LOGIN
-        ========================== */
-
-        else {
+        } else {
 
           result =
             await apiRequest(
@@ -1546,10 +2314,6 @@ document
           result;
 
 
-        /* =========================
-           SAVE SESSION
-        ========================== */
-
         localStorage.setItem(
           "madrasaSession",
           JSON.stringify(
@@ -1557,10 +2321,6 @@ document
           )
         );
 
-
-        /* =========================
-           HIDE LOGIN
-        ========================== */
 
         document
           .getElementById(
@@ -1570,10 +2330,6 @@ document
             "hidden"
           );
 
-
-        /* =========================
-           STUDENT
-        ========================== */
 
         if (
           loginRole === "student"
@@ -1593,14 +2349,7 @@ document
           );
 
 
-        }
-
-
-        /* =========================
-           ADMIN
-        ========================== */
-
-        else {
+        } else {
 
           document
             .getElementById(
@@ -1614,6 +2363,7 @@ document
           loadAdminDashboard(
             session
           );
+
         }
 
 
@@ -1640,6 +2390,7 @@ document
 
         loading.style.display =
           "none";
+
       }
 
     }
@@ -1653,18 +2404,6 @@ document
 async function loadStudentDashboard(
   session
 ) {
-
-
-  /*
-   * Backend login response:
-   *
-   * session.student.studentId
-   * session.student.studentName
-   * session.student.username
-   *
-   * അതിനനുസരിച്ചാണ് ഇവിടെ എടുത്തിരിക്കുന്നത്.
-   */
-
 
   const student =
     session.student ||
@@ -1893,6 +2632,36 @@ function updateAdminDashboard(
 
 
 /* ==========================================================
+   DAILY HABIT FORM
+========================================================== */
+
+document
+  .getElementById("dailyHabitForm")
+  .addEventListener(
+    "submit",
+    function(event) {
+
+      event.preventDefault();
+
+
+      const message =
+        document.getElementById(
+          "habitMessage"
+        );
+
+
+      message.textContent =
+        "Daily habit form is ready. Backend connection will be added in the next step.";
+
+
+      message.className =
+        "message success";
+
+    }
+  );
+
+
+/* ==========================================================
    LOGOUT
 ========================================================== */
 
@@ -1976,10 +2745,6 @@ function restoreSession() {
       );
 
 
-    /*
-     * Student session
-     */
-
     if (
       session.userType ===
       "student"
@@ -2013,12 +2778,9 @@ function restoreSession() {
 
 
       return;
+
     }
 
-
-    /*
-     * Admin session
-     */
 
     if (
       session.userType ===
@@ -2057,6 +2819,7 @@ function restoreSession() {
 
 
       return;
+
     }
 
 
@@ -2071,6 +2834,7 @@ function restoreSession() {
     localStorage.removeItem(
       "madrasaSession"
     );
+
   }
 
 }
