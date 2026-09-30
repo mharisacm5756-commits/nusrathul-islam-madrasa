@@ -733,6 +733,164 @@
       color: #176b3a;
     }
 
+
+    /* =========================
+       STUDENT PROGRESS PAGE
+    ========================== */
+
+    .progress-page {
+      display: none;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 14px 100px;
+    }
+
+    .progress-page.show {
+      display: block;
+    }
+
+    .progress-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .progress-summary-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 5px 20px rgba(18, 74, 39, 0.07);
+    }
+
+    .progress-summary-label {
+      color: #6a7d70;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .progress-summary-value {
+      color: #176b3a;
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .progress-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      min-height: 180px;
+      padding: 18px 8px 8px;
+      background: #f7fcf8;
+      border-radius: 14px;
+    }
+
+    .progress-bar-column {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 150px;
+    }
+
+    .progress-bar-value {
+      font-size: 10px;
+      font-weight: 800;
+      color: #176b3a;
+      margin-bottom: 4px;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      max-width: 34px;
+      height: 105px;
+      background: #e4f0e7;
+      border-radius: 10px 10px 4px 4px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      width: 100%;
+      background: #176b3a;
+      border-radius: 10px 10px 4px 4px;
+      min-height: 2px;
+    }
+
+    .progress-bar-label {
+      font-size: 9px;
+      color: #718076;
+      margin-top: 5px;
+      white-space: nowrap;
+    }
+
+    .category-progress-item {
+      margin-bottom: 15px;
+    }
+
+    .category-progress-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .category-progress-track {
+      height: 10px;
+      background: #e7f0e9;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .category-progress-fill {
+      height: 100%;
+      width: 0;
+      background: #176b3a;
+      border-radius: 20px;
+    }
+
+    .progress-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .progress-list-row {
+      display: grid;
+      grid-template-columns: 82px 1fr 45px;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .progress-list-track {
+      height: 8px;
+      background: #e7f0e9;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-list-fill {
+      height: 100%;
+      background: #2b8750;
+      border-radius: 20px;
+    }
+
+    @media (min-width: 700px) {
+      .progress-summary-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .progress-page {
+        padding: 30px 22px 40px;
+      }
+    }
+
     /* =========================
        RESPONSIVE
     ========================== */
@@ -926,7 +1084,7 @@
     </header>
 
 
-    <main class="content">
+    <main id="studentHomePage" class="content">
 
 
       <div class="welcome">
@@ -1824,6 +1982,91 @@
     </main>
 
 
+
+    <!-- =========================
+         STUDENT PROGRESS PAGE
+    ========================== -->
+
+    <section id="studentProgressPage" class="progress-page">
+
+      <div class="page-title-card section-card">
+        <h2>📊 Progress</h2>
+        <p>നിങ്ങളുടെ Weekly & Monthly progress ഇവിടെ കാണാം.</p>
+      </div>
+
+      <div class="progress-summary-grid">
+
+        <div class="progress-summary-card">
+          <div class="progress-summary-label">Weekly Average</div>
+          <div id="progressWeeklyAverage" class="progress-summary-value">0</div>
+        </div>
+
+        <div class="progress-summary-card">
+          <div class="progress-summary-label">Monthly Average</div>
+          <div id="progressMonthlyAverage" class="progress-summary-value">0</div>
+        </div>
+
+        <div class="progress-summary-card">
+          <div class="progress-summary-label">Active Days</div>
+          <div id="progressActiveDays" class="progress-summary-value">0</div>
+        </div>
+
+        <div class="progress-summary-card">
+          <div class="progress-summary-label">Current Streak</div>
+          <div id="progressCurrentStreak" class="progress-summary-value">0</div>
+        </div>
+
+        <div class="progress-summary-card">
+          <div class="progress-summary-label">Best Streak</div>
+          <div id="progressBestStreak" class="progress-summary-value">0</div>
+        </div>
+
+      </div>
+
+      <div class="section-card">
+        <h2>📅 Weekly Progress</h2>
+        <p id="progressWeekRange" class="habit-note">Loading...</p>
+        <div id="weeklyProgressChart" class="progress-chart"></div>
+      </div>
+
+      <div class="section-card">
+        <h2>📈 Monthly Category Progress</h2>
+
+        <div class="category-progress-item">
+          <div class="category-progress-header"><span>🕌 Ibadah</span><span id="monthlyIbadahText">0 / 30</span></div>
+          <div class="category-progress-track"><div id="monthlyIbadahBar" class="category-progress-fill"></div></div>
+        </div>
+
+        <div class="category-progress-item">
+          <div class="category-progress-header"><span>📚 Study</span><span id="monthlyStudyText">0 / 20</span></div>
+          <div class="category-progress-track"><div id="monthlyStudyBar" class="category-progress-fill"></div></div>
+        </div>
+
+        <div class="category-progress-item">
+          <div class="category-progress-header"><span>🌱 Character</span><span id="monthlyCharacterText">0 / 30</span></div>
+          <div class="category-progress-track"><div id="monthlyCharacterBar" class="category-progress-fill"></div></div>
+        </div>
+
+        <div class="category-progress-item">
+          <div class="category-progress-header"><span>🏃 Health</span><span id="monthlyHealthText">0 / 10</span></div>
+          <div class="category-progress-track"><div id="monthlyHealthBar" class="category-progress-fill"></div></div>
+        </div>
+
+        <div class="category-progress-item">
+          <div class="category-progress-header"><span>📱 Digital</span><span id="monthlyDigitalText">0 / 10</span></div>
+          <div class="category-progress-track"><div id="monthlyDigitalBar" class="category-progress-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h2>🗓️ Daily Scores</h2>
+        <div id="monthlyDailyScoreList" class="progress-list">
+          <div class="habit-note">Loading...</div>
+        </div>
+      </div>
+
+    </section>
+
     <!-- STUDENT NAVIGATION -->
 
     <nav class="bottom-nav">
@@ -1831,6 +2074,7 @@
       <button
         class="nav-button active"
         type="button"
+        onclick="showStudentPage('home')"
       >
         <span>🏠</span>
         <span>Home</span>
@@ -1840,6 +2084,7 @@
       <button
         class="nav-button"
         type="button"
+        onclick="showStudentPage('today')"
       >
         <span>📝</span>
         <span>Today</span>
@@ -1849,6 +2094,7 @@
       <button
         class="nav-button"
         type="button"
+        onclick="showStudentPage('progress')"
       >
         <span>📊</span>
         <span>Progress</span>
@@ -2707,6 +2953,269 @@ function updateProgressFromData(data) {
     digital,
     10
   );
+}
+
+
+/* ==========================================================
+   STUDENT PROGRESS PAGE
+========================================================== */
+
+let studentProgressLoaded = false;
+
+function showStudentPage(page) {
+
+  const home = document.getElementById("studentHomePage");
+  const progress = document.getElementById("studentProgressPage");
+
+  if (!home || !progress) {
+    return;
+  }
+
+  const nav = document.querySelector("#studentApp .bottom-nav");
+  const buttons = nav ? nav.querySelectorAll(".nav-button") : [];
+
+  buttons.forEach(function(button) {
+    button.classList.remove("active");
+  });
+
+  if (page === "progress") {
+    home.style.display = "none";
+    progress.classList.add("show");
+    if (buttons[2]) buttons[2].classList.add("active");
+    loadStudentProgress();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  progress.classList.remove("show");
+  home.style.display = "block";
+
+  if (page === "today") {
+    if (buttons[1]) buttons[1].classList.add("active");
+    const form = document.getElementById("dailyHabitForm");
+    if (form) {
+      setTimeout(function() {
+        form.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    }
+    return;
+  }
+
+  if (buttons[0]) buttons[0].classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function progressDateString(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function progressAddDays(dateString, amount) {
+  const parts = dateString.split("-").map(Number);
+  const date = new Date(parts[0], parts[1] - 1, parts[2]);
+  date.setDate(date.getDate() + amount);
+  return progressDateString(date);
+}
+
+function progressFormatDate(dateString) {
+  const parts = dateString.split("-").map(Number);
+  const date = new Date(parts[0], parts[1] - 1, parts[2]);
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short"
+  });
+}
+
+async function loadStudentProgress() {
+
+  const stored = localStorage.getItem("madrasaSession");
+  if (!stored) return;
+
+  let session;
+  try {
+    session = JSON.parse(stored);
+  } catch (error) {
+    return;
+  }
+
+  const student = session.student || {};
+  const studentId = student.studentId || session.studentId || "";
+  if (!studentId) return;
+
+  const today = getLocalDateString();
+  const startOfMonth = today.substring(0, 8) + "01";
+  const monthDays = Number(today.substring(8, 10));
+  const dates = [];
+
+  for (let day = 0; day < monthDays; day++) {
+    dates.push(progressAddDays(startOfMonth, day));
+  }
+
+  const list = document.getElementById("monthlyDailyScoreList");
+  if (list) list.innerHTML = '<div class="habit-note">Loading progress...</div>';
+
+  try {
+
+    const results = await Promise.all(
+      dates.map(function(date) {
+        return apiRequest("getStudentDailyRecord", {
+          studentId: studentId,
+          date: date
+        }).then(function(result) {
+          const data = result.data || result || {};
+          return data.record || data.todayRecord || null;
+        }).catch(function() {
+          return null;
+        });
+      })
+    );
+
+    const records = results.filter(function(record) {
+      return record && record.date;
+    });
+
+    const totals = records.reduce(function(sum, record) {
+      return sum + Number(record.totalScore || 0);
+    }, 0);
+
+    const monthlyAverage = records.length
+      ? Math.round((totals / records.length) * 10) / 10
+      : 0;
+
+    const weeklyRecords = records.filter(function(record) {
+      return record.date >= progressAddDays(today, -6) && record.date <= today;
+    });
+
+    const weeklyTotal = weeklyRecords.reduce(function(sum, record) {
+      return sum + Number(record.totalScore || 0);
+    }, 0);
+
+    const weeklyAverage = weeklyRecords.length
+      ? Math.round((weeklyTotal / weeklyRecords.length) * 10) / 10
+      : 0;
+
+    const statsResult = await apiRequest("getStudentStats", {
+      studentId: studentId
+    }).catch(function() { return { data: {} }; });
+
+    const stats = statsResult.data || statsResult || {};
+
+    setProgressText("progressWeeklyAverage", weeklyAverage);
+    setProgressText("progressMonthlyAverage", monthlyAverage);
+    setProgressText("progressActiveDays", records.length);
+    setProgressText("progressCurrentStreak", stats.currentStreak || 0);
+    setProgressText("progressBestStreak", stats.bestStreak || 0);
+
+    renderWeeklyProgress(weeklyRecords, today);
+    renderMonthlyCategories(records);
+    renderMonthlyDailyScores(records);
+
+    studentProgressLoaded = true;
+
+  } catch (error) {
+
+    console.error("Progress loading error:", error);
+    if (list) list.innerHTML = '<div class="habit-note">Progress load ചെയ്യാൻ കഴിഞ്ഞില്ല. വീണ്ടും try ചെയ്യുക.</div>';
+  }
+}
+
+function setProgressText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
+function renderWeeklyProgress(records, today) {
+
+  const chart = document.getElementById("weeklyProgressChart");
+  const range = document.getElementById("progressWeekRange");
+  if (!chart) return;
+
+  const start = progressAddDays(today, -6);
+  if (range) {
+    range.textContent = `${progressFormatDate(start)} – ${progressFormatDate(today)}`;
+  }
+
+  const map = {};
+  records.forEach(function(record) {
+    map[record.date] = Number(record.totalScore || 0);
+  });
+
+  let html = "";
+  for (let i = 0; i < 7; i++) {
+    const date = progressAddDays(start, i);
+    const score = map[date] || 0;
+    const height = Math.max(2, Math.min(100, score));
+    const label = new Date(date + "T00:00:00").toLocaleDateString("en-IN", { weekday: "short" });
+
+    html += `
+      <div class="progress-bar-column">
+        <div class="progress-bar-value">${score}</div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" style="height:${height}%"></div>
+        </div>
+        <div class="progress-bar-label">${label}</div>
+      </div>`;
+  }
+
+  chart.innerHTML = html;
+}
+
+function renderMonthlyCategories(records) {
+
+  const categories = [
+    { key: "ibadahScore", text: "monthlyIbadahText", bar: "monthlyIbadahBar", max: 30 },
+    { key: "studyScore", text: "monthlyStudyText", bar: "monthlyStudyBar", max: 20 },
+    { key: "characterScore", text: "monthlyCharacterText", bar: "monthlyCharacterBar", max: 30 },
+    { key: "healthScore", text: "monthlyHealthText", bar: "monthlyHealthBar", max: 10 },
+    { key: "digitalScore", text: "monthlyDigitalText", bar: "monthlyDigitalBar", max: 10 }
+  ];
+
+  categories.forEach(function(category) {
+    const total = records.reduce(function(sum, record) {
+      return sum + Number(record[category.key] || 0);
+    }, 0);
+
+    const average = records.length
+      ? Math.round((total / records.length) * 10) / 10
+      : 0;
+
+    const text = document.getElementById(category.text);
+    const bar = document.getElementById(category.bar);
+
+    if (text) text.textContent = `${average} / ${category.max}`;
+    if (bar) bar.style.width = `${Math.max(0, Math.min(100, (average / category.max) * 100))}%`;
+  });
+}
+
+function renderMonthlyDailyScores(records) {
+
+  const list = document.getElementById("monthlyDailyScoreList");
+  if (!list) return;
+
+  if (!records.length) {
+    list.innerHTML = '<div class="habit-note">ഇതുവരെ submitted records ഇല്ല.</div>';
+    return;
+  }
+
+  const sorted = records.slice().sort(function(a, b) {
+    return String(b.date).localeCompare(String(a.date));
+  });
+
+  list.innerHTML = sorted.map(function(record) {
+    const score = Number(record.totalScore || 0);
+    const width = Math.max(0, Math.min(100, score));
+
+    return `
+      <div class="progress-list-row">
+        <span>${progressFormatDate(record.date)}</span>
+        <div class="progress-list-track">
+          <div class="progress-list-fill" style="width:${width}%"></div>
+        </div>
+        <strong>${score}</strong>
+      </div>`;
+  }).join("");
 }
 
 /* ==========================================================
