@@ -1812,7 +1812,7 @@
 
 
           <div class="habit-note">
-            എല്ലാ ശീലങ്ങളും ശ്രദ്ധയോടെ പൂർത്തിയാക്കി Submit ചെയ്യുക.
+            എല്ലാ ശീലങ്ങളും പൂർത്തിയാക്കി Submit ചെയ്യുക. Submit ചെയ്താൽ Google Sheet-ലേക്ക് save ചെയ്യും.
           </div>
 
 
@@ -2663,6 +2663,11 @@ function getDailyHabitPayload() {
   return {
 
     studentId: studentId,
+
+    username:
+      student.username ||
+      session.username ||
+      "",
 
     date: getLocalDateString(),
 
