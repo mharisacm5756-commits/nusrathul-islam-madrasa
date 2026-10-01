@@ -897,6 +897,35 @@
       border-radius: 20px;
     }
 
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .profile-item {
+      background: linear-gradient(135deg, rgba(240,248,255,.96), rgba(255,250,240,.96));
+      border: 1px solid rgba(30, 94, 168, .10);
+      border-radius: 14px;
+      padding: 13px 14px;
+      min-width: 0;
+    }
+
+    .profile-item span {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 5px;
+    }
+
+    .profile-item strong {
+      display: block;
+      font-size: 15px;
+      color: #123b78;
+      overflow-wrap: anywhere;
+    }
+
     .progress-list {
       display: grid;
       gap: 8px;
@@ -981,6 +1010,9 @@
       .progress-bar-track { max-width: 27px; height: 94px; }
       .progress-bar-label { font-size: 8px; }
       .progress-list-row { grid-template-columns: 74px 1fr 42px; font-size: 11px; }
+      .profile-grid { grid-template-columns: 1fr; gap: 9px; }
+      .profile-item { padding: 11px 12px; }
+      .profile-item strong { font-size: 14px; }
     }
 
     @media (max-width: 380px) {
@@ -2174,24 +2206,16 @@
     <p>നിങ്ങളുടെ student വിവരങ്ങൾ.</p>
   </div>
 
-  <div class="section-card">
-    <div class="progress-list">
-      <div class="progress-list-row">
-        <span>Student ID</span>
-        <strong id="profileStudentId">—</strong>
-      </div>
-      <div class="progress-list-row">
-        <span>Name</span>
-        <strong id="profileStudentName">—</strong>
-      </div>
-      <div class="progress-list-row">
-        <span>Class</span>
-        <strong id="profileStudentClass">—</strong>
-      </div>
-      <div class="progress-list-row">
-        <span>Division</span>
-        <strong id="profileStudentDivision">—</strong>
-      </div>
+  <div class="section-card profile-card">
+    <div class="profile-grid">
+      <div class="profile-item"><span>Student ID</span><strong id="profileStudentId">—</strong></div>
+      <div class="profile-item"><span>Name</span><strong id="profileStudentName">—</strong></div>
+      <div class="profile-item"><span>Class</span><strong id="profileStudentClass">—</strong></div>
+      <div class="profile-item"><span>Division</span><strong id="profileStudentDivision">—</strong></div>
+      <div class="profile-item"><span>Father Name</span><strong id="profileFatherName">—</strong></div>
+      <div class="profile-item"><span>Mother Name</span><strong id="profileMotherName">—</strong></div>
+      <div class="profile-item"><span>Parent Phone</span><strong id="profileParentPhone">—</strong></div>
+      <div class="profile-item"><span>Username</span><strong id="profileUsername">—</strong></div>
     </div>
   </div>
 </section>
@@ -3371,71 +3395,33 @@ function showStudentPage(page) {
 
 function loadStudentProfile() {
 
-  const stored =
-    localStorage.getItem("madrasaSession");
-
-  if (!stored) {
-    return;
-  }
+  const stored = localStorage.getItem("madrasaSession");
+  if (!stored) return;
 
   try {
-
-    const session =
-      JSON.parse(stored);
-
-    const student =
-      session.student || {};
+    const session = JSON.parse(stored);
+    const student = session.student || {};
 
     const getValue = function() {
       for (const value of arguments) {
-        if (
-          value !== undefined &&
-          value !== null &&
-          String(value).trim() !== ""
-        ) {
+        if (value !== undefined && value !== null && String(value).trim() !== "") {
           return String(value);
         }
       }
       return "—";
     };
 
-    setProgressText(
-      "profileStudentId",
-      getValue(
-        student.studentId,
-        session.studentId
-      )
-    );
-
-    setProgressText(
-      "profileStudentName",
-      getValue(
-        student.studentName,
-        session.studentName
-      )
-    );
-
-    setProgressText(
-      "profileStudentClass",
-      getValue(
-        student.class,
-        student.Class
-      )
-    );
-
-    setProgressText(
-      "profileStudentDivision",
-      getValue(
-        student.division,
-        student.Division
-      )
-    );
+    setProgressText("profileStudentId", getValue(student.studentId, session.studentId));
+    setProgressText("profileStudentName", getValue(student.studentName, student.name, session.studentName));
+    setProgressText("profileStudentClass", getValue(student.class, student.Class));
+    setProgressText("profileStudentDivision", getValue(student.division, student.Division));
+    setProgressText("profileFatherName", getValue(student.fatherName, student.FatherName));
+    setProgressText("profileMotherName", getValue(student.motherName, student.MotherName));
+    setProgressText("profileParentPhone", getValue(student.parentPhone, student.ParentPhone));
+    setProgressText("profileUsername", getValue(student.username, session.username));
 
   } catch (error) {
-    console.error(
-      "Profile loading error:",
-      error
-    );
+    console.error("Profile loading error:", error);
   }
 }
 
