@@ -2617,6 +2617,61 @@ function getLocalDateString() {
    STUDENT DASHBOARD
 ========================================================== */
 
+let studentProgressPrefetchPromise = null;
+let studentProgressCache = null;
+let studentProgressCacheStudentId = "";
+
+function clearStudentProgressCache() {
+  studentProgressPrefetchPromise = null;
+  studentProgressCache = null;
+  studentProgressCacheStudentId = "";
+}
+
+async function prepareStudentProgressData(studentId) {
+  if (!studentId) return null;
+  if (studentProgressCache && studentProgressCacheStudentId === studentId) return studentProgressCache;
+  if (studentProgressPrefetchPromise && studentProgressCacheStudentId === studentId) return studentProgressPrefetchPromise;
+
+  studentProgressCacheStudentId = studentId;
+  const today = getLocalDateString();
+  const startOfMonth = today.substring(0, 8) + "01";
+  const monthDays = Number(today.substring(8, 10));
+  const monthDates = [];
+  for (let day = 0; day < monthDays; day++) monthDates.push(progressAddDays(startOfMonth, day));
+
+  const weekStart = progressAddDays(today, -6);
+  const weekDates = [];
+  for (let day = 0; day < 7; day++) weekDates.push(progressAddDays(weekStart, day));
+
+  // Fetch overlapping dates only once, then reuse the same records for both views.
+  const uniqueDates = Array.from(new Set(monthDates.concat(weekDates)));
+
+  studentProgressPrefetchPromise = Promise.all([
+    getProgressRecordsForDates(studentId, uniqueDates),
+    apiRequest("getStudentStats", { studentId: studentId }).catch(function() { return { data: {} }; })
+  ]).then(function(results) {
+    const allRecords = results[0] || [];
+    const statsResult = results[1] || {};
+    const stats = statsResult.data || statsResult || {};
+    const recordMap = {};
+    allRecords.forEach(function(record) {
+      if (record && record.date) recordMap[String(record.date)] = record;
+    });
+    const data = {
+      today: today,
+      monthRecords: monthDates.map(function(date) { return recordMap[date] || null; }).filter(Boolean),
+      weekRecords: weekDates.map(function(date) { return recordMap[date] || null; }).filter(Boolean),
+      stats: stats
+    };
+    studentProgressCache = data;
+    return data;
+  }).finally(function() {
+    studentProgressPrefetchPromise = null;
+  });
+
+  return studentProgressPrefetchPromise;
+}
+
 async function loadStudentDashboard(session) {
 
   const student = session.student || {};
@@ -2657,6 +2712,11 @@ async function loadStudentDashboard(session) {
     setProgressText("activeDays", Number(stats.activeDays || 0));
 
     await loadExistingDailyRecord(studentId);
+
+    // Preload Progress and Achievements while the student is on Home.
+    prepareStudentProgressData(studentId).catch(function(error) {
+      console.warn("Background progress preload failed:", error);
+    });
 
   } catch (error) {
     console.error("Student dashboard error:", error);
@@ -3284,8 +3344,8 @@ async function loadStudentAchievements() {
   if (!studentId) return;
 
   try {
-    const statsResult = await apiRequest("getStudentStats", { studentId: studentId });
-    const stats = statsResult.data || statsResult || {};
+    const cached = await prepareStudentProgressData(studentId);
+    const stats = (cached && cached.stats) || {};
 
     const current = Number(stats.currentStreak || 0);
     const best = Number(stats.bestStreak || 0);
@@ -3334,23 +3394,16 @@ async function loadStudentProgress() {
   if (!studentId) return;
 
   const today = getLocalDateString();
-  const startOfMonth = today.substring(0, 8) + "01";
-  const monthDays = Number(today.substring(8, 10));
-  const monthDates = [];
-  for (let day = 0; day < monthDays; day++) monthDates.push(progressAddDays(startOfMonth, day));
-
-  // Rolling 7-day week. It crosses month boundaries when necessary.
-  const weekStart = progressAddDays(today, -6);
-  const weekDates = [];
-  for (let day = 0; day < 7; day++) weekDates.push(progressAddDays(weekStart, day));
 
   const list = document.getElementById("monthlyDailyScoreList");
   if (list) list.innerHTML = '<div class="habit-note">Loading progress...</div>';
 
   try {
-    // Monthly progress/stats are intentionally limited to the current calendar month.
-    const monthRecords = await getProgressRecordsForDates(studentId, monthDates);
-    const weekRecords = await getProgressRecordsForDates(studentId, weekDates);
+    const cached = await prepareStudentProgressData(studentId);
+    const monthRecords = (cached && cached.monthRecords) || [];
+    const weekRecords = (cached && cached.weekRecords) || [];
+    const stats = (cached && cached.stats) || {};
+
     const activeMonthRecords = monthRecords.filter(isActiveProgressRecord);
     const activeWeekRecords = weekRecords.filter(isActiveProgressRecord);
 
@@ -3358,9 +3411,6 @@ async function loadStudentProgress() {
     const monthlyAverage = activeMonthRecords.length ? Math.round((monthlyTotal / activeMonthRecords.length) * 10) / 10 : 0;
     const weeklyTotal = activeWeekRecords.reduce((sum, record) => sum + Number(record.totalScore || 0), 0);
     const weeklyAverage = activeWeekRecords.length ? Math.round((weeklyTotal / activeWeekRecords.length) * 10) / 10 : 0;
-
-    const statsResult = await apiRequest("getStudentStats", { studentId: studentId }).catch(() => ({ data: {} }));
-    const stats = statsResult.data || statsResult || {};
 
     setProgressText("progressWeeklyAverage", `${weeklyAverage}%`);
     setProgressText("progressMonthlyAverage", `${monthlyAverage}%`);
@@ -4056,6 +4106,10 @@ document
           `✅ ഇന്നത്തെ ശീലങ്ങൾ വിജയകരമായി Save ചെയ്തു. Total Score: ${total} / 100`,
           "success"
         );
+
+        // The submitted record changed. Drop the old background cache
+        // before refreshing Home / Progress / Achievements.
+        clearStudentProgressCache();
 
         await loadStudentDashboard(
           JSON.parse(
