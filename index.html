@@ -1246,6 +1246,29 @@
   .admin-performance-categories{grid-template-columns:1fr 1fr;}
 }
 
+
+.admin-winner-card{margin-top:16px;}
+.admin-winner-toolbar{display:grid;grid-template-columns:180px auto;gap:10px;align-items:end;margin-top:14px;}
+.admin-winner-field{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:#183b5a;}
+.admin-winner-field input{width:100%;box-sizing:border-box;border:1px solid #d7e3ee;border-radius:10px;padding:10px;background:#fff;font:inherit;font-size:13px;outline:none;}
+.admin-winner-actions{display:flex;gap:8px;align-items:center;}
+.admin-winner-result{margin-top:14px;}
+.admin-winner-empty{padding:22px;text-align:center;color:#64748b;background:#f8fbff;border:1px dashed #d7e3ee;border-radius:14px;font-size:13px;font-weight:700;}
+.admin-winner-hero{border:1px solid #ead28a;background:linear-gradient(135deg,#fffdf2,#fff7d8);border-radius:18px;padding:18px;text-align:center;}
+.admin-winner-crown{font-size:34px;line-height:1;margin-bottom:6px;}
+.admin-winner-title{font-size:12px;font-weight:900;color:#806516;text-transform:uppercase;letter-spacing:.5px;}
+.admin-winner-name{font-size:25px;font-weight:950;color:#0f4384;margin-top:5px;}
+.admin-winner-id{font-size:12px;font-weight:800;color:#64748b;margin-top:3px;}
+.admin-winner-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px;}
+.admin-winner-metric{background:#fff;border:1px solid #eadfb7;border-radius:12px;padding:10px;}
+.admin-winner-metric span{display:block;font-size:10px;font-weight:800;color:#64748b;margin-bottom:3px;}
+.admin-winner-metric strong{display:block;font-size:17px;color:#183b5a;}
+.admin-winner-tie{margin-top:12px;padding:10px 12px;border-radius:12px;background:#eef7ff;color:#145d97;font-size:12px;font-weight:800;}
+.admin-winner-list{margin-top:12px;display:grid;gap:8px;}
+.admin-winner-list-item{padding:10px 12px;border:1px solid #e1edf6;border-radius:12px;background:#fff;display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12px;}
+.admin-winner-list-item strong{color:#183b5a;}
+@media(max-width:600px){.admin-winner-toolbar{grid-template-columns:1fr;}.admin-winner-actions{width:100%;}.admin-winner-actions button{width:100%;}.admin-winner-metrics{grid-template-columns:1fr 1fr;}}
+
 .admin-leaderboard-card{margin-top:16px;}
 .admin-leaderboard-toolbar{display:grid;grid-template-columns:150px minmax(180px,1fr) 150px auto;gap:10px;align-items:end;margin-top:14px;}
 .admin-leaderboard-field{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:#183b5a;}
@@ -2679,6 +2702,9 @@
           </button>
           <button class="admin-quick-btn" type="button" onclick="openLeaderboardReport()">
             🏆<strong>Leaderboard</strong><span>Monthly ranking</span>
+          </button>
+          <button class="admin-quick-btn" type="button" onclick="openMonthlyWinner()">
+            👑<strong>Monthly Winner</strong><span>Calculate monthly winner</span>
           </button>
           <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Rewards')">
             🏆<strong>Rewards</strong><span>Monthly awards and rewards</span>
@@ -5907,6 +5933,97 @@ function populateLeaderboardClassFilter() {
 function debouncedLeaderboardFilter() {
   window.clearTimeout(adminLeaderboardTimer);
   adminLeaderboardTimer = window.setTimeout(function(){ loadLeaderboardReport(); }, 350);
+}
+
+
+function getAdminWinnerMonth() {
+  const now = new Date();
+  return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+}
+
+function openMonthlyWinner() {
+  const section = document.getElementById('adminMonthlyWinnerSection');
+  if (!section) return;
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const input = document.getElementById('adminWinnerMonth');
+  if (input && !input.value) input.value = getAdminWinnerMonth();
+  loadMonthlyWinner();
+}
+
+async function loadMonthlyWinner() {
+  const input = document.getElementById('adminWinnerMonth');
+  const resultEl = document.getElementById('adminWinnerResult');
+  const message = document.getElementById('adminWinnerMessage');
+  const button = document.getElementById('adminWinnerLoadBtn');
+  if (!resultEl) return;
+
+  const session = getAdminSession() || {};
+  const adminUsername = session.username || session.Username || (session.admin && (session.admin.username || session.admin.Username)) || '';
+  const month = input && input.value ? input.value : getAdminWinnerMonth();
+  if (input) input.value = month;
+
+  resultEl.innerHTML = '<div class="admin-winner-empty">⏳ Calculating monthly winner…</div>';
+  if (message) { message.style.display = 'none'; message.textContent = ''; }
+  if (button) { button.disabled = true; button.textContent = '⏳ Calculating…'; }
+
+  try {
+    const result = await apiRequest('calculateMonthlyWinner', {
+      adminUsername: adminUsername,
+      month: month
+    });
+    const data = result.data || result || {};
+    renderMonthlyWinner(data);
+  } catch (error) {
+    resultEl.innerHTML = '<div class="admin-winner-empty">Unable to calculate monthly winner.</div>';
+    if (message) {
+      message.textContent = '❌ ' + (error?.message || 'Unable to calculate monthly winner.');
+      message.style.display = 'block';
+      message.style.background = '#fff1f1';
+      message.style.color = '#a32929';
+    }
+  } finally {
+    if (button) { button.disabled = false; button.textContent = '👑 Calculate Winner'; }
+  }
+}
+
+function renderMonthlyWinner(data) {
+  const resultEl = document.getElementById('adminWinnerResult');
+  if (!resultEl) return;
+
+  const winners = Array.isArray(data.winners) ? data.winners : [];
+  if (!data.hasWinner || !winners.length) {
+    resultEl.innerHTML = '<div class="admin-winner-empty">No submitted records found for the selected month.</div>';
+    return;
+  }
+
+  const winner = winners[0];
+  const tie = winners.length > 1;
+  const monthLabel = data.month || '';
+  const name = escapeAdminHtml(winner.studentName || '—');
+  const id = escapeAdminHtml(winner.studentId || '');
+  const cls = escapeAdminHtml((winner.className || '—') + (winner.division ? ' - ' + winner.division : ''));
+
+  let html = '<div class="admin-winner-hero">' +
+    '<div class="admin-winner-crown">👑</div>' +
+    '<div class="admin-winner-title">' + (tie ? 'Monthly Winners · ' : 'Monthly Winner · ') + escapeAdminHtml(monthLabel) + '</div>' +
+    '<div class="admin-winner-name">' + name + '</div>' +
+    '<div class="admin-winner-id">' + id + ' · ' + cls + '</div>' +
+    '<div class="admin-winner-metrics">' +
+      '<div class="admin-winner-metric"><span>Monthly Average</span><strong>' + Number(winner.monthlyAverage || 0) + '/100</strong></div>' +
+      '<div class="admin-winner-metric"><span>Active Days</span><strong>' + Number(winner.activeDays || 0) + '</strong></div>' +
+      '<div class="admin-winner-metric"><span>Consistency</span><strong>' + Number(winner.consistency || 0) + '%</strong></div>' +
+      '<div class="admin-winner-metric"><span>Final Score</span><strong>' + Number(winner.finalScore || 0) + '/100</strong></div>' +
+    '</div>';
+
+  if (tie) {
+    html += '<div class="admin-winner-tie">🤝 Tie: ' + winners.length + ' students have identical Final Score, Average, Consistency and Active Days.</div>';
+    html += '<div class="admin-winner-list">' + winners.map(function(row) {
+      return '<div class="admin-winner-list-item"><strong>' + escapeAdminHtml(row.studentName || '—') + '</strong><span>' + Number(row.finalScore || 0) + '/100 · ' + Number(row.activeDays || 0) + ' days</span></div>';
+    }).join('') + '</div>';
+  }
+
+  html += '</div>';
+  resultEl.innerHTML = html;
 }
 
 async function loadLeaderboardReport() {
