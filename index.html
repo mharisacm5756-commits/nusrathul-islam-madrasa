@@ -1167,7 +1167,44 @@
   .admin-edit-grid{grid-template-columns:1fr;}
 }
 
-  </style>
+  
+/* ==========================================================
+   ADMIN DAILY REPORT
+========================================================== */
+.admin-daily-report-card{margin-top:16px;}
+.admin-report-toolbar{display:grid;grid-template-columns:150px minmax(180px,1fr) 150px auto;gap:10px;align-items:end;margin-top:14px;}
+.admin-report-field{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:#183b5a;}
+.admin-report-field input,.admin-report-field select{width:100%;box-sizing:border-box;border:1px solid #d7e3ee;border-radius:10px;padding:10px;background:#fff;font:inherit;font-size:13px;outline:none;}
+.admin-report-actions{display:flex;gap:8px;align-items:center;}
+.admin-report-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px;}
+.admin-report-stat{background:#f7fbff;border:1px solid #e1edf6;border-radius:14px;padding:12px;text-align:center;}
+.admin-report-stat span{display:block;font-size:11px;font-weight:800;color:#64748b;margin-bottom:4px;}
+.admin-report-stat strong{display:block;font-size:22px;color:#0f4384;}
+.admin-report-table-wrap{margin-top:14px;overflow-x:auto;border:1px solid #e1edf6;border-radius:14px;background:#fff;}
+.admin-report-table{width:100%;min-width:900px;border-collapse:collapse;font-size:12px;}
+.admin-report-table th{background:#f2f7fb;color:#183b5a;font-weight:900;padding:10px 8px;text-align:center;white-space:nowrap;border-bottom:1px solid #dfeaf3;}
+.admin-report-table td{padding:9px 8px;text-align:center;border-bottom:1px solid #edf2f7;white-space:nowrap;}
+.admin-report-table td.student-name{text-align:left;font-weight:800;color:#173b5b;}
+.admin-report-table tr:last-child td{border-bottom:0;}
+.admin-report-status{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;}
+.admin-report-status.submitted{background:#eaf8ef;color:#176b3a;}
+.admin-report-status.pending{background:#fff4df;color:#9a5a00;}
+.admin-report-score{font-weight:900;color:#0f4384;}
+.admin-report-empty{padding:24px;text-align:center;color:#64748b;font-size:13px;}
+.admin-report-loading{padding:24px;text-align:center;color:#145d97;font-weight:800;}
+@media(max-width:800px){
+  .admin-report-toolbar{grid-template-columns:1fr 1fr;}
+  .admin-report-field.search-field{grid-column:1/-1;}
+  .admin-report-actions{grid-column:1/-1;}
+  .admin-report-summary{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:520px){
+  .admin-report-toolbar{grid-template-columns:1fr;}
+  .admin-report-field.search-field,.admin-report-actions{grid-column:auto;}
+  .admin-report-summary{grid-template-columns:1fr 1fr;}
+}
+
+</style>
 
 </head>
 
@@ -2558,7 +2595,7 @@
           <button class="admin-quick-btn" type="button" onclick="openAddStudentForm()">
             👨‍🎓<strong>Student Management</strong><span>Add new student</span>
           </button>
-          <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Daily Report')">
+          <button class="admin-quick-btn" type="button" onclick="openDailyReport()">
             📋<strong>Daily Report</strong><span>Today’s student records</span>
           </button>
           <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Performance')">
@@ -2648,9 +2685,68 @@
         </div>
       </div>
 
-      <div class="section-card">
-        <h2>📋 Daily Report</h2>
-        <div class="empty-state">Daily report module will be added in the next Admin step.</div>
+      <div class="section-card admin-daily-report-card" id="adminDailyReportSection">
+        <div class="admin-section-head">
+          <div>
+            <h2>📋 Daily Report</h2>
+            <p>View submitted and not-submitted students for any date.</p>
+          </div>
+          <button class="admin-secondary-btn" type="button" onclick="loadDailyReport()">↻ Refresh</button>
+        </div>
+
+        <div class="admin-report-toolbar">
+          <label class="admin-report-field">
+            Date
+            <input id="adminReportDate" type="date">
+          </label>
+
+          <label class="admin-report-field search-field">
+            Search Student
+            <input id="adminReportSearch" type="search" placeholder="🔎 Name, ID or class" oninput="debouncedDailyReportFilter()">
+          </label>
+
+          <label class="admin-report-field">
+            Class
+            <select id="adminReportClass" onchange="loadDailyReport()">
+              <option value="">All Classes</option>
+            </select>
+          </label>
+
+          <div class="admin-report-actions">
+            <button id="adminReportRefreshBtn" class="admin-primary-btn" type="button" onclick="loadDailyReport()">📊 Load Report</button>
+          </div>
+        </div>
+
+        <div class="admin-report-summary">
+          <div class="admin-report-stat"><span>Students</span><strong id="adminReportTotal">0</strong></div>
+          <div class="admin-report-stat"><span>Submitted</span><strong id="adminReportSubmitted">0</strong></div>
+          <div class="admin-report-stat"><span>Not Submitted</span><strong id="adminReportNotSubmitted">0</strong></div>
+          <div class="admin-report-stat"><span>Average Score</span><strong id="adminReportAverage">0</strong></div>
+        </div>
+
+        <div id="adminDailyReportMessage" class="admin-form-message" style="margin-top:12px;"></div>
+
+        <div class="admin-report-table-wrap">
+          <table class="admin-report-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Class</th>
+                <th>Status</th>
+                <th>Ibadah</th>
+                <th>Study</th>
+                <th>Character</th>
+                <th>Health</th>
+                <th>Digital</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="adminDailyReportBody">
+              <tr><td colspan="10" class="admin-report-empty">Select a date and click Load Report.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
 
@@ -5260,6 +5356,162 @@ document.addEventListener(
 
   }
 );
+
+
+
+/* ==========================================================
+   ADMIN DAILY REPORT
+========================================================== */
+let adminDailyReportCache = [];
+let adminDailyReportTimer = null;
+
+function getAdminReportToday() {
+  try {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date());
+  } catch (error) {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+}
+
+function openDailyReport() {
+  const section = document.getElementById("adminDailyReportSection");
+  if (!section) return;
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const dateInput = document.getElementById("adminReportDate");
+  if (dateInput && !dateInput.value) dateInput.value = getAdminReportToday();
+
+  populateDailyReportClassFilter();
+  loadDailyReport();
+}
+
+function populateDailyReportClassFilter() {
+  const select = document.getElementById("adminReportClass");
+  if (!select) return;
+
+  const current = select.value;
+  const classes = [];
+
+  (adminStudentsCache || []).forEach(function(student) {
+    const value = String(student.className ?? student["Class"] ?? "").trim();
+    if (value && !classes.some(function(item) { return item.toLowerCase() === value.toLowerCase(); })) {
+      classes.push(value);
+    }
+  });
+
+  classes.sort(function(a, b) { return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }); });
+
+  select.innerHTML = '<option value="">All Classes</option>' + classes.map(function(value) {
+    return '<option value="' + escapeAdminAttr(value) + '">' + escapeAdminHtml(value) + '</option>';
+  }).join("");
+
+  if (classes.some(function(value) { return value.toLowerCase() === current.toLowerCase(); })) {
+    select.value = current;
+  }
+}
+
+function debouncedDailyReportFilter() {
+  window.clearTimeout(adminDailyReportTimer);
+  adminDailyReportTimer = window.setTimeout(function() {
+    loadDailyReport();
+  }, 350);
+}
+
+async function loadDailyReport() {
+  const dateInput = document.getElementById("adminReportDate");
+  const searchInput = document.getElementById("adminReportSearch");
+  const classInput = document.getElementById("adminReportClass");
+  const body = document.getElementById("adminDailyReportBody");
+  const button = document.getElementById("adminReportRefreshBtn");
+  const message = document.getElementById("adminDailyReportMessage");
+
+  if (!dateInput || !body) return;
+
+  const session = getAdminSession() || {};
+  const adminUsername = session.username || session.Username || "";
+  const date = dateInput.value || getAdminReportToday();
+  const search = String(searchInput?.value || "").trim();
+  const className = String(classInput?.value || "").trim();
+
+  dateInput.value = date;
+  body.innerHTML = '<tr><td colspan="10" class="admin-report-loading">⏳ Loading daily report…</td></tr>';
+  if (message) { message.style.display = "none"; message.textContent = ""; }
+  if (button) { button.disabled = true; button.textContent = "⏳ Loading…"; }
+
+  try {
+    const result = await apiRequest("getDailyReport", {
+      adminUsername: adminUsername,
+      date: date,
+      search: search,
+      className: className
+    });
+
+    const data = result.data || result || {};
+    const summary = data.summary || {};
+    adminDailyReportCache = Array.isArray(data.students) ? data.students : [];
+
+    document.getElementById("adminReportTotal").textContent = Number(summary.totalStudents || 0);
+    document.getElementById("adminReportSubmitted").textContent = Number(summary.submitted || 0);
+    document.getElementById("adminReportNotSubmitted").textContent = Number(summary.notSubmitted || 0);
+    document.getElementById("adminReportAverage").textContent = Number(summary.averageScore || 0);
+
+    renderDailyReportRows(adminDailyReportCache);
+  } catch (error) {
+    adminDailyReportCache = [];
+    document.getElementById("adminReportTotal").textContent = "0";
+    document.getElementById("adminReportSubmitted").textContent = "0";
+    document.getElementById("adminReportNotSubmitted").textContent = "0";
+    document.getElementById("adminReportAverage").textContent = "0";
+    body.innerHTML = '<tr><td colspan="10" class="admin-report-empty">Unable to load report.</td></tr>';
+    if (message) {
+      message.textContent = "❌ " + (error?.message || "Unable to load daily report.");
+      message.style.display = "block";
+      message.style.background = "#fff1f1";
+      message.style.color = "#a32929";
+    }
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "📊 Load Report"; }
+  }
+}
+
+function renderDailyReportRows(rows) {
+  const body = document.getElementById("adminDailyReportBody");
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="10" class="admin-report-empty">No students found for the selected filters.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.map(function(row, index) {
+    const name = escapeAdminHtml(row.studentName || "—");
+    const studentId = escapeAdminHtml(row.studentId || "");
+    const className = escapeAdminHtml((row.className || "—") + (row.division ? " - " + row.division : ""));
+    const submitted = !!row.submitted;
+    const status = submitted
+      ? '<span class="admin-report-status submitted">✓ Submitted</span>'
+      : '<span class="admin-report-status pending">• Not Submitted</span>';
+
+    return '<tr>' +
+      '<td>' + (index + 1) + '</td>' +
+      '<td class="student-name">' + name + '<br><small style="color:#64748b;font-weight:700;">' + studentId + '</small></td>' +
+      '<td>' + className + '</td>' +
+      '<td>' + status + '</td>' +
+      '<td>' + Number(row.ibadahScore || 0) + '/30</td>' +
+      '<td>' + Number(row.studyScore || 0) + '/20</td>' +
+      '<td>' + Number(row.characterScore || 0) + '/30</td>' +
+      '<td>' + Number(row.healthScore || 0) + '/10</td>' +
+      '<td>' + Number(row.digitalScore || 0) + '/10</td>' +
+      '<td class="admin-report-score">' + Number(row.totalScore || 0) + '/100</td>' +
+      '</tr>';
+  }).join("");
+}
 
 </script>
 
