@@ -2619,30 +2619,13 @@ function getLocalDateString() {
 
 async function loadStudentDashboard(session) {
 
-  const student =
-    session.student ||
-    {};
+  const student = session.student || {};
+  const studentName = student.studentName || session.studentName || "Student";
+  const studentId = student.studentId || session.studentId || "";
+  const studentUsername = student.username || session.username || "";
 
-  const studentName =
-    student.studentName ||
-    session.studentName ||
-    "Student";
-
-  const studentId =
-    student.studentId ||
-    session.studentId ||
-    "";
-
-  const studentUsername =
-    student.username ||
-    session.username ||
-    "";
-
-  document
-    .getElementById("studentWelcome")
-    .textContent =
-      "അസ്സലാമു അലൈക്കും, " +
-      studentName;
+  document.getElementById("studentWelcome").textContent =
+    "അസ്സലാമു അലൈക്കും, " + studentName;
 
   if (!studentId) {
     console.error("Student ID missing from session.");
@@ -2650,49 +2633,33 @@ async function loadStudentDashboard(session) {
   }
 
   try {
+    /* Load dashboard + monthly stats together so Home does not show
+       an old Active Days/Streak value first and a new one later. */
+    const results = await Promise.all([
+      apiRequest("getStudentDashboard", {
+        studentId: studentId,
+        username: studentUsername
+      }),
+      apiRequest("getStudentStats", {
+        studentId: studentId
+      })
+    ]);
 
-    const result =
-      await apiRequest(
-        "getStudentDashboard",
-        {
-          studentId: studentId,
-          username: studentUsername
-        }
-      );
-
-    const data =
-      result.data ||
-      result;
+    const dashboardResult = results[0];
+    const statsResult = results[1];
+    const data = dashboardResult.data || dashboardResult;
+    const stats = statsResult.data || statsResult || {};
 
     updateStudentDashboard(data);
+    setProgressText("todayScore", Number(stats.todayScore || 0));
+    setProgressText("currentStreak", Number(stats.currentStreak || 0));
+    setProgressText("bestStreak", Number(stats.bestStreak || 0));
+    setProgressText("activeDays", Number(stats.activeDays || 0));
 
-    // Use the backend's authoritative all-time Active Days / Streak values.
-    // Do not recalculate Active Days from the current month here, because
-    // that would drop yesterday's September active day when the date becomes October.
-    try {
-      const statsResult = await apiRequest("getStudentStats", {
-        studentId: studentId
-      });
-      const stats = statsResult.data || statsResult || {};
-      setProgressText("todayScore", Number(stats.todayScore || 0));
-      setProgressText("currentStreak", Number(stats.currentStreak || 0));
-      setProgressText("bestStreak", Number(stats.bestStreak || 0));
-      setProgressText("activeDays", Number(stats.activeDays || 0));
-    } catch (statsError) {
-      console.warn("Student stats refresh failed:", statsError);
-    }
-
-    // Load today's saved habit values so previously submitted
-    // checkboxes/inputs remain filled after logout/login or refresh.
     await loadExistingDailyRecord(studentId);
 
   } catch (error) {
-
-    console.error(
-      "Student dashboard error:",
-      error
-    );
-
+    console.error("Student dashboard error:", error);
   }
 }
 
@@ -2910,20 +2877,9 @@ function updateStudentDashboard(data) {
     .textContent =
       summary.todayScore ?? 0;
 
-  document
-    .getElementById("currentStreak")
-    .textContent =
-      summary.currentStreak ?? 0;
-
-  document
-    .getElementById("bestStreak")
-    .textContent =
-      summary.bestStreak ?? 0;
-
-  document
-    .getElementById("activeDays")
-    .textContent =
-      summary.activeDays ?? 0;
+  // Current Streak, Best Streak and Active Days are intentionally
+  // NOT taken from the dashboard summary. They are monthly values
+  // and are set only from getStudentStats().
 
   updateProgressFromData(data);
 }
@@ -3321,62 +3277,25 @@ async function loadStudentAchievements() {
   if (!stored) return;
 
   let session;
-  try {
-    session = JSON.parse(stored);
-  } catch (error) {
-    return;
-  }
+  try { session = JSON.parse(stored); } catch (error) { return; }
 
   const student = session.student || {};
   const studentId = student.studentId || session.studentId || "";
   if (!studentId) return;
 
   try {
-    const statsResult = await apiRequest("getStudentStats", {
-      studentId: studentId
-    });
+    const statsResult = await apiRequest("getStudentStats", { studentId: studentId });
     const stats = statsResult.data || statsResult || {};
-
-    setProgressText("achievementCurrentStreak", Number(stats.currentStreak || 0));
-    setProgressText("achievementBestStreak", Number(stats.bestStreak || 0));
-    setProgressText("achievementActiveDays", Number(stats.activeDays || 0));
-
-    const today = getLocalDateString();
-    const startOfMonth = today.substring(0, 8) + "01";
-    const days = Number(today.substring(8, 10));
-    const dates = [];
-    for (let day = 0; day < days; day++) {
-      dates.push(progressAddDays(startOfMonth, day));
-    }
-
-    const results = await Promise.all(
-      dates.map(function(date) {
-        return apiRequest("getStudentDailyRecord", {
-          studentId: studentId,
-          date: date
-        }).then(function(result) {
-          const data = result.data || result || {};
-          return data.record || null;
-        }).catch(function() {
-          return null;
-        });
-      })
-    );
-
-    const records = results.filter(function(record) {
-      return record && record.date;
-    });
-
-    const bestScore = records.reduce(function(max, record) {
-      return Math.max(max, Number(record.totalScore || 0));
-    }, 0);
-
-    setProgressText("achievementBestScore", `${bestScore}%`);
 
     const current = Number(stats.currentStreak || 0);
     const best = Number(stats.bestStreak || 0);
-    const active = records.filter(isActiveProgressRecord).length;
+    const active = Number(stats.activeDays || 0);
+    const bestScore = Number(stats.currentMonthBestScore || 0);
+
+    setProgressText("achievementCurrentStreak", current);
+    setProgressText("achievementBestStreak", best);
     setProgressText("achievementActiveDays", active);
+    setProgressText("achievementBestScore", `${bestScore}%`);
 
     const badges = [];
     if (active >= 1) badges.push(["🌱", "First Step", "First active day"]);
@@ -3429,6 +3348,7 @@ async function loadStudentProgress() {
   if (list) list.innerHTML = '<div class="habit-note">Loading progress...</div>';
 
   try {
+    // Monthly progress/stats are intentionally limited to the current calendar month.
     const monthRecords = await getProgressRecordsForDates(studentId, monthDates);
     const weekRecords = await getProgressRecordsForDates(studentId, weekDates);
     const activeMonthRecords = monthRecords.filter(isActiveProgressRecord);
@@ -4017,19 +3937,14 @@ document
         const storedSession =
           localStorage.getItem("madrasaSession");
 
-        if (storedSession) {
-          const session = JSON.parse(storedSession);
-          const student = session.student || {};
-          const studentId =
-            student.studentId ||
-            session.studentId ||
-            "";
-
-          if (studentId) {
-            await loadExistingDailyRecord(studentId);
-          }
-        }
-
+        /*
+         * IMPORTANT: Do NOT reload the saved record here.
+         * The student may have just ticked a new habit. Reloading the
+         * Google Sheet at this exact moment would overwrite that fresh
+         * tick before the payload is created. The payload already merges
+         * the current form state with currentDailyRecord, and the backend
+         * also merges old + new values safely.
+         */
         payload =
           getDailyHabitPayload();
 
