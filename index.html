@@ -2712,6 +2712,30 @@
         </div>
       </div>
 
+      <div class="section-card admin-winner-card" id="adminMonthlyWinnerSection">
+        <div class="admin-section-head">
+          <div>
+            <h2>👑 Monthly Winner</h2>
+            <p>Calculate the winner using Monthly Average 80% + Consistency 20%.</p>
+          </div>
+        </div>
+
+        <div class="admin-winner-toolbar">
+          <label class="admin-winner-field">
+            Month
+            <input id="adminWinnerMonth" type="month">
+          </label>
+          <div class="admin-winner-actions">
+            <button id="adminWinnerLoadBtn" class="admin-primary-btn" type="button" onclick="loadMonthlyWinner()">👑 Calculate Winner</button>
+          </div>
+        </div>
+
+        <div id="adminWinnerMessage" style="display:none;margin-top:10px;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:800;"></div>
+        <div id="adminWinnerResult" class="admin-winner-result">
+          <div class="admin-winner-empty">Select a month and click Calculate Winner.</div>
+        </div>
+      </div>
+
       <div class="section-card admin-student-card" id="adminStudentManagement">
         <div class="admin-section-head">
           <div>
@@ -5960,6 +5984,17 @@ async function loadMonthlyWinner() {
   const session = getAdminSession() || {};
   const adminUsername = session.username || session.Username || (session.admin && (session.admin.username || session.admin.Username)) || '';
   const month = input && input.value ? input.value : getAdminWinnerMonth();
+
+  if (!adminUsername) {
+    resultEl.innerHTML = '<div class="admin-winner-empty">❌ Admin session not found. Please login again.</div>';
+    if (message) {
+      message.textContent = '❌ Admin session not found. Please login again.';
+      message.style.display = 'block';
+      message.style.background = '#fff1f1';
+      message.style.color = '#a32929';
+    }
+    return;
+  }
   if (input) input.value = month;
 
   resultEl.innerHTML = '<div class="admin-winner-empty">⏳ Calculating monthly winner…</div>';
