@@ -1246,6 +1246,40 @@
   .admin-performance-categories{grid-template-columns:1fr 1fr;}
 }
 
+.admin-leaderboard-card{margin-top:16px;}
+.admin-leaderboard-toolbar{display:grid;grid-template-columns:150px minmax(180px,1fr) 150px auto;gap:10px;align-items:end;margin-top:14px;}
+.admin-leaderboard-field{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:#183b5a;}
+.admin-leaderboard-field input,.admin-leaderboard-field select{width:100%;box-sizing:border-box;border:1px solid #d7e3ee;border-radius:10px;padding:10px;background:#fff;font:inherit;font-size:13px;outline:none;}
+.admin-leaderboard-actions{display:flex;gap:8px;align-items:center;}
+.admin-leaderboard-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;}
+.admin-leaderboard-stat{background:#f7fbff;border:1px solid #e1edf6;border-radius:14px;padding:12px;text-align:center;}
+.admin-leaderboard-stat span{display:block;font-size:11px;font-weight:800;color:#64748b;margin-bottom:4px;}
+.admin-leaderboard-stat strong{display:block;font-size:22px;color:#0f4384;}
+.admin-leaderboard-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fffaf0;border:1px solid #f0dfb0;color:#795b15;font-size:12px;font-weight:700;line-height:1.5;}
+.admin-leaderboard-table-wrap{margin-top:14px;overflow-x:auto;border:1px solid #e1edf6;border-radius:14px;background:#fff;}
+.admin-leaderboard-table{width:100%;min-width:760px;border-collapse:collapse;font-size:12px;}
+.admin-leaderboard-table th{background:#f2f7fb;color:#183b5a;font-weight:900;padding:10px 8px;text-align:center;white-space:nowrap;border-bottom:1px solid #dfeaf3;}
+.admin-leaderboard-table td{padding:10px 8px;text-align:center;border-bottom:1px solid #edf2f7;white-space:nowrap;}
+.admin-leaderboard-table tr:last-child td{border-bottom:0;}
+.admin-leaderboard-table td.student-name{text-align:left;font-weight:800;color:#173b5b;}
+.admin-leaderboard-rank{font-weight:900;color:#0f4384;}
+.admin-leaderboard-top1 td{background:#fff8df;}
+.admin-leaderboard-top2 td{background:#f7f9fb;}
+.admin-leaderboard-top3 td{background:#fff5ec;}
+.admin-leaderboard-final{font-weight:900;color:#0f4384;}
+.admin-leaderboard-empty{padding:24px;text-align:center;color:#64748b;font-size:13px;}
+.admin-leaderboard-loading{padding:24px;text-align:center;color:#145d97;font-weight:800;}
+@media(max-width:900px){
+  .admin-leaderboard-toolbar{grid-template-columns:1fr 1fr;}
+  .admin-leaderboard-field.search-field{grid-column:1/-1;}
+  .admin-leaderboard-actions{grid-column:1/-1;}
+}
+@media(max-width:520px){
+  .admin-leaderboard-toolbar{grid-template-columns:1fr;}
+  .admin-leaderboard-field.search-field,.admin-leaderboard-actions{grid-column:auto;}
+  .admin-leaderboard-summary{grid-template-columns:1fr;}
+}
+
 </style>
 
 </head>
@@ -2643,6 +2677,9 @@
           <button class="admin-quick-btn" type="button" onclick="openPerformanceReport()">
             📊<strong>Performance</strong><span>Category-wise progress</span>
           </button>
+          <button class="admin-quick-btn" type="button" onclick="openLeaderboardReport()">
+            🏆<strong>Leaderboard</strong><span>Monthly ranking</span>
+          </button>
           <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Rewards')">
             🏆<strong>Rewards</strong><span>Monthly awards and rewards</span>
           </button>
@@ -2785,6 +2822,63 @@
       </thead>
       <tbody id="adminPerformanceBody">
         <tr><td colspan="10" class="admin-performance-empty">Select a month and load performance.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section-card admin-leaderboard-card" id="adminLeaderboardSection">
+  <div class="admin-section-head">
+    <div>
+      <h2>🏆 Leaderboard</h2>
+      <p>Monthly ranking based on average score and consistency.</p>
+    </div>
+  </div>
+
+  <div class="admin-leaderboard-toolbar">
+    <label class="admin-leaderboard-field">
+      Month
+      <input id="adminLeaderboardMonth" type="month" onchange="loadLeaderboardReport()">
+    </label>
+
+    <label class="admin-leaderboard-field search-field">
+      Student Search
+      <input id="adminLeaderboardSearch" type="search" placeholder="🔎 Search name, ID or username" oninput="debouncedLeaderboardFilter()">
+    </label>
+
+    <label class="admin-leaderboard-field">
+      Class
+      <select id="adminLeaderboardClass" onchange="loadLeaderboardReport()">
+        <option value="">All Classes</option>
+      </select>
+    </label>
+
+    <div class="admin-leaderboard-actions">
+      <button id="adminLeaderboardRefreshBtn" class="admin-primary-btn" type="button" onclick="loadLeaderboardReport()">🏆 Load Leaderboard</button>
+    </div>
+  </div>
+
+  <div class="admin-leaderboard-summary">
+    <div class="admin-leaderboard-stat"><span>Ranked Students</span><strong id="adminLeaderboardTotal">0</strong></div>
+    <div class="admin-leaderboard-stat"><span>Days in Month</span><strong id="adminLeaderboardDays">0</strong></div>
+    <div class="admin-leaderboard-stat"><span>Top Final Score</span><strong id="adminLeaderboardTopScore">0</strong></div>
+  </div>
+
+  <div class="admin-leaderboard-note">
+    Final Monthly Score = Monthly Average × 80% + Consistency × 20%. Consistency = Active Days ÷ Days in Month × 100. Streak is display-only and is not included in the final score.
+  </div>
+
+  <div id="adminLeaderboardMessage" class="admin-form-message" style="margin-top:12px;"></div>
+
+  <div class="admin-leaderboard-table-wrap">
+    <table class="admin-leaderboard-table">
+      <thead>
+        <tr>
+          <th>Rank</th><th>Student</th><th>Class</th><th>Average</th><th>Active Days</th><th>Consistency</th><th>Final</th>
+        </tr>
+      </thead>
+      <tbody id="adminLeaderboardBody">
+        <tr><td colspan="7" class="admin-leaderboard-empty">Select a month and load leaderboard.</td></tr>
       </tbody>
     </table>
   </div>
@@ -5762,6 +5856,142 @@ function renderPerformanceRows(rows) {
       '<td>' + Number(row.healthAverage || 0) + '/10</td>' +
       '<td>' + Number(row.digitalAverage || 0) + '/10</td>' +
       '<td class="admin-performance-score">' + Number(row.totalAverage || 0) + '/100</td>' +
+      '</tr>';
+  }).join("");
+}
+
+
+/* ==========================================================
+   ADMIN LEADERBOARD
+========================================================== */
+let adminLeaderboardCache = [];
+let adminLeaderboardTimer = null;
+
+function getAdminLeaderboardMonth() {
+  const input = document.getElementById("adminLeaderboardMonth");
+  if (input && input.value) return input.value;
+  try {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  } catch (e) {
+    return "";
+  }
+}
+
+function openLeaderboardReport() {
+  const section = document.getElementById("adminLeaderboardSection");
+  if (!section) return;
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  const monthInput = document.getElementById("adminLeaderboardMonth");
+  if (monthInput && !monthInput.value) monthInput.value = getAdminLeaderboardMonth();
+  populateLeaderboardClassFilter();
+  loadLeaderboardReport();
+}
+
+function populateLeaderboardClassFilter() {
+  const select = document.getElementById("adminLeaderboardClass");
+  if (!select) return;
+  const current = select.value;
+  const classes = [];
+  (adminStudentsCache || []).forEach(function(student) {
+    const value = String(student.className ?? student["Class"] ?? "").trim();
+    if (value && !classes.some(function(item) { return item.toLowerCase() === value.toLowerCase(); })) classes.push(value);
+  });
+  classes.sort(function(a,b){ return a.localeCompare(b, undefined, {numeric:true, sensitivity:"base"}); });
+  select.innerHTML = '<option value="">All Classes</option>' + classes.map(function(value){
+    return '<option value="' + escapeAdminAttr(value) + '">' + escapeAdminHtml(value) + '</option>';
+  }).join("");
+  if (classes.some(function(value){ return value.toLowerCase() === current.toLowerCase(); })) select.value = current;
+}
+
+function debouncedLeaderboardFilter() {
+  window.clearTimeout(adminLeaderboardTimer);
+  adminLeaderboardTimer = window.setTimeout(function(){ loadLeaderboardReport(); }, 350);
+}
+
+async function loadLeaderboardReport() {
+  const monthInput = document.getElementById("adminLeaderboardMonth");
+  const searchInput = document.getElementById("adminLeaderboardSearch");
+  const classInput = document.getElementById("adminLeaderboardClass");
+  const body = document.getElementById("adminLeaderboardBody");
+  const button = document.getElementById("adminLeaderboardRefreshBtn");
+  const message = document.getElementById("adminLeaderboardMessage");
+  if (!monthInput || !body) return;
+
+  const session = getAdminSession() || {};
+  const adminUsername = session.username || session.Username || "";
+  const month = monthInput.value || getAdminLeaderboardMonth();
+  const search = String(searchInput?.value || "").trim();
+  const className = String(classInput?.value || "").trim();
+  monthInput.value = month;
+
+  body.innerHTML = '<tr><td colspan="7" class="admin-leaderboard-loading">⏳ Loading leaderboard…</td></tr>';
+  if (message) { message.style.display = "none"; message.textContent = ""; }
+  if (button) { button.disabled = true; button.textContent = "⏳ Loading…"; }
+
+  try {
+    const result = await apiRequest("getLeaderboard", {
+      adminUsername: adminUsername,
+      month: month,
+      search: search,
+      className: className
+    });
+
+    const data = result.data || result || {};
+    adminLeaderboardCache = Array.isArray(data.students) ? data.students : [];
+
+    const summary = data.summary || {};
+    const totalEl = document.getElementById("adminLeaderboardTotal");
+    const daysEl = document.getElementById("adminLeaderboardDays");
+    const topEl = document.getElementById("adminLeaderboardTopScore");
+    if (totalEl) totalEl.textContent = Number(summary.totalRanked || 0);
+    if (daysEl) daysEl.textContent = Number(data.daysInMonth || 0);
+    if (topEl) topEl.textContent = Number(summary.topScore || 0) + "/100";
+
+    renderLeaderboardRows(adminLeaderboardCache);
+  } catch (error) {
+    adminLeaderboardCache = [];
+    ["adminLeaderboardTotal","adminLeaderboardDays","adminLeaderboardTopScore"].forEach(function(id){
+      const el = document.getElementById(id);
+      if (el) el.textContent = "0";
+    });
+    body.innerHTML = '<tr><td colspan="7" class="admin-leaderboard-empty">Unable to load leaderboard.</td></tr>';
+    if (message) {
+      message.textContent = "❌ " + (error?.message || "Unable to load leaderboard.");
+      message.style.display = "block";
+      message.style.background = "#fff1f1";
+      message.style.color = "#a32929";
+    }
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "🏆 Load Leaderboard"; }
+  }
+}
+
+function renderLeaderboardRows(rows) {
+  const body = document.getElementById("adminLeaderboardBody");
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="7" class="admin-leaderboard-empty">No students with submitted records for the selected filters.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.map(function(row) {
+    const rank = Number(row.rank || 0);
+    const rankIcon = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "";
+    const rowClass = rank === 1 ? "admin-leaderboard-top1" : rank === 2 ? "admin-leaderboard-top2" : rank === 3 ? "admin-leaderboard-top3" : "";
+    const name = escapeAdminHtml(row.studentName || "—");
+    const id = escapeAdminHtml(row.studentId || "");
+    const cls = escapeAdminHtml((row.className || "—") + (row.division ? " - " + row.division : ""));
+
+    return '<tr class="' + rowClass + '">' +
+      '<td class="admin-leaderboard-rank">' + rankIcon + (rankIcon ? " " : "") + rank + '</td>' +
+      '<td class="student-name">' + name + '<br><small style="color:#64748b;font-weight:700;">' + id + '</small></td>' +
+      '<td>' + cls + '</td>' +
+      '<td>' + Number(row.monthlyAverage || 0) + '/100</td>' +
+      '<td>' + Number(row.activeDays || 0) + '</td>' +
+      '<td>' + Number(row.consistency || 0) + '%</td>' +
+      '<td class="admin-leaderboard-final">' + Number(row.finalScore || 0) + '/100</td>' +
       '</tr>';
   }).join("");
 }
