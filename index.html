@@ -1116,6 +1116,21 @@
     .admin-quick-btn span { font-size:12px; opacity:.7; }
     .admin-date-pill { display:inline-flex; align-items:center; gap:7px; margin-top:8px; padding:7px 11px; border-radius:999px; background:rgba(20,93,151,.08); color:#145d97; font-size:12px; font-weight:700; }
     @media (max-width:520px){ .admin-quick-grid{grid-template-columns:1fr 1fr;} }
+
+.admin-student-card{margin-top:16px;}
+.admin-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.admin-section-head h2{margin:0 0 4px;}
+.admin-section-head p{margin:0;color:#64748b;font-size:13px;}
+.admin-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.admin-form-grid label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:800;color:#183b5a;}
+.admin-form-grid input,.admin-form-grid select{width:100%;box-sizing:border-box;border:1px solid #d7e3ee;border-radius:12px;padding:11px 12px;font:inherit;font-size:14px;background:#fff;outline:none;}
+.admin-form-grid input:focus,.admin-form-grid select:focus{border-color:#2d7fc3;box-shadow:0 0 0 3px rgba(45,127,195,.10);}
+.admin-primary-btn,.admin-secondary-btn{border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer;}
+.admin-primary-btn{margin-top:14px;background:#0f5f9e;color:#fff;width:100%;}
+.admin-secondary-btn{background:#eef5fb;color:#145d97;}
+.admin-form-message{display:none;margin-top:12px;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:800;}
+@media(max-width:600px){.admin-form-grid{grid-template-columns:1fr;}.admin-section-head{align-items:center;}.admin-form-grid input,.admin-form-grid select{min-height:44px;}}
+
 </style>
 
 </head>
@@ -2504,8 +2519,8 @@
       <div class="section-card">
         <h2>⚡ Quick Actions</h2>
         <div class="admin-quick-grid">
-          <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Student Management')">
-            👨‍🎓<strong>Student Management</strong><span>Add, edit and view students</span>
+          <button class="admin-quick-btn" type="button" onclick="openAddStudentForm()">
+            👨‍🎓<strong>Student Management</strong><span>Add new student</span>
           </button>
           <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Daily Report')">
             📋<strong>Daily Report</strong><span>Today’s student records</span>
@@ -2517,6 +2532,33 @@
             🏆<strong>Rewards</strong><span>Monthly awards and rewards</span>
           </button>
         </div>
+      </div>
+
+      <div class="section-card admin-student-card" id="adminStudentManagement">
+        <div class="admin-section-head">
+          <div>
+            <h2>👨‍🎓 Add Student</h2>
+            <p>Create a new student account for the Student Panel.</p>
+          </div>
+          <button class="admin-secondary-btn" type="button" onclick="clearAddStudentForm()">Clear</button>
+        </div>
+
+        <form id="addStudentForm" onsubmit="submitAddStudent(event)">
+          <div class="admin-form-grid">
+            <label>Student ID<input id="addStudentId" name="studentId" type="text" placeholder="NIM001" required></label>
+            <label>Student Name<input id="addStudentName" name="studentName" type="text" placeholder="Student name" required></label>
+            <label>Father Name<input id="addFatherName" name="fatherName" type="text" placeholder="Father name"></label>
+            <label>Mother Name<input id="addMotherName" name="motherName" type="text" placeholder="Mother name"></label>
+            <label>Class<input id="addClass" name="className" type="text" placeholder="Class"></label>
+            <label>Division<input id="addDivision" name="division" type="text" placeholder="A"></label>
+            <label>Parent Phone<input id="addParentPhone" name="parentPhone" type="tel" inputmode="tel" placeholder="Parent phone"></label>
+            <label>Username<input id="addUsername" name="username" type="text" placeholder="Username" required></label>
+            <label>Password<input id="addPassword" name="password" type="password" placeholder="Password" required minlength="4"></label>
+            <label>Status<select id="addStatus" name="status"><option value="ACTIVE">ACTIVE</option><option value="INACTIVE">INACTIVE</option></select></label>
+          </div>
+          <div id="addStudentMessage" class="admin-form-message" role="status"></div>
+          <button id="addStudentSubmit" class="admin-primary-btn" type="submit">➕ Add Student</button>
+        </form>
       </div>
 
       <div class="section-card">
@@ -3883,6 +3925,68 @@ function updateAdminDashboard(data) {
     .getElementById("adminActiveStreak")
     .textContent =
       summary.activeStreakStudents ?? 0;
+}
+
+
+async function submitAddStudent(event) {
+  event.preventDefault();
+  const message = document.getElementById("addStudentMessage");
+  const button = document.getElementById("addStudentSubmit");
+  const session = JSON.parse(localStorage.getItem("madrasa_session") || sessionStorage.getItem("madrasa_session") || "null");
+  const value = id => String(document.getElementById(id)?.value || "").trim();
+  const payload = {
+    studentId: value("addStudentId"),
+    studentName: value("addStudentName"),
+    fatherName: value("addFatherName"),
+    motherName: value("addMotherName"),
+    className: value("addClass"),
+    division: value("addDivision"),
+    parentPhone: value("addParentPhone"),
+    username: value("addUsername"),
+    password: value("addPassword"),
+    status: value("addStatus") || "ACTIVE",
+    adminUsername: session?.username || session?.Username || ""
+  };
+  if (!payload.studentId || !payload.studentName || !payload.username || !payload.password) {
+    message.textContent = "Student ID, Name, Username and Password are required.";
+    message.style.display = "block";
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "Saving…";
+  message.style.display = "none";
+  try {
+    const result = await apiRequest("addStudent", payload);
+    if (!result || result.success === false) throw new Error(result?.message || result?.error || "Unable to add student.");
+    message.textContent = "✅ Student added successfully.";
+    message.style.display = "block";
+    message.style.background = "#eaf8ef";
+    message.style.color = "#176b3a";
+    document.getElementById("addStudentForm").reset();
+    await loadAdminDashboard(session || {});
+  } catch (error) {
+    message.textContent = "❌ " + (error?.message || "Unable to add student.");
+    message.style.display = "block";
+    message.style.background = "#fff1f1";
+    message.style.color = "#a32929";
+  } finally {
+    button.disabled = false;
+    button.textContent = "➕ Add Student";
+  }
+}
+
+function clearAddStudentForm() {
+  const form = document.getElementById("addStudentForm");
+  if (form) form.reset();
+  const message = document.getElementById("addStudentMessage");
+  if (message) { message.style.display = "none"; message.textContent = ""; }
+}
+
+function openAddStudentForm() {
+  const el = document.getElementById("adminStudentManagement");
+  if (el) { el.scrollIntoView({behavior:"smooth", block:"start"}); }
+  const first = document.getElementById("addStudentId");
+  if (first) setTimeout(() => first.focus(), 250);
 }
 
 function showAdminNotice(sectionName) {
