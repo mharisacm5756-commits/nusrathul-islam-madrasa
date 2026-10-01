@@ -1131,7 +1131,43 @@
 .admin-form-message{display:none;margin-top:12px;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:800;}
 @media(max-width:600px){.admin-form-grid{grid-template-columns:1fr;}.admin-section-head{align-items:center;}.admin-form-grid input,.admin-form-grid select{min-height:44px;}}
 
-</style>
+
+/* =========================
+   ADMIN STUDENT LIST V16
+========================= */
+.admin-student-list{margin-top:16px;}
+.admin-student-toolbar{display:grid;grid-template-columns:1fr auto auto;gap:9px;margin-bottom:12px;}
+.admin-student-search,.admin-student-filter{width:100%;border:1px solid #d7e3ee;border-radius:12px;padding:11px 12px;background:#fff;font:inherit;font-size:14px;outline:none;}
+.admin-student-search:focus,.admin-student-filter:focus{border-color:#2d7fc3;box-shadow:0 0 0 3px rgba(45,127,195,.10);}
+.admin-student-list-wrap{display:grid;gap:9px;}
+.admin-student-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:13px;border:1px solid #e1e9f4;border-radius:14px;background:#fbfdff;}
+.admin-student-main{min-width:0;}
+.admin-student-main strong{display:block;color:#123b78;font-size:14px;}
+.admin-student-main span{display:block;color:#64748b;font-size:11px;margin-top:4px;overflow-wrap:anywhere;}
+.admin-student-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.admin-mini-btn{border:0;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;background:#eef5fb;color:#145d97;}
+.admin-mini-btn.danger{background:#fff0f0;color:#a32929;}
+.admin-mini-btn:disabled{opacity:.55;cursor:not-allowed;}
+.admin-student-empty{padding:20px;text-align:center;color:#64748b;font-size:13px;background:#f8fbff;border-radius:12px;}
+.admin-student-count{font-size:12px;color:#64748b;font-weight:700;margin-bottom:9px;}
+.admin-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.admin-edit-grid label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:#183b5a;}
+.admin-edit-grid input,.admin-edit-grid select{border:1px solid #d7e3ee;border-radius:10px;padding:10px;background:#fff;font:inherit;font-size:13px;outline:none;}
+.admin-edit-overlay{position:fixed;inset:0;background:rgba(8,35,65,.45);display:none;align-items:center;justify-content:center;padding:14px;z-index:100;}
+.admin-edit-overlay.show{display:flex;}
+.admin-edit-modal{width:min(100%,620px);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.22);}
+.admin-edit-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}
+.admin-edit-head h3{margin:0;color:#0f4384;font-size:18px;}
+.admin-close-btn{border:0;background:#eef5fb;color:#145d97;border-radius:10px;padding:8px 11px;font-weight:800;}
+@media(max-width:600px){
+  .admin-student-toolbar{grid-template-columns:1fr 1fr;}
+  .admin-student-toolbar .admin-student-search{grid-column:1/-1;}
+  .admin-student-row{grid-template-columns:1fr;}
+  .admin-student-actions{justify-content:flex-start;}
+  .admin-edit-grid{grid-template-columns:1fr;}
+}
+
+  </style>
 
 </head>
 
@@ -2561,6 +2597,57 @@
         </form>
       </div>
 
+
+      <div class="section-card admin-student-list">
+        <div class="admin-section-head">
+          <div>
+            <h2>👥 Student List</h2>
+            <p>Search, view, edit or deactivate students.</p>
+          </div>
+          <button class="admin-secondary-btn" type="button" onclick="loadAdminStudentList()">↻ Refresh</button>
+        </div>
+        <div class="admin-student-toolbar">
+          <input id="adminStudentSearch" class="admin-student-search" type="search" placeholder="🔎 Search name, ID or username" oninput="filterAdminStudents()">
+          <select id="adminStudentClassFilter" class="admin-student-filter" onchange="filterAdminStudents()">
+            <option value="">All Classes</option>
+          </select>
+          <select id="adminStudentStatusFilter" class="admin-student-filter" onchange="filterAdminStudents()">
+            <option value="">All Status</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
+          </select>
+        </div>
+        <div id="adminStudentCount" class="admin-student-count">Loading students…</div>
+        <div id="adminStudentListWrap" class="admin-student-list-wrap">
+          <div class="admin-student-empty">Loading students…</div>
+        </div>
+      </div>
+
+      <div id="adminEditStudentOverlay" class="admin-edit-overlay" aria-hidden="true">
+        <div class="admin-edit-modal">
+          <div class="admin-edit-head">
+            <h3>✏️ Edit Student</h3>
+            <button class="admin-close-btn" type="button" onclick="closeAdminEditStudent()">✕</button>
+          </div>
+          <form id="adminEditStudentForm" onsubmit="submitAdminEditStudent(event)">
+            <input id="editStudentId" type="hidden">
+            <div class="admin-edit-grid">
+              <label>Student Name<input id="editStudentName" required></label>
+              <label>Father Name<input id="editFatherName"></label>
+              <label>Mother Name<input id="editMotherName"></label>
+              <label>Class<input id="editClass"></label>
+              <label>Division<input id="editDivision"></label>
+              <label>Parent Phone<input id="editParentPhone"></label>
+              <label>Username<input id="editUsername" required></label>
+              <label>New Password<input id="editPassword" type="password" placeholder="Leave blank to keep current"></label>
+              <label>Status<select id="editStatus"><option value="ACTIVE">ACTIVE</option><option value="INACTIVE">INACTIVE</option></select></label>
+            </div>
+            <div id="editStudentMessage" class="admin-form-message"></div>
+            <button id="editStudentSubmit" class="admin-primary-btn" type="submit">💾 Save Changes</button>
+          </form>
+        </div>
+      </div>
+
       <div class="section-card">
         <h2>📋 Daily Report</h2>
         <div class="empty-state">Daily report module will be added in the next Admin step.</div>
@@ -3882,6 +3969,11 @@ async function loadAdminDashboard(session) {
 
     updateAdminDashboard(data);
 
+    // Load the student list in the background so the dashboard itself stays fast.
+    loadAdminStudentList().catch(function(error) {
+      console.warn("Student list background load failed:", error);
+    });
+
   } catch (error) {
 
     console.error(
@@ -3925,6 +4017,334 @@ function updateAdminDashboard(data) {
     .getElementById("adminActiveStreak")
     .textContent =
       summary.activeStreakStudents ?? 0;
+}
+
+
+
+/* ==========================================================
+   ADMIN STUDENT LIST / VIEW / EDIT / DEACTIVATE - V16
+========================================================== */
+
+let adminStudentsCache = [];
+
+function getAdminSession() {
+  try {
+    return JSON.parse(
+      localStorage.getItem("madrasa_session") ||
+      sessionStorage.getItem("madrasa_session") ||
+      localStorage.getItem("madrasaSession") ||
+      "null"
+    );
+  } catch (e) {
+    return null;
+  }
+}
+
+async function loadAdminStudentList() {
+  const wrap = document.getElementById("adminStudentListWrap");
+  const count = document.getElementById("adminStudentCount");
+  if (!wrap) return;
+
+  wrap.innerHTML = '<div class="admin-student-empty">Loading students…</div>';
+
+  try {
+    const session = getAdminSession() || {};
+    const result = await apiRequest("getStudentList", {
+      adminUsername: session.username || session.Username || ""
+    });
+
+    if (!result || result.success === false) {
+      throw new Error(result?.message || "Unable to load students.");
+    }
+
+    const data = result.data || result;
+    adminStudentsCache = Array.isArray(data.students)
+      ? data.students
+      : Array.isArray(data)
+        ? data
+        : [];
+
+    populateAdminStudentClassFilter();
+    filterAdminStudents();
+
+  } catch (error) {
+    adminStudentsCache = [];
+    wrap.innerHTML =
+      '<div class="admin-student-empty">❌ ' +
+      escapeAdminHtml(error?.message || "Unable to load students.") +
+      '</div>';
+    if (count) count.textContent = "Unable to load students";
+  }
+}
+
+function populateAdminStudentClassFilter() {
+  const select = document.getElementById("adminStudentClassFilter");
+  if (!select) return;
+
+  const current = select.value;
+  const classes = [...new Set(
+    adminStudentsCache
+      .map(s => String(s.className ?? s.Class ?? "").trim())
+      .filter(Boolean)
+  )].sort();
+
+  select.innerHTML =
+    '<option value="">All Classes</option>' +
+    classes.map(c =>
+      `<option value="${escapeAdminAttr(c)}">${escapeAdminHtml(c)}</option>`
+    ).join("");
+
+  if (classes.includes(current)) select.value = current;
+}
+
+function filterAdminStudents() {
+  const wrap = document.getElementById("adminStudentListWrap");
+  const count = document.getElementById("adminStudentCount");
+  if (!wrap) return;
+
+  const search = String(
+    document.getElementById("adminStudentSearch")?.value || ""
+  ).trim().toLowerCase();
+
+  const classFilter = String(
+    document.getElementById("adminStudentClassFilter")?.value || ""
+  ).trim();
+
+  const statusFilter = String(
+    document.getElementById("adminStudentStatusFilter")?.value || ""
+  ).trim().toUpperCase();
+
+  const filtered = adminStudentsCache.filter(function(student) {
+    const id = String(student.studentId ?? student["Student ID"] ?? "").trim();
+    const name = String(student.studentName ?? student["Student Name"] ?? "").trim();
+    const username = String(student.username ?? student["Username"] ?? "").trim();
+    const className = String(student.className ?? student["Class"] ?? "").trim();
+    const status = String(student.status ?? student["Status"] ?? "ACTIVE").trim().toUpperCase();
+
+    const matchesSearch =
+      !search ||
+      id.toLowerCase().includes(search) ||
+      name.toLowerCase().includes(search) ||
+      username.toLowerCase().includes(search);
+
+    const matchesClass = !classFilter || className === classFilter;
+    const matchesStatus = !statusFilter || status === statusFilter;
+
+    return matchesSearch && matchesClass && matchesStatus;
+  });
+
+  if (count) {
+    count.textContent =
+      `${filtered.length} student${filtered.length === 1 ? "" : "s"} shown`;
+  }
+
+  if (!filtered.length) {
+    wrap.innerHTML =
+      '<div class="admin-student-empty">No students found.</div>';
+    return;
+  }
+
+  wrap.innerHTML = filtered.map(function(student) {
+    const id = String(student.studentId ?? student["Student ID"] ?? "");
+    const name = String(student.studentName ?? student["Student Name"] ?? "");
+    const username = String(student.username ?? student["Username"] ?? "");
+    const className = String(student.className ?? student["Class"] ?? "");
+    const division = String(student.division ?? student["Division"] ?? "");
+    const status = String(student.status ?? student["Status"] ?? "ACTIVE").toUpperCase();
+    const index = adminStudentsCache.indexOf(student);
+
+    return `
+      <div class="admin-student-row">
+        <div class="admin-student-main">
+          <strong>${escapeAdminHtml(name || "Unnamed Student")}</strong>
+          <span>${escapeAdminHtml(id)} · ${escapeAdminHtml(username)} · Class ${escapeAdminHtml(className || "-")}${division ? " · " + escapeAdminHtml(division) : ""} · ${escapeAdminHtml(status)}</span>
+        </div>
+        <div class="admin-student-actions">
+          <button class="admin-mini-btn" type="button" onclick="viewAdminStudent(${index})">View</button>
+          <button class="admin-mini-btn" type="button" onclick="openAdminEditStudent(${index})">Edit</button>
+          <button class="admin-mini-btn danger" type="button" onclick="deactivateAdminStudent(${index})" ${status === "INACTIVE" ? "disabled" : ""}>Deactivate</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function viewAdminStudent(index) {
+  const student = adminStudentsCache[index];
+  if (!student) return;
+
+  const name = String(student.studentName ?? student["Student Name"] ?? "");
+  const id = String(student.studentId ?? student["Student ID"] ?? "");
+  const father = String(student.fatherName ?? student["Father Name"] ?? "");
+  const mother = String(student.motherName ?? student["Mother Name"] ?? "");
+  const cls = String(student.className ?? student["Class"] ?? "");
+  const div = String(student.division ?? student["Division"] ?? "");
+  const phone = String(student.parentPhone ?? student["Parent Phone"] ?? "");
+  const username = String(student.username ?? student["Username"] ?? "");
+  const status = String(student.status ?? student["Status"] ?? "ACTIVE");
+
+  alert(
+    `Student Details\n\n` +
+    `Name: ${name}\n` +
+    `Student ID: ${id}\n` +
+    `Father: ${father}\n` +
+    `Mother: ${mother}\n` +
+    `Class: ${cls}\n` +
+    `Division: ${div}\n` +
+    `Parent Phone: ${phone}\n` +
+    `Username: ${username}\n` +
+    `Status: ${status}`
+  );
+}
+
+function openAdminEditStudent(index) {
+  const student = adminStudentsCache[index];
+  if (!student) return;
+
+  document.getElementById("editStudentId").value =
+    String(student.studentId ?? student["Student ID"] ?? "");
+  document.getElementById("editStudentName").value =
+    String(student.studentName ?? student["Student Name"] ?? "");
+  document.getElementById("editFatherName").value =
+    String(student.fatherName ?? student["Father Name"] ?? "");
+  document.getElementById("editMotherName").value =
+    String(student.motherName ?? student["Mother Name"] ?? "");
+  document.getElementById("editClass").value =
+    String(student.className ?? student["Class"] ?? "");
+  document.getElementById("editDivision").value =
+    String(student.division ?? student["Division"] ?? "");
+  document.getElementById("editParentPhone").value =
+    String(student.parentPhone ?? student["Parent Phone"] ?? "");
+  document.getElementById("editUsername").value =
+    String(student.username ?? student["Username"] ?? "");
+  document.getElementById("editPassword").value = "";
+  document.getElementById("editStatus").value =
+    String(student.status ?? student["Status"] ?? "ACTIVE").toUpperCase();
+
+  const msg = document.getElementById("editStudentMessage");
+  if (msg) {
+    msg.style.display = "none";
+    msg.textContent = "";
+  }
+
+  const overlay = document.getElementById("adminEditStudentOverlay");
+  if (overlay) {
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+}
+
+function closeAdminEditStudent() {
+  const overlay = document.getElementById("adminEditStudentOverlay");
+  if (overlay) {
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
+  }
+}
+
+async function submitAdminEditStudent(event) {
+  event.preventDefault();
+
+  const session = getAdminSession() || {};
+  const button = document.getElementById("editStudentSubmit");
+  const message = document.getElementById("editStudentMessage");
+
+  const payload = {
+    studentId: String(document.getElementById("editStudentId")?.value || "").trim(),
+    studentName: String(document.getElementById("editStudentName")?.value || "").trim(),
+    fatherName: String(document.getElementById("editFatherName")?.value || "").trim(),
+    motherName: String(document.getElementById("editMotherName")?.value || "").trim(),
+    className: String(document.getElementById("editClass")?.value || "").trim(),
+    division: String(document.getElementById("editDivision")?.value || "").trim(),
+    parentPhone: String(document.getElementById("editParentPhone")?.value || "").trim(),
+    username: String(document.getElementById("editUsername")?.value || "").trim(),
+    password: String(document.getElementById("editPassword")?.value || ""),
+    status: String(document.getElementById("editStatus")?.value || "ACTIVE"),
+    adminUsername: session.username || session.Username || ""
+  };
+
+  if (!payload.studentId || !payload.studentName || !payload.username) {
+    if (message) {
+      message.textContent = "Student ID, Name and Username are required.";
+      message.style.display = "block";
+    }
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Saving…";
+
+  try {
+    const result = await apiRequest("updateStudent", payload);
+
+    if (!result || result.success === false) {
+      throw new Error(result?.message || "Unable to update student.");
+    }
+
+    if (message) {
+      message.textContent = "✅ Student updated successfully.";
+      message.style.display = "block";
+      message.style.background = "#eaf8ef";
+      message.style.color = "#176b3a";
+    }
+
+    await loadAdminStudentList();
+    await loadAdminDashboard(session);
+
+    setTimeout(closeAdminEditStudent, 500);
+
+  } catch (error) {
+    if (message) {
+      message.textContent = "❌ " + (error?.message || "Unable to update student.");
+      message.style.display = "block";
+      message.style.background = "#fff1f1";
+      message.style.color = "#a32929";
+    }
+  } finally {
+    button.disabled = false;
+    button.textContent = "💾 Save Changes";
+  }
+}
+
+async function deactivateAdminStudent(index) {
+  const student = adminStudentsCache[index];
+  if (!student) return;
+
+  const studentId = String(student.studentId ?? student["Student ID"] ?? "");
+  const name = String(student.studentName ?? student["Student Name"] ?? "this student");
+
+  if (!confirm(`Deactivate ${name}?`)) return;
+
+  const session = getAdminSession() || {};
+
+  try {
+    const result = await apiRequest("deactivateStudent", {
+      studentId,
+      adminUsername: session.username || session.Username || ""
+    });
+
+    if (!result || result.success === false) {
+      throw new Error(result?.message || "Unable to deactivate student.");
+    }
+
+    await loadAdminStudentList();
+    await loadAdminDashboard(session);
+
+  } catch (error) {
+    alert("❌ " + (error?.message || "Unable to deactivate student."));
+  }
+}
+
+function escapeAdminHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeAdminAttr(value) {
+  return escapeAdminHtml(value);
 }
 
 
