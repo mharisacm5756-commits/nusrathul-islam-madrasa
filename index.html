@@ -1204,6 +1204,48 @@
   .admin-report-summary{grid-template-columns:1fr 1fr;}
 }
 
+
+/* ==========================================================
+   ADMIN PERFORMANCE
+========================================================== */
+.admin-performance-card{margin-top:16px;}
+.admin-performance-toolbar{display:grid;grid-template-columns:150px minmax(180px,1fr) 150px auto;gap:10px;align-items:end;margin-top:14px;}
+.admin-performance-field{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:#183b5a;}
+.admin-performance-field input,.admin-performance-field select{width:100%;box-sizing:border-box;border:1px solid #d7e3ee;border-radius:10px;padding:10px;background:#fff;font:inherit;font-size:13px;outline:none;}
+.admin-performance-actions{display:flex;gap:8px;align-items:center;}
+.admin-performance-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px;}
+.admin-performance-stat{background:#f7fbff;border:1px solid #e1edf6;border-radius:14px;padding:12px;text-align:center;}
+.admin-performance-stat span{display:block;font-size:11px;font-weight:800;color:#64748b;margin-bottom:4px;}
+.admin-performance-stat strong{display:block;font-size:22px;color:#0f4384;}
+.admin-performance-categories{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px;}
+.admin-performance-cat{background:#fff;border:1px solid #e1edf6;border-radius:14px;padding:11px;}
+.admin-performance-cat-head{display:flex;justify-content:space-between;gap:8px;font-size:11px;font-weight:900;color:#183b5a;margin-bottom:7px;}
+.admin-performance-cat-track{height:8px;background:#edf3f8;border-radius:999px;overflow:hidden;}
+.admin-performance-cat-fill{height:100%;background:#2d7fc3;border-radius:999px;}
+.admin-performance-cat small{display:block;margin-top:6px;color:#64748b;font-size:10px;font-weight:800;}
+.admin-performance-table-wrap{margin-top:14px;overflow-x:auto;border:1px solid #e1edf6;border-radius:14px;background:#fff;}
+.admin-performance-table{width:100%;min-width:900px;border-collapse:collapse;font-size:12px;}
+.admin-performance-table th{background:#f2f7fb;color:#183b5a;font-weight:900;padding:10px 8px;text-align:center;white-space:nowrap;border-bottom:1px solid #dfeaf3;}
+.admin-performance-table td{padding:9px 8px;text-align:center;border-bottom:1px solid #edf2f7;white-space:nowrap;}
+.admin-performance-table td.student-name{text-align:left;font-weight:800;color:#173b5b;}
+.admin-performance-table tr:last-child td{border-bottom:0;}
+.admin-performance-score{font-weight:900;color:#0f4384;}
+.admin-performance-empty{padding:24px;text-align:center;color:#64748b;font-size:13px;}
+.admin-performance-loading{padding:24px;text-align:center;color:#145d97;font-weight:800;}
+@media(max-width:900px){
+  .admin-performance-toolbar{grid-template-columns:1fr 1fr;}
+  .admin-performance-field.search-field{grid-column:1/-1;}
+  .admin-performance-actions{grid-column:1/-1;}
+  .admin-performance-summary{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .admin-performance-categories{grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(max-width:520px){
+  .admin-performance-toolbar{grid-template-columns:1fr;}
+  .admin-performance-field.search-field,.admin-performance-actions{grid-column:auto;}
+  .admin-performance-summary{grid-template-columns:1fr 1fr;}
+  .admin-performance-categories{grid-template-columns:1fr 1fr;}
+}
+
 </style>
 
 </head>
@@ -2598,7 +2640,7 @@
           <button class="admin-quick-btn" type="button" onclick="openDailyReport()">
             📋<strong>Daily Report</strong><span>Today’s student records</span>
           </button>
-          <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Performance')">
+          <button class="admin-quick-btn" type="button" onclick="openPerformanceReport()">
             📊<strong>Performance</strong><span>Category-wise progress</span>
           </button>
           <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Rewards')">
@@ -2685,7 +2727,70 @@
         </div>
       </div>
 
-      <div class="section-card admin-daily-report-card" id="adminDailyReportSection">
+      
+<div class="section-card admin-performance-card" id="adminPerformanceSection">
+  <div class="admin-section-head">
+    <div>
+      <h2>📊 Performance</h2>
+      <p>Monthly category-wise student performance.</p>
+    </div>
+  </div>
+
+  <div class="admin-performance-toolbar">
+    <label class="admin-performance-field">
+      Month
+      <input id="adminPerformanceMonth" type="month" onchange="loadPerformanceReport()">
+    </label>
+
+    <label class="admin-performance-field search-field">
+      Student Search
+      <input id="adminPerformanceSearch" type="search" placeholder="🔎 Search name, ID or username" oninput="debouncedPerformanceFilter()">
+    </label>
+
+    <label class="admin-performance-field">
+      Class
+      <select id="adminPerformanceClass" onchange="loadPerformanceReport()">
+        <option value="">All Classes</option>
+      </select>
+    </label>
+
+    <div class="admin-performance-actions">
+      <button id="adminPerformanceRefreshBtn" class="admin-primary-btn" type="button" onclick="loadPerformanceReport()">📊 Load Performance</button>
+    </div>
+  </div>
+
+  <div class="admin-performance-summary">
+    <div class="admin-performance-stat"><span>Students</span><strong id="adminPerformanceTotal">0</strong></div>
+    <div class="admin-performance-stat"><span>With Records</span><strong id="adminPerformanceActive">0</strong></div>
+    <div class="admin-performance-stat"><span>Submitted Days</span><strong id="adminPerformanceDays">0</strong></div>
+    <div class="admin-performance-stat"><span>Average Total</span><strong id="adminPerformanceAverage">0</strong></div>
+  </div>
+
+  <div class="admin-performance-categories">
+    <div class="admin-performance-cat"><div class="admin-performance-cat-head"><span>Ibadah</span><strong id="perfIbadahValue">0/30</strong></div><div class="admin-performance-cat-track"><div id="perfIbadahFill" class="admin-performance-cat-fill" style="width:0%"></div></div><small>Monthly average</small></div>
+    <div class="admin-performance-cat"><div class="admin-performance-cat-head"><span>Study</span><strong id="perfStudyValue">0/20</strong></div><div class="admin-performance-cat-track"><div id="perfStudyFill" class="admin-performance-cat-fill" style="width:0%"></div></div><small>Monthly average</small></div>
+    <div class="admin-performance-cat"><div class="admin-performance-cat-head"><span>Character</span><strong id="perfCharacterValue">0/30</strong></div><div class="admin-performance-cat-track"><div id="perfCharacterFill" class="admin-performance-cat-fill" style="width:0%"></div></div><small>Monthly average</small></div>
+    <div class="admin-performance-cat"><div class="admin-performance-cat-head"><span>Health</span><strong id="perfHealthValue">0/10</strong></div><div class="admin-performance-cat-track"><div id="perfHealthFill" class="admin-performance-cat-fill" style="width:0%"></div></div><small>Monthly average</small></div>
+    <div class="admin-performance-cat"><div class="admin-performance-cat-head"><span>Digital</span><strong id="perfDigitalValue">0/10</strong></div><div class="admin-performance-cat-track"><div id="perfDigitalFill" class="admin-performance-cat-fill" style="width:0%"></div></div><small>Monthly average</small></div>
+  </div>
+
+  <div id="adminPerformanceMessage" class="admin-form-message" style="margin-top:12px;"></div>
+
+  <div class="admin-performance-table-wrap">
+    <table class="admin-performance-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Student</th><th>Class</th><th>Days</th><th>Ibadah</th><th>Study</th><th>Character</th><th>Health</th><th>Digital</th><th>Total Avg</th>
+        </tr>
+      </thead>
+      <tbody id="adminPerformanceBody">
+        <tr><td colspan="10" class="admin-performance-empty">Select a month and load performance.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section-card admin-daily-report-card" id="adminDailyReportSection">
         <div class="admin-section-head">
           <div>
             <h2>📋 Daily Report</h2>
@@ -5509,6 +5614,154 @@ function renderDailyReportRows(rows) {
       '<td>' + Number(row.healthScore || 0) + '/10</td>' +
       '<td>' + Number(row.digitalScore || 0) + '/10</td>' +
       '<td class="admin-report-score">' + Number(row.totalScore || 0) + '/100</td>' +
+      '</tr>';
+  }).join("");
+}
+
+
+/* ==========================================================
+   ADMIN PERFORMANCE REPORT
+========================================================== */
+let adminPerformanceCache = [];
+let adminPerformanceTimer = null;
+
+function getAdminPerformanceMonth() {
+  try {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "2-digit"
+    }).format(new Date());
+  } catch (error) {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  }
+}
+
+function openPerformanceReport() {
+  const section = document.getElementById("adminPerformanceSection");
+  if (!section) return;
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  const monthInput = document.getElementById("adminPerformanceMonth");
+  if (monthInput && !monthInput.value) monthInput.value = getAdminPerformanceMonth();
+  populatePerformanceClassFilter();
+  loadPerformanceReport();
+}
+
+function populatePerformanceClassFilter() {
+  const select = document.getElementById("adminPerformanceClass");
+  if (!select) return;
+  const current = select.value;
+  const classes = [];
+  (adminStudentsCache || []).forEach(function(student) {
+    const value = String(student.className ?? student["Class"] ?? "").trim();
+    if (value && !classes.some(function(item) { return item.toLowerCase() === value.toLowerCase(); })) classes.push(value);
+  });
+  classes.sort(function(a,b){ return a.localeCompare(b, undefined, {numeric:true, sensitivity:"base"}); });
+  select.innerHTML = '<option value="">All Classes</option>' + classes.map(function(value){
+    return '<option value="' + escapeAdminAttr(value) + '">' + escapeAdminHtml(value) + '</option>';
+  }).join("");
+  if (classes.some(function(value){ return value.toLowerCase() === current.toLowerCase(); })) select.value = current;
+}
+
+function debouncedPerformanceFilter() {
+  window.clearTimeout(adminPerformanceTimer);
+  adminPerformanceTimer = window.setTimeout(function(){ loadPerformanceReport(); }, 350);
+}
+
+function setPerformanceCategory(prefix, value, max) {
+  const numeric = Number(value || 0);
+  const safe = Math.max(0, Math.min(max, numeric));
+  const valueEl = document.getElementById(prefix + "Value");
+  const fillEl = document.getElementById(prefix + "Fill");
+  if (valueEl) valueEl.textContent = safe.toFixed(1).replace(/\.0$/, "") + "/" + max;
+  if (fillEl) fillEl.style.width = ((safe / max) * 100) + "%";
+}
+
+async function loadPerformanceReport() {
+  const monthInput = document.getElementById("adminPerformanceMonth");
+  const searchInput = document.getElementById("adminPerformanceSearch");
+  const classInput = document.getElementById("adminPerformanceClass");
+  const body = document.getElementById("adminPerformanceBody");
+  const button = document.getElementById("adminPerformanceRefreshBtn");
+  const message = document.getElementById("adminPerformanceMessage");
+  if (!monthInput || !body) return;
+
+  const session = getAdminSession() || {};
+  const adminUsername = session.username || session.Username || "";
+  const month = monthInput.value || getAdminPerformanceMonth();
+  const search = String(searchInput?.value || "").trim();
+  const className = String(classInput?.value || "").trim();
+  monthInput.value = month;
+
+  body.innerHTML = '<tr><td colspan="10" class="admin-performance-loading">⏳ Loading performance…</td></tr>';
+  if (message) { message.style.display = "none"; message.textContent = ""; }
+  if (button) { button.disabled = true; button.textContent = "⏳ Loading…"; }
+
+  try {
+    const result = await apiRequest("getPerformanceReport", {
+      adminUsername: adminUsername,
+      month: month,
+      search: search,
+      className: className
+    });
+    const data = result.data || result || {};
+    const summary = data.summary || {};
+    adminPerformanceCache = Array.isArray(data.students) ? data.students : [];
+
+    document.getElementById("adminPerformanceTotal").textContent = Number(summary.totalStudents || 0);
+    document.getElementById("adminPerformanceActive").textContent = Number(summary.activeStudents || 0);
+    document.getElementById("adminPerformanceDays").textContent = Number(summary.totalSubmittedDays || 0);
+    document.getElementById("adminPerformanceAverage").textContent = Number(summary.averageTotal || 0);
+
+    setPerformanceCategory("perfIbadah", summary.averageIbadah, 30);
+    setPerformanceCategory("perfStudy", summary.averageStudy, 20);
+    setPerformanceCategory("perfCharacter", summary.averageCharacter, 30);
+    setPerformanceCategory("perfHealth", summary.averageHealth, 10);
+    setPerformanceCategory("perfDigital", summary.averageDigital, 10);
+
+    renderPerformanceRows(adminPerformanceCache);
+  } catch (error) {
+    adminPerformanceCache = [];
+    ["adminPerformanceTotal","adminPerformanceActive","adminPerformanceDays","adminPerformanceAverage"].forEach(function(id){ const el=document.getElementById(id); if(el) el.textContent="0"; });
+    ["perfIbadah","perfStudy","perfCharacter","perfHealth","perfDigital"].forEach(function(prefix){
+      const max = {perfIbadah:30,perfStudy:20,perfCharacter:30,perfHealth:10,perfDigital:10}[prefix];
+      setPerformanceCategory(prefix,0,max);
+    });
+    body.innerHTML = '<tr><td colspan="10" class="admin-performance-empty">Unable to load performance.</td></tr>';
+    if (message) {
+      message.textContent = "❌ " + (error?.message || "Unable to load performance report.");
+      message.style.display = "block";
+      message.style.background = "#fff1f1";
+      message.style.color = "#a32929";
+    }
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "📊 Load Performance"; }
+  }
+}
+
+function renderPerformanceRows(rows) {
+  const body = document.getElementById("adminPerformanceBody");
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="10" class="admin-performance-empty">No students found for the selected filters.</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(function(row,index){
+    const name = escapeAdminHtml(row.studentName || "—");
+    const id = escapeAdminHtml(row.studentId || "");
+    const cls = escapeAdminHtml((row.className || "—") + (row.division ? " - " + row.division : ""));
+    return '<tr>' +
+      '<td>' + (index + 1) + '</td>' +
+      '<td class="student-name">' + name + '<br><small style="color:#64748b;font-weight:700;">' + id + '</small></td>' +
+      '<td>' + cls + '</td>' +
+      '<td>' + Number(row.submittedDays || 0) + '</td>' +
+      '<td>' + Number(row.ibadahAverage || 0) + '/30</td>' +
+      '<td>' + Number(row.studyAverage || 0) + '/20</td>' +
+      '<td>' + Number(row.characterAverage || 0) + '/30</td>' +
+      '<td>' + Number(row.healthAverage || 0) + '/10</td>' +
+      '<td>' + Number(row.digitalAverage || 0) + '/10</td>' +
+      '<td class="admin-performance-score">' + Number(row.totalAverage || 0) + '/100</td>' +
       '</tr>';
   }).join("");
 }
