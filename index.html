@@ -4010,10 +4010,30 @@ function updateAdminDashboard(data) {
     data.summary ||
     data;
 
-  document
-    .getElementById("adminTotalStudents")
-    .textContent =
-      summary.totalStudents ?? 0;
+  const totalStudentsEl =
+    document.getElementById("adminTotalStudents");
+
+  /*
+   * The Student List is the live source for the number of students.
+   * Keep a loaded Student List count from being overwritten by an
+   * older/empty dashboard summary response.
+   */
+  const dashboardTotal = Number(summary.totalStudents);
+
+  if (
+    totalStudentsEl &&
+    (
+      Number.isFinite(dashboardTotal) &&
+      dashboardTotal > 0
+    )
+  ) {
+    totalStudentsEl.textContent = dashboardTotal;
+  } else if (
+    totalStudentsEl &&
+    adminStudentsCache.length === 0
+  ) {
+    totalStudentsEl.textContent = 0;
+  }
 
   document
     .getElementById("adminTodaySubmitted")
@@ -4116,6 +4136,18 @@ async function loadAdminStudentList(passedSession) {
       : Array.isArray(data)
         ? data
         : [];
+
+    /*
+     * Sync the top Admin Dashboard "Total Students" card with the
+     * actual Student List. This fixes the case where the list shows
+     * students but the dashboard card remains 0.
+     */
+    const totalStudentsEl =
+      document.getElementById("adminTotalStudents");
+
+    if (totalStudentsEl) {
+      totalStudentsEl.textContent = adminStudentsCache.length;
+    }
 
     populateAdminStudentClassFilter();
     filterAdminStudents();
