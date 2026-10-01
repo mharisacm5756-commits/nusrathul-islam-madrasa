@@ -3018,6 +3018,7 @@ function saveStudentHomeCache(studentId, data, stats, dailyRecord) {
   try {
     localStorage.setItem("madrasaHomeCache", JSON.stringify({
       studentId: studentId,
+      date: getLocalDateString(),
       savedAt: Date.now(),
       dashboard: data || {},
       stats: stats || {},
@@ -3031,7 +3032,20 @@ function getStudentHomeCache(studentId) {
     const raw = localStorage.getItem("madrasaHomeCache");
     if (!raw) return null;
     const cache = JSON.parse(raw);
-    return cache && cache.studentId === studentId ? cache : null;
+
+    /*
+     * Never restore yesterday's Home state on a new calendar day.
+     * The browser cache is only a speed-up for the SAME day.
+     */
+    if (
+      !cache ||
+      cache.studentId !== studentId ||
+      cache.date !== getLocalDateString()
+    ) {
+      return null;
+    }
+
+    return cache;
   } catch (error) {
     return null;
   }
@@ -3107,16 +3121,105 @@ async function loadStudentDashboard(session) {
        making another network request just to restore the form. */
     const todayRecord = stats.todayRecord || null;
     currentDailyRecord = todayRecord || null;
-    saveStudentHomeCache(studentId, data, stats, currentDailyRecord);
+
     if (currentDailyRecord) {
+      saveStudentHomeCache(
+        studentId,
+        data,
+        stats,
+        currentDailyRecord
+      );
+
       await loadExistingDailyRecord(studentId, {
-        data: { exists: true, record: currentDailyRecord }
+        data: {
+          exists: true,
+          record: currentDailyRecord
+        }
       });
+    } else {
+      /*
+       * No submission for today:
+       * show a completely fresh day instead of retaining yesterday's UI.
+       */
+      resetStudentTodayUI();
+
+      saveStudentHomeCache(
+        studentId,
+        data,
+        stats,
+        null
+      );
     }
 
   } catch (error) {
     console.error("Student dashboard error:", error);
   }
+}
+
+/* ==========================================================
+   RESET TODAY'S FORM / SCORE WHEN THERE IS NO RECORD
+========================================================== */
+
+function resetStudentTodayUI() {
+  currentDailyRecord = null;
+
+  const form = document.getElementById("dailyHabitForm");
+  if (form) {
+    form.reset();
+  }
+
+  // Clear only the current-day local backup.
+  try {
+    const raw = localStorage.getItem("madrasaTodayFormBackup");
+    const backup = raw ? JSON.parse(raw) : null;
+    if (!backup || backup.date !== getLocalDateString()) {
+      localStorage.removeItem("madrasaTodayFormBackup");
+    }
+  } catch (e) {
+    localStorage.removeItem("madrasaTodayFormBackup");
+  }
+
+  const scoreIds = [
+    "todayScore",
+    "ibadahText",
+    "studyText",
+    "characterText",
+    "healthText",
+    "digitalText"
+  ];
+
+  const scoreDefaults = {
+    todayScore: "0",
+    ibadahText: "0 / 30",
+    studyText: "0 / 20",
+    characterText: "0 / 30",
+    healthText: "0 / 10",
+    digitalText: "0 / 10"
+  };
+
+  scoreIds.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = scoreDefaults[id] || "0";
+    }
+  });
+
+  [
+    ["ibadahProgress", 0],
+    ["studyProgress", 0],
+    ["characterProgress", 0],
+    ["healthProgress", 0],
+    ["digitalProgress", 0]
+  ].forEach(function(item) {
+    const el = document.getElementById(item[0]);
+    if (el) {
+      el.style.width = item[1] + "%";
+    }
+  });
+
+  setProgressText("currentStreak", 0);
+  setProgressText("bestStreak", 0);
+  setProgressText("activeDays", 0);
 }
 
 /* ==========================================================
@@ -3147,6 +3250,12 @@ async function loadExistingDailyRecord(studentId, preloadedResult) {
         : null;
 
     if (!currentDailyRecord) {
+      /*
+       * Important for a new day:
+       * yesterday's checked habits must not remain visible and
+       * yesterday's score must not remain on the Home screen.
+       */
+      resetStudentTodayUI();
       return true;
     }
 
@@ -4521,6 +4630,18 @@ updateAdminTodayDate();
 ========================================================== */
 function saveTodayValueBackup() {
   try {
+    const rawBackup = localStorage.getItem("madrasaTodayFormBackup");
+    if (rawBackup) {
+      const oldBackup = JSON.parse(rawBackup);
+      if (
+        oldBackup &&
+        oldBackup.date &&
+        oldBackup.date !== getLocalDateString()
+      ) {
+        localStorage.removeItem("madrasaTodayFormBackup");
+      }
+    }
+
     const storedSession = localStorage.getItem("madrasaSession");
     if (!storedSession) return;
 
