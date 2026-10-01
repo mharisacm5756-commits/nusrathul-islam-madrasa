@@ -897,6 +897,59 @@
       border-radius: 20px;
     }
 
+
+    .profile-photo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 2px 0 18px;
+      text-align: center;
+    }
+
+    .profile-photo-frame {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(30,94,168,.12), rgba(244,157,50,.16));
+      border: 3px solid rgba(30,94,168,.18);
+      box-shadow: 0 8px 22px rgba(18,59,120,.12);
+      color: #1e5ea8;
+      font-size: 38px;
+    }
+
+    .profile-photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-photo-button {
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 9px 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1e5ea8, #164b88);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(30,94,168,.18);
+    }
+
+    .profile-photo-note {
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 11px;
+    }
+
     .profile-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2207,6 +2260,15 @@
   </div>
 
   <div class="section-card profile-card">
+    <div class="profile-photo-wrap">
+      <div class="profile-photo-frame" id="profilePhotoFrame">
+        <img id="profilePhoto" alt="Student Photo" style="display:none;">
+        <span id="profilePhotoPlaceholder">👤</span>
+      </div>
+      <label class="profile-photo-button" for="profilePhotoInput">📷 Add / Change Photo</label>
+      <input id="profilePhotoInput" type="file" accept="image/*" style="display:none;">
+      <div class="profile-photo-note">നിങ്ങളുടെ profile photo ഇവിടെ ചേർക്കാം</div>
+    </div>
     <div class="profile-grid">
       <div class="profile-item"><span>Student ID</span><strong id="profileStudentId">—</strong></div>
       <div class="profile-item"><span>Name</span><strong id="profileStudentName">—</strong></div>
@@ -3419,6 +3481,50 @@ function loadStudentProfile() {
     setProgressText("profileMotherName", getValue(student.motherName, student.MotherName));
     setProgressText("profileParentPhone", getValue(student.parentPhone, student.ParentPhone));
     setProgressText("profileUsername", getValue(student.username, session.username));
+
+    // Profile photo is stored locally on this device so no student data is
+    // sent to the backend or Google Sheet.
+    const photoKey = "madrasaProfilePhoto_" + String(session.studentId || student.studentId || session.username || "student");
+    const photo = localStorage.getItem(photoKey);
+    const photoImg = document.getElementById("profilePhoto");
+    const photoPlaceholder = document.getElementById("profilePhotoPlaceholder");
+    if (photoImg && photo) {
+      photoImg.src = photo;
+      photoImg.style.display = "block";
+      if (photoPlaceholder) photoPlaceholder.style.display = "none";
+    } else if (photoImg) {
+      photoImg.removeAttribute("src");
+      photoImg.style.display = "none";
+      if (photoPlaceholder) photoPlaceholder.style.display = "block";
+    }
+
+    const photoInput = document.getElementById("profilePhotoInput");
+    if (photoInput && !photoInput.dataset.bound) {
+      photoInput.dataset.bound = "true";
+      photoInput.addEventListener("change", function(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file || !file.type.startsWith("image/")) return;
+        if (file.size > 5 * 1024 * 1024) {
+          alert("Photo 5MB-ൽ താഴെയായിരിക്കണം.");
+          event.target.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function() {
+          try {
+            localStorage.setItem(photoKey, reader.result);
+            if (photoImg) {
+              photoImg.src = reader.result;
+              photoImg.style.display = "block";
+            }
+            if (photoPlaceholder) photoPlaceholder.style.display = "none";
+          } catch (storageError) {
+            alert("Photo save ചെയ്യാൻ കഴിഞ്ഞില്ല. ചെറിയ size ഉള്ള photo try ചെയ്യുക.");
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
 
   } catch (error) {
     console.error("Profile loading error:", error);
