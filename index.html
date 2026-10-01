@@ -3032,20 +3032,11 @@ function getStudentHomeCache(studentId) {
     const raw = localStorage.getItem("madrasaHomeCache");
     if (!raw) return null;
     const cache = JSON.parse(raw);
-
-    /*
-     * Never restore yesterday's Home state on a new calendar day.
-     * The browser cache is only a speed-up for the SAME day.
-     */
-    if (
-      !cache ||
-      cache.studentId !== studentId ||
-      cache.date !== getLocalDateString()
-    ) {
-      return null;
-    }
-
-    return cache;
+    return cache &&
+      cache.studentId === studentId &&
+      cache.date === getLocalDateString()
+      ? cache
+      : null;
   } catch (error) {
     return null;
   }
@@ -3121,35 +3112,16 @@ async function loadStudentDashboard(session) {
        making another network request just to restore the form. */
     const todayRecord = stats.todayRecord || null;
     currentDailyRecord = todayRecord || null;
+    saveStudentHomeCache(studentId, data, stats, currentDailyRecord);
 
-    if (currentDailyRecord) {
-      saveStudentHomeCache(
-        studentId,
-        data,
-        stats,
-        currentDailyRecord
-      );
-
-      await loadExistingDailyRecord(studentId, {
-        data: {
-          exists: true,
-          record: currentDailyRecord
-        }
-      });
-    } else {
-      /*
-       * No submission for today:
-       * show a completely fresh day instead of retaining yesterday's UI.
-       */
-      resetStudentTodayUI();
-
-      saveStudentHomeCache(
-        studentId,
-        data,
-        stats,
-        null
-      );
-    }
+    /* Always refresh the form for TODAY. If there is no record today,
+       clear yesterday's checked habits instead of leaving stale values. */
+    await loadExistingDailyRecord(studentId, {
+      data: {
+        exists: !!currentDailyRecord,
+        record: currentDailyRecord
+      }
+    });
 
   } catch (error) {
     console.error("Student dashboard error:", error);
@@ -3157,75 +3129,32 @@ async function loadStudentDashboard(session) {
 }
 
 /* ==========================================================
-   RESET TODAY'S FORM / SCORE WHEN THERE IS NO RECORD
-========================================================== */
-
-function resetStudentTodayUI() {
-  currentDailyRecord = null;
-
-  const form = document.getElementById("dailyHabitForm");
-  if (form) {
-    form.reset();
-  }
-
-  // Clear only the current-day local backup.
-  try {
-    const raw = localStorage.getItem("madrasaTodayFormBackup");
-    const backup = raw ? JSON.parse(raw) : null;
-    if (!backup || backup.date !== getLocalDateString()) {
-      localStorage.removeItem("madrasaTodayFormBackup");
-    }
-  } catch (e) {
-    localStorage.removeItem("madrasaTodayFormBackup");
-  }
-
-  const scoreIds = [
-    "todayScore",
-    "ibadahText",
-    "studyText",
-    "characterText",
-    "healthText",
-    "digitalText"
-  ];
-
-  const scoreDefaults = {
-    todayScore: "0",
-    ibadahText: "0 / 30",
-    studyText: "0 / 20",
-    characterText: "0 / 30",
-    healthText: "0 / 10",
-    digitalText: "0 / 10"
-  };
-
-  scoreIds.forEach(function(id) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.textContent = scoreDefaults[id] || "0";
-    }
-  });
-
-  [
-    ["ibadahProgress", 0],
-    ["studyProgress", 0],
-    ["characterProgress", 0],
-    ["healthProgress", 0],
-    ["digitalProgress", 0]
-  ].forEach(function(item) {
-    const el = document.getElementById(item[0]);
-    if (el) {
-      el.style.width = item[1] + "%";
-    }
-  });
-
-  setProgressText("currentStreak", 0);
-  setProgressText("bestStreak", 0);
-  setProgressText("activeDays", 0);
-}
-
-/* ==========================================================
    LOAD TODAY'S SAVED HABITS
    RESTORE CHECKBOXES / INPUTS
 ========================================================== */
+
+function clearTodayHabitFormForNewDay() {
+  const checkboxIds = [
+    "wakeupDua", "tahajjud", "fajr", "dhuhr", "asr", "maghrib", "isha",
+    "madrasaStudy", "madrasaHomework", "schoolStudy", "schoolHomework",
+    "goodBehaviourWithParents", "kissMother", "helpOthers", "didNotLie",
+    "controlledAnger", "cleanedRoom", "helpedParents",
+    "water", "physicalActivity", "healthyFood",
+    "bedtimeMobileAvoided", "bedtimeDua"
+  ];
+
+  checkboxIds.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+
+  ["quranMinutes", "mobileUsageMinutes", "sleepTime"].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  currentDailyRecord = null;
+}
 
 async function loadExistingDailyRecord(studentId, preloadedResult) {
 
@@ -3250,12 +3179,7 @@ async function loadExistingDailyRecord(studentId, preloadedResult) {
         : null;
 
     if (!currentDailyRecord) {
-      /*
-       * Important for a new day:
-       * yesterday's checked habits must not remain visible and
-       * yesterday's score must not remain on the Home screen.
-       */
-      resetStudentTodayUI();
+      clearTodayHabitFormForNewDay();
       return true;
     }
 
@@ -3572,6 +3496,40 @@ function updateProgressFromData(data) {
 
 let studentProgressLoaded = false;
 
+async function refreshStudentCurrentDay() {
+  const stored = localStorage.getItem("madrasaSession");
+  if (!stored) return;
+
+  let session;
+  try { session = JSON.parse(stored); } catch (error) { return; }
+
+  const student = session.student || {};
+  const studentId = student.studentId || session.studentId || "";
+  if (!studentId) return;
+
+  try {
+    const result = await apiRequest("getStudentStats", { studentId: studentId });
+    const stats = result.data || result || {};
+
+    setProgressText("todayScore", Number(stats.todayScore || 0));
+    setProgressText("currentStreak", Number(stats.currentStreak || 0));
+    setProgressText("bestStreak", Number(stats.bestStreak || 0));
+    setProgressText("activeDays", Number(stats.activeDays || 0));
+
+    currentDailyRecord = stats.todayRecord || null;
+    await loadExistingDailyRecord(studentId, {
+      data: {
+        exists: !!currentDailyRecord,
+        record: currentDailyRecord
+      }
+    });
+
+    clearStudentProgressCache();
+  } catch (error) {
+    console.error("Current-day refresh error:", error);
+  }
+}
+
 function showStudentPage(page) {
 
   const home =
@@ -3702,6 +3660,8 @@ function showStudentPage(page) {
     const form =
       document.getElementById("dailyHabitForm");
 
+    refreshStudentCurrentDay();
+
     if (form) {
       setTimeout(function() {
         form.scrollIntoView({
@@ -3717,6 +3677,8 @@ function showStudentPage(page) {
   if (buttons[0]) {
     buttons[0].classList.add("active");
   }
+
+  refreshStudentCurrentDay();
 
   window.scrollTo({
     top: 0,
@@ -3855,8 +3817,8 @@ async function loadStudentAchievements() {
   if (!studentId) return;
 
   try {
-    const cached = await prepareStudentProgressData(studentId);
-    const stats = (cached && cached.stats) || {};
+    const statsResult = await apiRequest("getStudentStats", { studentId: studentId });
+    const stats = statsResult.data || statsResult || {};
 
     const current = Number(stats.currentStreak || 0);
     const best = Number(stats.bestStreak || 0);
@@ -3925,9 +3887,9 @@ async function loadStudentProgress() {
 
     setProgressText("progressWeeklyAverage", `${weeklyAverage}%`);
     setProgressText("progressMonthlyAverage", `${monthlyAverage}%`);
-    setProgressText("progressActiveDays", activeMonthRecords.length);
-    setProgressText("progressCurrentStreak", stats.currentStreak || 0);
-    setProgressText("progressBestStreak", stats.bestStreak || 0);
+    setProgressText("progressActiveDays", Number(stats.activeDays || 0));
+    setProgressText("progressCurrentStreak", Number(stats.currentStreak || 0));
+    setProgressText("progressBestStreak", Number(stats.bestStreak || 0));
 
     renderWeeklyProgress(activeWeekRecords, today);
     renderMonthlyCategories(activeMonthRecords);
@@ -4040,22 +4002,39 @@ function renderMonthlyDailyScores(records) {
   const list = document.getElementById("monthlyDailyScoreList");
   if (!list) return;
 
-  if (!records.length) {
+  const today = getLocalDateString();
+  const map = {};
+
+  (records || []).forEach(function(record) {
+    if (!record || !record.date) return;
+    const date = String(record.date).substring(0, 10);
+    const score = Number(record.totalScore || 0);
+    if (score > 0) map[date] = score;
+  });
+
+  /* Always show TODAY first. If nothing is submitted today, it is 0. */
+  const rows = [{ date: today, score: Number(map[today] || 0) }];
+
+  Object.keys(map)
+    .filter(function(date) { return date !== today; })
+    .sort(function(a, b) { return String(b).localeCompare(String(a)); })
+    .forEach(function(date) {
+      rows.push({ date: date, score: map[date] });
+    });
+
+  if (!rows.length) {
     list.innerHTML = '<div class="habit-note">ഇതുവരെ submitted records ഇല്ല.</div>';
     return;
   }
 
-  const sorted = records.slice().sort(function(a, b) {
-    return String(b.date).localeCompare(String(a.date));
-  });
-
-  list.innerHTML = sorted.map(function(record) {
-    const score = Number(record.totalScore || 0);
+  list.innerHTML = rows.map(function(item) {
+    const score = Number(item.score || 0);
     const width = Math.max(0, Math.min(100, score));
+    const label = item.date === today ? `Today · ${progressFormatDate(item.date)}` : progressFormatDate(item.date);
 
     return `
       <div class="progress-list-row">
-        <span>${progressFormatDate(record.date)}</span>
+        <span>${label}</span>
         <div class="progress-list-track">
           <div class="progress-list-fill" style="width:${width}%"></div>
         </div>
@@ -4630,18 +4609,6 @@ updateAdminTodayDate();
 ========================================================== */
 function saveTodayValueBackup() {
   try {
-    const rawBackup = localStorage.getItem("madrasaTodayFormBackup");
-    if (rawBackup) {
-      const oldBackup = JSON.parse(rawBackup);
-      if (
-        oldBackup &&
-        oldBackup.date &&
-        oldBackup.date !== getLocalDateString()
-      ) {
-        localStorage.removeItem("madrasaTodayFormBackup");
-      }
-    }
-
     const storedSession = localStorage.getItem("madrasaSession");
     if (!storedSession) return;
 
