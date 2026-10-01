@@ -2872,9 +2872,19 @@ document
 
         }
 
-        const session =
+        let session =
           result.data ||
           result;
+
+        // Admin login returns the admin object inside result.data.admin.
+        // Flatten it so all admin API calls receive the correct username.
+        if (
+          loginRole === "admin" &&
+          session &&
+          session.admin
+        ) {
+          session = session.admin;
+        }
 
         localStorage.setItem(
           "madrasaSession",
@@ -4029,12 +4039,26 @@ let adminStudentsCache = [];
 
 function getAdminSession() {
   try {
-    return JSON.parse(
+    const raw =
       localStorage.getItem("madrasa_session") ||
       sessionStorage.getItem("madrasa_session") ||
       localStorage.getItem("madrasaSession") ||
-      "null"
-    );
+      sessionStorage.getItem("madrasaSession") ||
+      "null";
+
+    const session = JSON.parse(raw);
+
+    // Support both old and new admin-session formats.
+    if (
+      session &&
+      session.admin &&
+      !session.username &&
+      !session.Username
+    ) {
+      return session.admin;
+    }
+
+    return session;
   } catch (e) {
     return null;
   }
