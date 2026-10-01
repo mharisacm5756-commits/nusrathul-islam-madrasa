@@ -1108,7 +1108,15 @@
 
     }
 
-  </style>
+  
+    .admin-quick-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .admin-quick-btn { border:1px solid rgba(20,82,130,.12); background:#fff; border-radius:16px; padding:16px 12px; text-align:left; font:inherit; color:#123; box-shadow:0 8px 22px rgba(12,55,90,.06); cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
+    .admin-quick-btn:active { transform:scale(.98); }
+    .admin-quick-btn strong { display:block; font-size:14px; margin-top:7px; }
+    .admin-quick-btn span { font-size:12px; opacity:.7; }
+    .admin-date-pill { display:inline-flex; align-items:center; gap:7px; margin-top:8px; padding:7px 11px; border-radius:999px; background:rgba(20,93,151,.08); color:#145d97; font-size:12px; font-weight:700; }
+    @media (max-width:520px){ .admin-quick-grid{grid-template-columns:1fr 1fr;} }
+</style>
 
 </head>
 
@@ -2491,16 +2499,29 @@
       </div>
 
 
+      <div class="admin-date-pill">📅 <span id="adminTodayDate"></span></div><div id="adminNotice" style="display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:#eef7ff;color:#145d97;font-size:13px;font-weight:700;"></div>
+
       <div class="section-card">
-
-        <h2>
-          📋 Daily Report
-        </h2>
-
-        <div class="empty-state">
-          Admin reports will appear here.
+        <h2>⚡ Quick Actions</h2>
+        <div class="admin-quick-grid">
+          <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Student Management')">
+            👨‍🎓<strong>Student Management</strong><span>Add, edit and view students</span>
+          </button>
+          <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Daily Report')">
+            📋<strong>Daily Report</strong><span>Today’s student records</span>
+          </button>
+          <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Performance')">
+            📊<strong>Performance</strong><span>Category-wise progress</span>
+          </button>
+          <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Rewards')">
+            🏆<strong>Rewards</strong><span>Monthly awards and rewards</span>
+          </button>
         </div>
+      </div>
 
+      <div class="section-card">
+        <h2>📋 Daily Report</h2>
+        <div class="empty-state">Daily report module will be added in the next Admin step.</div>
       </div>
 
 
@@ -3863,6 +3884,28 @@ function updateAdminDashboard(data) {
     .textContent =
       summary.activeStreakStudents ?? 0;
 }
+
+function showAdminNotice(sectionName) {
+  const message = document.getElementById("adminNotice");
+  if (message) {
+    message.textContent = sectionName + " module — next Admin step.";
+    message.style.display = "block";
+    window.clearTimeout(window.__adminNoticeTimer);
+    window.__adminNoticeTimer = window.setTimeout(function(){ message.style.display = "none"; }, 2200);
+  }
+}
+
+function updateAdminTodayDate() {
+  const el = document.getElementById("adminTodayDate");
+  if (!el) return;
+  try {
+    el.textContent = new Intl.DateTimeFormat("en-IN", { day:"2-digit", month:"short", year:"numeric" }).format(new Date());
+  } catch (e) {
+    el.textContent = new Date().toLocaleDateString();
+  }
+}
+
+updateAdminTodayDate();
 
 /* ==========================================================
    KEEP MOBILE USAGE + SLEEP TIME SAVED IMMEDIATELY
