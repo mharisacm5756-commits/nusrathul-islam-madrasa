@@ -4555,6 +4555,11 @@ async function loadAdminDashboard(session) {
           username:
             session?.username ||
             session?.Username ||
+            "",
+          adminUsername:
+            session?.username ||
+            session?.Username ||
+            (session?.admin && (session.admin.username || session.admin.Username)) ||
             ""
         }
       );
