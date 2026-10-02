@@ -1303,6 +1303,46 @@
   .admin-leaderboard-summary{grid-template-columns:1fr;}
 }
 
+    /* ==========================================================
+       ADMIN REWARDS
+    ========================================================== */
+    .admin-rewards-card{margin-top:16px;}
+    .admin-reward-add-box{margin-top:14px;padding:15px;border:1px solid #e1edf6;border-radius:16px;background:linear-gradient(135deg,#fbfdff,#fffdf7);}
+    .admin-reward-add-title{font-size:14px;font-weight:900;color:#0f4384;margin-bottom:12px;}
+    .admin-reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+    .admin-reward-field{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:#183b5a;}
+    .admin-reward-field.full{grid-column:1/-1;}
+    .admin-reward-field input,.admin-reward-field select,.admin-reward-field textarea{width:100%;box-sizing:border-box;border:1px solid #d7e3ee;border-radius:11px;padding:10px 11px;background:#fff;font:inherit;font-size:13px;outline:none;}
+    .admin-reward-field textarea{min-height:78px;resize:vertical;}
+    .admin-reward-field input:focus,.admin-reward-field select:focus,.admin-reward-field textarea:focus{border-color:#2d7fc3;box-shadow:0 0 0 3px rgba(45,127,195,.10);}
+    .admin-reward-actions{display:flex;gap:8px;margin-top:12px;}
+    .admin-reward-actions button{flex:1;}
+    .admin-reward-history{margin-top:16px;}
+    .admin-reward-history-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
+    .admin-reward-history-head h3{margin:0;color:#0f4384;font-size:15px;}
+    .admin-reward-history-head p{margin:4px 0 0;color:#64748b;font-size:12px;}
+    .admin-reward-filter-grid{display:grid;grid-template-columns:170px minmax(180px,1fr) auto;gap:10px;align-items:end;}
+    .admin-reward-filter{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:#183b5a;}
+    .admin-reward-filter input,.admin-reward-filter select{width:100%;box-sizing:border-box;border:1px solid #d7e3ee;border-radius:10px;padding:10px;background:#fff;font:inherit;font-size:13px;outline:none;}
+    .admin-reward-table-wrap{margin-top:13px;overflow-x:auto;border:1px solid #e1edf6;border-radius:14px;background:#fff;}
+    .admin-reward-table{width:100%;min-width:760px;border-collapse:collapse;font-size:12px;}
+    .admin-reward-table th{background:#f2f7fb;color:#183b5a;font-weight:900;padding:10px 8px;text-align:center;white-space:nowrap;border-bottom:1px solid #dfeaf3;}
+    .admin-reward-table td{padding:10px 8px;text-align:center;border-bottom:1px solid #edf2f7;vertical-align:top;}
+    .admin-reward-table td.student-name{text-align:left;font-weight:800;color:#173b5b;}
+    .admin-reward-table td.description{text-align:left;white-space:normal;min-width:220px;}
+    .admin-reward-table tr:last-child td{border-bottom:0;}
+    .admin-reward-badge{display:inline-flex;align-items:center;justify-content:center;padding:5px 8px;border-radius:999px;background:#fff5d9;color:#806516;font-size:10px;font-weight:900;white-space:nowrap;}
+    .admin-reward-empty,.admin-reward-loading{padding:24px;text-align:center;color:#64748b;font-size:13px;}
+    .admin-reward-loading{color:#145d97;font-weight:800;}
+    .admin-reward-message{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:800;}
+    @media(max-width:700px){
+      .admin-reward-grid{grid-template-columns:1fr;}
+      .admin-reward-field.full{grid-column:auto;}
+      .admin-reward-filter-grid{grid-template-columns:1fr;}
+      .admin-reward-filter-actions button{width:100%;}
+      .admin-reward-actions{flex-direction:column;}
+    }
+
 </style>
 
 </head>
@@ -2706,7 +2746,7 @@
           <button class="admin-quick-btn" type="button" onclick="openMonthlyWinner()">
             👑<strong>Monthly Winner</strong><span>Calculate monthly winner</span>
           </button>
-          <button class="admin-quick-btn" type="button" onclick="showAdminNotice('Rewards')">
+          <button class="admin-quick-btn" type="button" onclick="openRewards()">
             🏆<strong>Rewards</strong><span>Monthly awards and rewards</span>
           </button>
         </div>
@@ -2931,6 +2971,112 @@
         <tr><td colspan="7" class="admin-leaderboard-empty">Select a month and load leaderboard.</td></tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+
+<div class="section-card admin-rewards-card" id="adminRewardsSection">
+  <div class="admin-section-head">
+    <div>
+      <h2>🏆 Rewards</h2>
+      <p>Add monthly awards and view the complete reward history.</p>
+    </div>
+  </div>
+
+  <div class="admin-reward-add-box">
+    <div class="admin-reward-add-title">➕ Add New Reward</div>
+
+    <div class="admin-reward-grid">
+      <label class="admin-reward-field">
+        Month
+        <input id="adminRewardMonth" type="month" onchange="syncRewardYear()">
+      </label>
+
+      <label class="admin-reward-field">
+        Student
+        <select id="adminRewardStudent">
+          <option value="">Select Student</option>
+        </select>
+      </label>
+
+      <label class="admin-reward-field">
+        Reward Type
+        <select id="adminRewardType">
+          <option value="Monthly Best Habit Award">Monthly Best Habit Award</option>
+          <option value="Consistency Award">Consistency Award</option>
+          <option value="Best Ibadah">Best Ibadah</option>
+          <option value="Best Study">Best Study</option>
+          <option value="Best Character">Best Character</option>
+          <option value="Best Health">Best Health</option>
+          <option value="Best Digital Discipline">Best Digital Discipline</option>
+          <option value="Special Award">Special Award</option>
+        </select>
+      </label>
+
+      <label class="admin-reward-field">
+        Year
+        <input id="adminRewardYear" type="number" readonly>
+      </label>
+
+      <label class="admin-reward-field full">
+        Description / Note
+        <textarea id="adminRewardDescription" placeholder="Example: Excellent consistency throughout the month."></textarea>
+      </label>
+    </div>
+
+    <div id="adminRewardMessage" class="admin-reward-message"></div>
+
+    <div class="admin-reward-actions">
+      <button id="adminRewardSaveBtn" class="admin-primary-btn" type="button" onclick="saveAdminReward()">🏆 Save Reward</button>
+      <button class="admin-secondary-btn" type="button" onclick="clearAdminRewardForm()">Clear</button>
+    </div>
+  </div>
+
+  <div class="admin-reward-history">
+    <div class="admin-reward-history-head">
+      <div>
+        <h3>📜 Reward History</h3>
+        <p>Filter rewards by month or student.</p>
+      </div>
+    </div>
+
+    <div class="admin-reward-filter-grid">
+      <label class="admin-reward-filter">
+        Month
+        <input id="adminRewardHistoryMonth" type="month" onchange="loadRewardsHistory()">
+      </label>
+
+      <label class="admin-reward-filter">
+        Student
+        <select id="adminRewardHistoryStudent" onchange="loadRewardsHistory()">
+          <option value="">All Students</option>
+        </select>
+      </label>
+
+      <div class="admin-reward-filter-actions">
+        <button id="adminRewardHistoryBtn" class="admin-secondary-btn" type="button" onclick="loadRewardsHistory()">↻ Refresh</button>
+      </div>
+    </div>
+
+    <div id="adminRewardHistoryMessage" class="admin-reward-message"></div>
+
+    <div class="admin-reward-table-wrap">
+      <table class="admin-reward-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Month</th>
+            <th>Student</th>
+            <th>Reward</th>
+            <th>Description</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody id="adminRewardHistoryBody">
+          <tr><td colspan="6" class="admin-reward-empty">Select a month and load rewards.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -4927,6 +5073,289 @@ function openAddStudentForm() {
   if (first) setTimeout(() => first.focus(), 250);
 }
 
+
+/* ==========================================================
+   ADMIN REWARDS
+========================================================== */
+let adminRewardsCache = [];
+
+function getAdminRewardsMonth() {
+  const input = document.getElementById("adminRewardMonth");
+  if (input && input.value) return input.value;
+  const now = new Date();
+  return now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+}
+
+function getAdminRewardHistoryMonth() {
+  const input = document.getElementById("adminRewardHistoryMonth");
+  if (input && input.value) return input.value;
+  return getAdminRewardsMonth();
+}
+
+function getAdminRewardStudentId(student) {
+  return String(student?.studentId ?? student?.["Student ID"] ?? "").trim();
+}
+
+function getAdminRewardStudentName(student) {
+  return String(student?.studentName ?? student?.["Student Name"] ?? "").trim();
+}
+
+function populateRewardStudentSelects() {
+  const addSelect = document.getElementById("adminRewardStudent");
+  const historySelect = document.getElementById("adminRewardHistoryStudent");
+  const students = Array.isArray(adminStudentsCache) ? adminStudentsCache : [];
+
+  const options = students
+    .filter(function(student) {
+      return getAdminRewardStudentId(student);
+    })
+    .sort(function(a,b) {
+      return getAdminRewardStudentName(a).localeCompare(
+        getAdminRewardStudentName(b),
+        undefined,
+        { sensitivity: "base" }
+      );
+    })
+    .map(function(student) {
+      const id = getAdminRewardStudentId(student);
+      const name = getAdminRewardStudentName(student) || id;
+      const cls = String(student.className ?? student["Class"] ?? "").trim();
+      const division = String(student.division ?? student["Division"] ?? "").trim();
+      const suffix = cls ? " · " + cls + (division ? " - " + division : "") : "";
+      return { id: id, label: name + suffix };
+    });
+
+  if (addSelect) {
+    const current = addSelect.value;
+    addSelect.innerHTML =
+      '<option value="">Select Student</option>' +
+      options.map(function(item) {
+        return '<option value="' + escapeAdminAttr(item.id) + '">' +
+          escapeAdminHtml(item.label) + '</option>';
+      }).join("");
+    if (options.some(function(item){ return item.id === current; })) addSelect.value = current;
+  }
+
+  if (historySelect) {
+    const current = historySelect.value;
+    historySelect.innerHTML =
+      '<option value="">All Students</option>' +
+      options.map(function(item) {
+        return '<option value="' + escapeAdminAttr(item.id) + '">' +
+          escapeAdminHtml(item.label) + '</option>';
+      }).join("");
+    if (options.some(function(item){ return item.id === current; })) historySelect.value = current;
+  }
+}
+
+function syncRewardYear() {
+  const month = document.getElementById("adminRewardMonth")?.value || "";
+  const yearEl = document.getElementById("adminRewardYear");
+  if (yearEl) yearEl.value = /^\d{4}-\d{2}$/.test(month) ? month.substring(0,4) : "";
+}
+
+function setRewardMessage(elementId, text, success) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.textContent = text || "";
+  el.style.display = text ? "block" : "none";
+  el.style.background = success ? "#eef8f2" : "#fff1f1";
+  el.style.color = success ? "#176b3a" : "#a32929";
+}
+
+function clearAdminRewardForm() {
+  const month = getAdminRewardsMonth();
+  const monthEl = document.getElementById("adminRewardMonth");
+  const yearEl = document.getElementById("adminRewardYear");
+  const studentEl = document.getElementById("adminRewardStudent");
+  const typeEl = document.getElementById("adminRewardType");
+  const descEl = document.getElementById("adminRewardDescription");
+
+  if (monthEl) monthEl.value = month;
+  if (yearEl) yearEl.value = month.substring(0,4);
+  if (studentEl) studentEl.value = "";
+  if (typeEl) typeEl.value = "Monthly Best Habit Award";
+  if (descEl) descEl.value = "";
+  setRewardMessage("adminRewardMessage", "", true);
+}
+
+function openRewards() {
+  const section = document.getElementById("adminRewardsSection");
+  if (!section) return;
+
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const month = getAdminRewardsMonth();
+  const monthEl = document.getElementById("adminRewardMonth");
+  const historyMonthEl = document.getElementById("adminRewardHistoryMonth");
+
+  if (monthEl && !monthEl.value) monthEl.value = month;
+  if (historyMonthEl && !historyMonthEl.value) historyMonthEl.value = month;
+
+  syncRewardYear();
+  populateRewardStudentSelects();
+  loadRewardsHistory();
+}
+
+async function saveAdminReward() {
+  const button = document.getElementById("adminRewardSaveBtn");
+  const month = document.getElementById("adminRewardMonth")?.value || "";
+  const studentId = document.getElementById("adminRewardStudent")?.value || "";
+  const rewardType = document.getElementById("adminRewardType")?.value || "";
+  const description = String(document.getElementById("adminRewardDescription")?.value || "").trim();
+
+  const session = getAdminSession() || {};
+  const adminUsername =
+    session.username ||
+    session.Username ||
+    (session.admin && (session.admin.username || session.admin.Username)) ||
+    "";
+
+  if (!adminUsername) {
+    setRewardMessage("adminRewardMessage", "❌ Admin session not found. Please login again.", false);
+    return;
+  }
+  if (!/^\d{4}-\d{2}$/.test(month)) {
+    setRewardMessage("adminRewardMessage", "❌ Please select a valid month.", false);
+    return;
+  }
+  if (!studentId) {
+    setRewardMessage("adminRewardMessage", "❌ Please select a student.", false);
+    return;
+  }
+  if (!rewardType) {
+    setRewardMessage("adminRewardMessage", "❌ Please select a reward type.", false);
+    return;
+  }
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "⏳ Saving…";
+  }
+  setRewardMessage("adminRewardMessage", "", true);
+
+  try {
+    const result = await apiRequest("addReward", {
+      adminUsername: adminUsername,
+      month: month,
+      year: Number(month.substring(0,4)),
+      studentId: studentId,
+      rewardType: rewardType,
+      description: description
+    });
+
+    if (!result || result.success === false) {
+      throw new Error(result?.message || result?.error || "Unable to save reward.");
+    }
+
+    setRewardMessage("adminRewardMessage", "✅ Reward saved successfully.", true);
+    clearAdminRewardForm();
+    populateRewardStudentSelects();
+
+    const historyMonth = document.getElementById("adminRewardHistoryMonth");
+    if (historyMonth) historyMonth.value = month;
+
+    await loadRewardsHistory();
+  } catch (error) {
+    setRewardMessage("adminRewardMessage", "❌ " + (error?.message || "Unable to save reward."), false);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "🏆 Save Reward";
+    }
+  }
+}
+
+async function loadRewardsHistory() {
+  const body = document.getElementById("adminRewardHistoryBody");
+  const button = document.getElementById("adminRewardHistoryBtn");
+  if (!body) return;
+
+  const session = getAdminSession() || {};
+  const adminUsername =
+    session.username ||
+    session.Username ||
+    (session.admin && (session.admin.username || session.admin.Username)) ||
+    "";
+
+  if (!adminUsername) {
+    body.innerHTML = '<tr><td colspan="6" class="admin-reward-empty">❌ Admin session not found. Please login again.</td></tr>';
+    return;
+  }
+
+  const month = getAdminRewardHistoryMonth();
+  const studentId = String(document.getElementById("adminRewardHistoryStudent")?.value || "").trim();
+  const monthEl = document.getElementById("adminRewardHistoryMonth");
+  if (monthEl) monthEl.value = month;
+
+  body.innerHTML = '<tr><td colspan="6" class="admin-reward-loading">⏳ Loading rewards…</td></tr>';
+  setRewardMessage("adminRewardHistoryMessage", "", true);
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "⏳ Loading…";
+  }
+
+  try {
+    const result = await apiRequest("getRewards", {
+      adminUsername: adminUsername,
+      month: month,
+      studentId: studentId
+    });
+
+    if (!result || result.success === false) {
+      throw new Error(result?.message || result?.error || "Unable to load rewards.");
+    }
+
+    const data = result.data || result || {};
+    adminRewardsCache = Array.isArray(data.rewards)
+      ? data.rewards
+      : Array.isArray(data) ? data : [];
+
+    renderRewardsHistory(adminRewardsCache);
+  } catch (error) {
+    adminRewardsCache = [];
+    body.innerHTML = '<tr><td colspan="6" class="admin-reward-empty">Unable to load reward history.</td></tr>';
+    setRewardMessage("adminRewardHistoryMessage", "❌ " + (error?.message || "Unable to load rewards."), false);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "↻ Refresh";
+    }
+  }
+}
+
+function renderRewardsHistory(rows) {
+  const body = document.getElementById("adminRewardHistoryBody");
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="6" class="admin-reward-empty">No rewards found for the selected filter.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.map(function(row, index) {
+    const month = escapeAdminHtml(String(row.month ?? row.Month ?? "").trim() || "—");
+    const name = escapeAdminHtml(String(row.studentName ?? row["Student Name"] ?? "").trim() || "—");
+    const id = escapeAdminHtml(String(row.studentId ?? row["Student ID"] ?? "").trim());
+    const rewardType = escapeAdminHtml(String(row.rewardType ?? row["Reward Type"] ?? "").trim() || "—");
+    const description = escapeAdminHtml(String(row.description ?? row.Description ?? "").trim() || "—");
+    const createdAt = escapeAdminHtml(String(row.createdAt ?? row["Created At"] ?? "").trim() || "—");
+
+    return '<tr>' +
+      '<td>' + (index + 1) + '</td>' +
+      '<td>' + month + '</td>' +
+      '<td class="student-name">' + name +
+        '<br><small style="color:#64748b;font-weight:700;">' + id + '</small>' +
+      '</td>' +
+      '<td><span class="admin-reward-badge">' + rewardType + '</span></td>' +
+      '<td class="description">' + description + '</td>' +
+      '<td>' + createdAt + '</td>' +
+    '</tr>';
+  }).join("");
+}
+
+
 function showAdminNotice(sectionName) {
   const message = document.getElementById("adminNotice");
   if (message) {
@@ -4948,6 +5377,20 @@ function updateAdminTodayDate() {
 }
 
 updateAdminTodayDate();
+
+(function initAdminRewards() {
+  try {
+    const month = getAdminRewardsMonth();
+    const monthEl = document.getElementById("adminRewardMonth");
+    const historyMonthEl = document.getElementById("adminRewardHistoryMonth");
+    if (monthEl) monthEl.value = month;
+    if (historyMonthEl) historyMonthEl.value = month;
+    syncRewardYear();
+    populateRewardStudentSelects();
+  } catch (e) {
+    console.warn("Rewards initialization failed:", e);
+  }
+})();
 
 /* ==========================================================
    KEEP MOBILE USAGE + SLEEP TIME SAVED IMMEDIATELY
