@@ -3217,19 +3217,7 @@
       </div>
 
 
-    </main>
-
-  </section>
-
-
-</div>
-
-
-<!-- ==========================================================
-     JAVASCRIPT
-========================================================== -->
-
-
+    <!-- Settings is part of the Admin Panel and must not appear on the login page. -->
 
 <div class="section-card admin-settings-card" id="adminSettingsSection">
   <div class="admin-section-head">
@@ -3316,6 +3304,9 @@
     <button class="admin-primary-btn" style="margin-top:12px;width:100%;" type="button" onclick="saveAdminRewardPointSettings()">💾 Save Reward Point Settings</button>
   </div>
 </div>
+
+    </main>
+  </section>
 
 
 <script>
@@ -3536,14 +3527,6 @@ document
           session.admin
         ) {
           session = session.admin;
-        }
-
-        // Keep one authoritative session key.  The old underscore key can
-        // contain a stale admin session and must never override a fresh login.
-        if (loginRole === "admin") {
-          session = Object.assign({}, session, { userType: "admin" });
-          localStorage.removeItem("madrasa_session");
-          sessionStorage.removeItem("madrasa_session");
         }
 
         localStorage.setItem(
@@ -4845,37 +4828,36 @@ let adminStudentsCache = [];
 
 function getAdminSession() {
   try {
-    // Prefer the current session created by the latest login.
-    const keys = [
-      [localStorage, "madrasaSession"],
-      [sessionStorage, "madrasaSession"],
-      [localStorage, "madrasa_session"],
-      [sessionStorage, "madrasa_session"]
+    const candidates = [
+      localStorage.getItem("madrasaSession"),
+      sessionStorage.getItem("madrasaSession"),
+      localStorage.getItem("madrasa_session"),
+      sessionStorage.getItem("madrasa_session")
     ];
 
-    for (const item of keys) {
-      const store = item[0];
-      const key = item[1];
-      const raw = store.getItem(key);
+    for (const raw of candidates) {
       if (!raw) continue;
-
       let session;
       try { session = JSON.parse(raw); } catch (e) { continue; }
       if (!session) continue;
 
-      const admin = session.admin || session;
-      const username =
-        admin.username ||
-        admin.Username ||
-        admin.userName ||
-        admin.loginUsername ||
-        "";
+      // Support nested admin session format.
+      const admin = session.admin && typeof session.admin === "object"
+        ? session.admin
+        : session;
 
-      if (String(username).trim()) {
-        return admin;
-      }
+      const role = String(admin.role || admin.Role || session.role || session.Role || "").toLowerCase();
+      const username = String(admin.username || admin.Username || session.username || session.Username || "").trim();
+      const looksAdmin = !!username && (
+        !!session.admin ||
+        role.includes("admin") ||
+        role.includes("teacher") ||
+        session.userType === "admin" ||
+        session.type === "admin"
+      );
+
+      if (looksAdmin) return admin;
     }
-
     return null;
   } catch (e) {
     return null;
@@ -6378,9 +6360,6 @@ function logout() {
   localStorage.removeItem(
     "madrasaSession"
   );
-  sessionStorage.removeItem("madrasaSession");
-  localStorage.removeItem("madrasa_session");
-  sessionStorage.removeItem("madrasa_session");
 
   document
     .getElementById("studentApp")
@@ -6415,76 +6394,97 @@ function logout() {
 function restoreSession() {
 
   const stored =
-    localStorage.getItem("madrasaSession") ||
-    sessionStorage.getItem("madrasaSession");
+    localStorage.getItem(
+      "madrasaSession"
+    );
 
   if (!stored) {
-    // Remove only stale legacy admin-session keys.
-    // A valid current session is always stored under madrasaSession.
-    localStorage.removeItem("madrasa_session");
-    sessionStorage.removeItem("madrasa_session");
     return;
   }
 
   try {
-    const session = JSON.parse(stored);
 
-    if (session && session.userType === "student") {
-      loginRole = "student";
-      document.getElementById("loginPage").classList.add("hidden");
-      document.getElementById("adminApp").classList.add("hidden");
-      document.getElementById("studentApp").classList.remove("hidden");
-      loadStudentDashboard(session);
-      return;
-    }
-
-    const admin = session && (session.admin || session);
-    const adminUsername =
-      admin &&
-      (admin.username || admin.Username || admin.userName || admin.loginUsername || "");
+    const session =
+      JSON.parse(stored);
 
     if (
-      session &&
-      (session.userType === "admin" ||
-       session.role === "admin" ||
-       session.Role === "Admin" ||
-       session.Role === "admin" ||
-       adminUsername) &&
-      String(adminUsername).trim()
+      session.userType ===
+      "student"
     ) {
-      loginRole = "admin";
-      const cleanAdminSession = Object.assign({}, admin, { userType: "admin" });
-      localStorage.setItem("madrasaSession", JSON.stringify(cleanAdminSession));
-      localStorage.removeItem("madrasa_session");
-      sessionStorage.removeItem("madrasa_session");
 
-      document.getElementById("loginPage").classList.add("hidden");
-      document.getElementById("studentApp").classList.add("hidden");
-      document.getElementById("adminApp").classList.remove("hidden");
-      loadAdminDashboard(cleanAdminSession);
+      loginRole =
+        "student";
+
+      document
+        .getElementById("loginPage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("studentApp")
+        .classList.remove("hidden");
+
+      loadStudentDashboard(
+        session
+      );
+
       return;
     }
 
-    // Never show Admin/Settings/Rewards without a valid authenticated session.
-    localStorage.removeItem("madrasaSession");
-    sessionStorage.removeItem("madrasaSession");
-    localStorage.removeItem("madrasa_session");
-    sessionStorage.removeItem("madrasa_session");
-    document.getElementById("studentApp").classList.add("hidden");
-    document.getElementById("adminApp").classList.add("hidden");
-    document.getElementById("loginPage").classList.remove("hidden");
+    if (
+      session.userType === "admin" ||
+      session.role === "admin" ||
+      session.Role === "Admin"
+    ) {
+
+      loginRole =
+        "admin";
+
+      document
+        .getElementById("loginPage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("adminApp")
+        .classList.remove("hidden");
+
+      loadAdminDashboard(
+        session
+      );
+
+      return;
+    }
 
   } catch (error) {
-    console.error("Session restore error:", error);
-    localStorage.removeItem("madrasaSession");
-    sessionStorage.removeItem("madrasaSession");
-    localStorage.removeItem("madrasa_session");
-    sessionStorage.removeItem("madrasa_session");
-    document.getElementById("studentApp").classList.add("hidden");
-    document.getElementById("adminApp").classList.add("hidden");
-    document.getElementById("loginPage").classList.remove("hidden");
+
+    console.error(
+      "Session restore error:",
+      error
+    );
+
+    localStorage.removeItem(
+      "madrasaSession"
+    );
   }
 }
+
+/* ==========================================================
+   PAGE LOAD
+========================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    selectLoginRole(
+      "student"
+    );
+
+    restoreSession();
+
+  }
+);
+
+
 
 /* ==========================================================
    ADMIN DAILY REPORT
