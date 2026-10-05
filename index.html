@@ -1343,6 +1343,48 @@
       .admin-reward-actions{flex-direction:column;}
     }
 
+
+
+/* ==========================================================
+   ADMIN SETTINGS - V1
+========================================================== */
+.admin-settings-card{margin-top:18px}
+.admin-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.admin-settings-box{background:#f8fbf9;border:1px solid #dfeee4;border-radius:16px;padding:16px}
+.admin-settings-box h3{margin:0 0 6px;font-size:16px;color:#164d32}
+.admin-settings-box p{margin:0 0 14px;color:#64748b;font-size:13px;line-height:1.5}
+.admin-settings-field{display:flex;flex-direction:column;gap:7px;font-size:13px;font-weight:800;color:#334155}
+.admin-settings-field input,.admin-settings-field textarea,.admin-settings-field select{width:100%;box-sizing:border-box;border:1px solid #d7e4dc;border-radius:12px;padding:11px 12px;background:#fff;font:inherit;color:#173c2a;outline:none}
+.admin-settings-field input:focus,.admin-settings-field textarea:focus,.admin-settings-field select:focus{border-color:#35a86b;box-shadow:0 0 0 3px rgba(53,168,107,.10)}
+.admin-settings-field textarea{min-height:82px;resize:vertical}
+.admin-settings-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:12px}
+.admin-settings-save{white-space:nowrap}
+.admin-settings-switch{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:#fff;border:1px solid #d7e4dc;font-weight:800;color:#334155}
+.admin-settings-switch input{width:20px;height:20px;accent-color:#198754}
+.admin-settings-points{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px}
+.admin-settings-point{padding:12px;border-radius:12px;background:#fff;border:1px solid #d7e4dc;text-align:center}
+.admin-settings-point strong{display:block;font-size:22px;color:#176b3a;margin-top:4px}
+.admin-settings-point span{font-size:11px;color:#64748b;font-weight:800}
+.admin-reward-points-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+.admin-reward-points-field{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:800;color:#334155}
+.admin-reward-points-field input{width:100%;box-sizing:border-box;border:1px solid #d7e4dc;border-radius:12px;padding:11px 12px;background:#fff;font:inherit;color:#173c2a;outline:none}
+.admin-reward-points-field input:focus{border-color:#35a86b;box-shadow:0 0 0 3px rgba(53,168,107,.10)}
+.admin-reward-points-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eef8f2;color:#176b3a;font-size:12px;font-weight:700;line-height:1.5}
+.admin-reward-points-total{margin-top:12px;font-size:13px;font-weight:800;color:#164d32}
+.admin-reward-points-total strong{font-size:18px}
+.admin-settings-message{display:none;margin-top:12px;padding:11px 13px;border-radius:12px;font-size:13px;font-weight:800}
+.admin-settings-note{margin-top:12px;padding:11px 13px;border-radius:12px;background:#fff8e8;color:#7a5a12;font-size:12px;font-weight:700;line-height:1.5}
+@media(max-width:760px){
+  .admin-settings-grid{grid-template-columns:1fr}
+  .admin-settings-row{grid-template-columns:1fr}
+  .admin-settings-save{width:100%}
+  .admin-settings-points{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-reward-points-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){
+  .admin-reward-points-grid{grid-template-columns:1fr}
+}
+
 </style>
 
 </head>
@@ -2545,8 +2587,19 @@
     </div>
   </div>
 
+  <div class="progress-summary-grid" style="margin-top:12px;">
+    <div class="progress-summary-card">
+      <div class="progress-summary-label">Admin Awards</div>
+      <div id="achievementRewardCount" class="progress-summary-value">0</div>
+    </div>
+    <div class="progress-summary-card">
+      <div class="progress-summary-label">Reward Points</div>
+      <div id="achievementRewardPoints" class="progress-summary-value">0</div>
+    </div>
+  </div>
+
   <div class="section-card">
-    <h2>🎖️ My Badges</h2>
+    <h2>🎖️ My Badges & Awards</h2>
     <div id="achievementBadges" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px;"></div>
   </div>
 </section>
@@ -2748,6 +2801,9 @@
           </button>
           <button class="admin-quick-btn" type="button" onclick="openRewards()">
             🏆<strong>Rewards</strong><span>Monthly awards and rewards</span>
+          </button>
+          <button class="admin-quick-btn" type="button" onclick="openAdminSettings()">
+            ⚙️<strong>Settings</strong><span>App and tracker settings</span>
           </button>
         </div>
       </div>
@@ -3001,7 +3057,7 @@
 
       <label class="admin-reward-field">
         Reward Type
-        <select id="adminRewardType">
+        <select id="adminRewardType" onchange="syncRewardPointsForType()">
           <option value="Monthly Best Habit Award">Monthly Best Habit Award</option>
           <option value="Consistency Award">Consistency Award</option>
           <option value="Best Ibadah">Best Ibadah</option>
@@ -3011,6 +3067,21 @@
           <option value="Best Digital Discipline">Best Digital Discipline</option>
           <option value="Special Award">Special Award</option>
         </select>
+      </label>
+
+      <label class="admin-reward-field">
+        Reward Points
+        <input id="adminRewardPoints" type="number" min="0" max="1000" step="1" value="0" placeholder="0">
+      </label>
+
+      <label class="admin-reward-field">
+        Badge Name
+        <input id="adminRewardBadgeName" type="text" maxlength="120" placeholder="Example: Consistency Star">
+      </label>
+
+      <label class="admin-reward-field">
+        Badge Icon
+        <input id="adminRewardBadgeIcon" type="text" maxlength="20" placeholder="🏆" style="font-size:20px;">
       </label>
 
       <label class="admin-reward-field">
@@ -3067,13 +3138,14 @@
             <th>#</th>
             <th>Month</th>
             <th>Student</th>
-            <th>Reward</th>
+            <th>Reward / Badge</th>
+            <th>Points</th>
             <th>Description</th>
             <th>Created At</th>
           </tr>
         </thead>
         <tbody id="adminRewardHistoryBody">
-          <tr><td colspan="6" class="admin-reward-empty">Select a month and load rewards.</td></tr>
+          <tr><td colspan="7" class="admin-reward-empty">Select a month and load rewards.</td></tr>
         </tbody>
       </table>
     </div>
@@ -3156,6 +3228,95 @@
 <!-- ==========================================================
      JAVASCRIPT
 ========================================================== -->
+
+
+
+<div class="section-card admin-settings-card" id="adminSettingsSection">
+  <div class="admin-section-head">
+    <div>
+      <h2>⚙️ Settings</h2>
+      <p>Manage the main madrasa information and tracker configuration.</p>
+    </div>
+  </div>
+
+  <div id="adminSettingsMessage" class="admin-settings-message"></div>
+
+  <div class="admin-settings-grid">
+    <div class="admin-settings-box">
+      <h3>🏫 Madrasa Information</h3>
+      <p>These values are stored in the SETTINGS sheet.</p>
+
+      <div class="admin-settings-field">
+        Madrasa Name
+        <input id="adminSettingSchoolName" type="text" placeholder="NUSRATHUL ISLAM MADRASA">
+      </div>
+      <div class="admin-settings-row">
+        <div class="admin-settings-field">
+          Tagline
+          <input id="adminSettingTagline" type="text" placeholder="🌱 നല്ല ശീലങ്ങൾ നല്ലൊരു ഭാവി">
+        </div>
+        <button class="admin-primary-btn admin-settings-save" type="button" onclick="saveAdminSettingPair()">💾 Save</button>
+      </div>
+      <div class="admin-settings-row">
+        <div class="admin-settings-field">
+          Academic Year
+          <input id="adminSettingAcademicYear" type="text" placeholder="2026-27">
+        </div>
+        <button class="admin-secondary-btn admin-settings-save" type="button" onclick="saveAdminSetting('ACADEMIC_YEAR','adminSettingAcademicYear')">Save</button>
+      </div>
+      <div class="admin-settings-row">
+        <div class="admin-settings-field">
+          Logo URL (optional)
+          <input id="adminSettingLogoUrl" type="url" placeholder="https://...">
+        </div>
+        <button class="admin-secondary-btn admin-settings-save" type="button" onclick="saveAdminSetting('LOGO_URL','adminSettingLogoUrl')">Save</button>
+      </div>
+    </div>
+
+    <div class="admin-settings-box">
+      <h3>👨‍🎓 Student Permission</h3>
+      <p>Store the current rule for whether students may edit today's submitted record.</p>
+      <label class="admin-settings-switch">
+        <input id="adminSettingAllowEditToday" type="checkbox">
+        <span>Allow Student Edit Today</span>
+      </label>
+      <button class="admin-primary-btn" style="margin-top:12px;width:100%;" type="button" onclick="saveAdminStudentEditSetting()">💾 Save Permission</button>
+      <div class="admin-settings-note">This setting is saved centrally. The existing scoring/submission engine remains unchanged until this permission is wired into its validation.</div>
+    </div>
+  </div>
+
+  <div class="admin-settings-box" style="margin-top:14px;">
+    <h3>📊 Current Point System</h3>
+    <p>Current tracker limits used by the existing 100-point system.</p>
+    <div class="admin-settings-points">
+      <div class="admin-settings-point"><span>Ibadah</span><strong id="adminSettingIbadahMax">30</strong></div>
+      <div class="admin-settings-point"><span>Study</span><strong id="adminSettingStudyMax">20</strong></div>
+      <div class="admin-settings-point"><span>Character</span><strong id="adminSettingCharacterMax">30</strong></div>
+      <div class="admin-settings-point"><span>Health</span><strong id="adminSettingHealthMax">10</strong></div>
+      <div class="admin-settings-point"><span>Digital</span><strong id="adminSettingDigitalMax">10</strong></div>
+    </div>
+    <div class="admin-settings-note">Total maximum: <strong>100 points</strong>. These values are shown from the central SETTINGS configuration.</div>
+  </div>
+
+  <div class="admin-settings-box" style="margin-top:14px;">
+    <h3>🏆 Reward Points</h3>
+    <p>Set the default points given when an admin adds each type of reward. These are separate from the daily 100-point habit score.</p>
+    <div class="admin-reward-points-grid">
+      <label class="admin-reward-points-field">Monthly Best Habit Award<input id="adminRewardPointMonthlyBestHabit" type="number" min="0" max="1000" step="1"></label>
+      <label class="admin-reward-points-field">Consistency Award<input id="adminRewardPointConsistency" type="number" min="0" max="1000" step="1"></label>
+      <label class="admin-reward-points-field">Best Ibadah<input id="adminRewardPointIbadah" type="number" min="0" max="1000" step="1"></label>
+      <label class="admin-reward-points-field">Best Study<input id="adminRewardPointStudy" type="number" min="0" max="1000" step="1"></label>
+      <label class="admin-reward-points-field">Best Character<input id="adminRewardPointCharacter" type="number" min="0" max="1000" step="1"></label>
+      <label class="admin-reward-points-field">Best Health<input id="adminRewardPointHealth" type="number" min="0" max="1000" step="1"></label>
+      <label class="admin-reward-points-field">Best Digital Discipline<input id="adminRewardPointDigital" type="number" min="0" max="1000" step="1"></label>
+      <label class="admin-reward-points-field">Special Award<input id="adminRewardPointSpecial" type="number" min="0" max="1000" step="1"></label>
+    </div>
+    <div class="admin-reward-points-note">💡 Example: If you set <strong>Monthly Best Habit Award = 50</strong>, selecting that reward will automatically fill 50 points in the Add Reward form. Admin can still change the points for a particular reward before saving.</div>
+    <div class="admin-reward-points-total">Configured reward points: <strong id="adminRewardPointsTotal">0</strong></div>
+    <button class="admin-primary-btn" style="margin-top:12px;width:100%;" type="button" onclick="saveAdminRewardPointSettings()">💾 Save Reward Point Settings</button>
+  </div>
+</div>
+
 
 <script>
 
@@ -4307,9 +4468,18 @@ async function loadStudentAchievements() {
   const studentId = student.studentId || session.studentId || "";
   if (!studentId) return;
 
+  const box = document.getElementById("achievementBadges");
+  if (box) box.innerHTML = '<div class="habit-note">Loading achievements...</div>';
+
   try {
-    const statsResult = await apiRequest("getStudentStats", { studentId: studentId });
-    const stats = statsResult.data || statsResult || {};
+    const [statsResult, rewardResult] = await Promise.all([
+      apiRequest("getStudentStats", { studentId: studentId }),
+      apiRequest("getStudentAchievements", { studentId: studentId })
+    ]);
+
+    const stats = statsResult?.data || statsResult || {};
+    const rewardData = rewardResult?.data || rewardResult || {};
+    const rewards = Array.isArray(rewardData.rewards) ? rewardData.rewards : [];
 
     const current = Number(stats.currentStreak || 0);
     const best = Number(stats.bestStreak || 0);
@@ -4320,28 +4490,50 @@ async function loadStudentAchievements() {
     setProgressText("achievementBestStreak", best);
     setProgressText("achievementActiveDays", active);
     setProgressText("achievementBestScore", `${bestScore}%`);
+    setProgressText("achievementRewardCount", rewards.length);
+    setProgressText("achievementRewardPoints", Number(rewardData.totalRewardPoints || 0));
 
-    const badges = [];
-    if (active >= 1) badges.push(["🌱", "First Step", "First active day"]);
-    if (current >= 7 || best >= 7) badges.push(["🔥", "7 Day Streak", "7 consecutive days"]);
-    if (current >= 30 || best >= 30) badges.push(["🏆", "30 Day Streak", "30 consecutive days"]);
-    if (active >= 7) badges.push(["📅", "7 Active Days", "7 submitted days"]);
-    if (active >= 30) badges.push(["🌟", "30 Active Days", "30 submitted days"]);
-    if (bestScore >= 100) badges.push(["💯", "Perfect 100", "A full 100-point day"]);
+    const autoBadges = [];
+    if (active >= 1) autoBadges.push(["🌱", "First Step", "First active day"]);
+    if (current >= 7 || best >= 7) autoBadges.push(["🔥", "7 Day Streak", "7 consecutive days"]);
+    if (current >= 30 || best >= 30) autoBadges.push(["🏆", "30 Day Streak", "30 consecutive days"]);
+    if (active >= 7) autoBadges.push(["📅", "7 Active Days", "7 submitted days"]);
+    if (active >= 30) autoBadges.push(["🌟", "30 Active Days", "30 submitted days"]);
+    if (bestScore >= 100) autoBadges.push(["💯", "Perfect 100", "A full 100-point day"]);
 
-    const box = document.getElementById("achievementBadges");
+    const earnedCards = rewards.map(function(reward) {
+      const icon = escapeAdminHtml(String(reward.badgeIcon || "🏅"));
+      const name = escapeAdminHtml(String(reward.badgeName || reward.rewardType || "Achievement"));
+      const type = escapeAdminHtml(String(reward.rewardType || "Admin Award"));
+      const desc = escapeAdminHtml(String(reward.description || "Awarded by Admin."));
+      const month = escapeAdminHtml(String(reward.month || ""));
+      const points = Number(reward.points || 0);
+      return `<div class="achievement-badge-card" style="position:relative;border:1px solid #dcefe2;">
+        <div class="achievement-badge-icon" style="font-size:42px;">${icon}</div>
+        <div class="achievement-badge-title">${name}</div>
+        <div class="achievement-badge-description"><strong>${type}</strong><br>${desc}</div>
+        <div style="margin-top:8px;font-size:12px;font-weight:800;color:#52705b;">${month ? 'Month: ' + month : ''}${points ? ' • +' + points + ' points' : ''}</div>
+        <div style="margin-top:8px;font-size:11px;font-weight:800;color:#16844b;">✓ EARNED</div>
+      </div>`;
+    });
+
+    const automaticCards = autoBadges.map(function(b) {
+      return `<div class="achievement-badge-card">
+        <div class="achievement-badge-icon">${b[0]}</div>
+        <div class="achievement-badge-title">${b[1]}</div>
+        <div class="achievement-badge-description">${b[2]}</div>
+        <div style="margin-top:8px;font-size:11px;font-weight:800;color:#16844b;">✓ UNLOCKED</div>
+      </div>`;
+    });
+
     if (box) {
-      box.innerHTML = (badges.length ? badges : [["🌱", "Keep Going", "Complete habits to unlock badges"]])
-        .map(function(b) {
-          return `<div class="achievement-badge-card">
-            <div class="achievement-badge-title">${b[1]}</div>
-            <div class="achievement-badge-description">${b[2]}</div>
-            <div class="achievement-badge-icon">${b[0]}</div>
-          </div>`;
-        }).join("");
+      box.innerHTML = (earnedCards.concat(automaticCards).length
+        ? earnedCards.concat(automaticCards).join("")
+        : '<div class="habit-note">🌱 Complete your daily habits and Admin awards will appear here.</div>');
     }
   } catch (error) {
     console.error("Achievements loading error:", error);
+    if (box) box.innerHTML = '<div class="habit-note">Unable to load achievements. Please try again.</div>';
   }
 }
 
@@ -5174,12 +5366,16 @@ function clearAdminRewardForm() {
   const yearEl = document.getElementById("adminRewardYear");
   const studentEl = document.getElementById("adminRewardStudent");
   const typeEl = document.getElementById("adminRewardType");
+  const badgeNameEl = document.getElementById("adminRewardBadgeName");
+  const badgeIconEl = document.getElementById("adminRewardBadgeIcon");
   const descEl = document.getElementById("adminRewardDescription");
 
   if (monthEl) monthEl.value = month;
   if (yearEl) yearEl.value = month.substring(0,4);
   if (studentEl) studentEl.value = "";
   if (typeEl) typeEl.value = "Monthly Best Habit Award";
+  if (badgeNameEl) badgeNameEl.value = "";
+  if (badgeIconEl) badgeIconEl.value = "";
   if (descEl) descEl.value = "";
   setRewardMessage("adminRewardMessage", "", true);
 }
@@ -5207,6 +5403,9 @@ async function saveAdminReward() {
   const month = document.getElementById("adminRewardMonth")?.value || "";
   const studentId = document.getElementById("adminRewardStudent")?.value || "";
   const rewardType = document.getElementById("adminRewardType")?.value || "";
+  const rewardPoints = Number(document.getElementById("adminRewardPoints")?.value || 0);
+  const badgeName = String(document.getElementById("adminRewardBadgeName")?.value || "").trim();
+  const badgeIcon = String(document.getElementById("adminRewardBadgeIcon")?.value || "").trim();
   const description = String(document.getElementById("adminRewardDescription")?.value || "").trim();
 
   const session = getAdminSession() || {};
@@ -5232,6 +5431,10 @@ async function saveAdminReward() {
     setRewardMessage("adminRewardMessage", "❌ Please select a reward type.", false);
     return;
   }
+  if (!Number.isFinite(rewardPoints) || rewardPoints < 0 || rewardPoints > 1000) {
+    setRewardMessage("adminRewardMessage", "❌ Reward points must be between 0 and 1000.", false);
+    return;
+  }
 
   if (button) {
     button.disabled = true;
@@ -5246,6 +5449,9 @@ async function saveAdminReward() {
       year: Number(month.substring(0,4)),
       studentId: studentId,
       rewardType: rewardType,
+      points: Math.round(rewardPoints),
+      badgeName: badgeName,
+      badgeIcon: badgeIcon,
       description: description
     });
 
@@ -5284,7 +5490,7 @@ async function loadRewardsHistory() {
     "";
 
   if (!adminUsername) {
-    body.innerHTML = '<tr><td colspan="6" class="admin-reward-empty">❌ Admin session not found. Please login again.</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="admin-reward-empty">❌ Admin session not found. Please login again.</td></tr>';
     return;
   }
 
@@ -5293,7 +5499,7 @@ async function loadRewardsHistory() {
   const monthEl = document.getElementById("adminRewardHistoryMonth");
   if (monthEl) monthEl.value = month;
 
-  body.innerHTML = '<tr><td colspan="6" class="admin-reward-loading">⏳ Loading rewards…</td></tr>';
+  body.innerHTML = '<tr><td colspan="7" class="admin-reward-loading">⏳ Loading rewards…</td></tr>';
   setRewardMessage("adminRewardHistoryMessage", "", true);
 
   if (button) {
@@ -5320,7 +5526,7 @@ async function loadRewardsHistory() {
     renderRewardsHistory(adminRewardsCache);
   } catch (error) {
     adminRewardsCache = [];
-    body.innerHTML = '<tr><td colspan="6" class="admin-reward-empty">Unable to load reward history.</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="admin-reward-empty">Unable to load reward history.</td></tr>';
     setRewardMessage("adminRewardHistoryMessage", "❌ " + (error?.message || "Unable to load rewards."), false);
   } finally {
     if (button) {
@@ -5335,7 +5541,7 @@ function renderRewardsHistory(rows) {
   if (!body) return;
 
   if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="6" class="admin-reward-empty">No rewards found for the selected filter.</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="admin-reward-empty">No rewards found for the selected filter.</td></tr>';
     return;
   }
 
@@ -5344,6 +5550,10 @@ function renderRewardsHistory(rows) {
     const name = escapeAdminHtml(String(row.studentName ?? row["Student Name"] ?? "").trim() || "—");
     const id = escapeAdminHtml(String(row.studentId ?? row["Student ID"] ?? "").trim());
     const rewardType = escapeAdminHtml(String(row.rewardType ?? row["Reward Type"] ?? "").trim() || "—");
+    const badgeName = escapeAdminHtml(String(row.badgeName ?? row["Badge Name"] ?? "").trim() || "—");
+    const badgeIcon = escapeAdminHtml(String(row.badgeIcon ?? row["Badge Icon"] ?? "").trim() || "🏅");
+    const points = Number(row.points ?? row.Points ?? 0);
+    const pointsText = Number.isFinite(points) ? String(points) : "0";
     const description = escapeAdminHtml(String(row.description ?? row.Description ?? "").trim() || "—");
     const createdAt = escapeAdminHtml(String(row.createdAt ?? row["Created At"] ?? "").trim() || "—");
 
@@ -5353,12 +5563,230 @@ function renderRewardsHistory(rows) {
       '<td class="student-name">' + name +
         '<br><small style="color:#64748b;font-weight:700;">' + id + '</small>' +
       '</td>' +
-      '<td><span class="admin-reward-badge">' + rewardType + '</span></td>' +
+      '<td><span class="admin-reward-badge">' + badgeIcon + ' ' + badgeName + '</span><br><small style="color:#64748b;font-weight:700;">' + rewardType + '</small></td>' +
+      '<td><strong>' + pointsText + '</strong></td>' +
       '<td class="description">' + description + '</td>' +
       '<td>' + createdAt + '</td>' +
     '</tr>';
   }).join("");
 }
+
+
+
+
+/* ==========================================================
+   ADMIN SETTINGS - V1
+========================================================== */
+let adminSettingsCache = {};
+
+function setAdminSettingsMessage(text, ok) {
+  const el = document.getElementById('adminSettingsMessage');
+  if (!el) return;
+  el.textContent = text || '';
+  el.style.display = text ? 'block' : 'none';
+  el.style.background = ok ? '#eaf8ef' : '#fff1f1';
+  el.style.color = ok ? '#176b3a' : '#a32929';
+}
+
+function openAdminSettings() {
+  const section = document.getElementById('adminSettingsSection');
+  if (!section) return;
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  loadAdminSettings();
+}
+
+async function loadAdminSettings() {
+  const session = getAdminSession() || {};
+  const adminUsername = session.username || session.Username || (session.admin && (session.admin.username || session.admin.Username)) || '';
+  if (!adminUsername) {
+    setAdminSettingsMessage('❌ Admin session not found. Please login again.', false);
+    return;
+  }
+
+  setAdminSettingsMessage('⏳ Loading settings…', true);
+
+  try {
+    const result = await apiRequest('getSettings', { adminUsername: adminUsername });
+    if (!result || result.success === false) throw new Error(result?.message || result?.error || 'Unable to load settings.');
+
+    const data = result.data || result || {};
+    const values = data.values || {};
+    adminSettingsCache = values;
+
+    const setValue = function(id, key) {
+      const el = document.getElementById(id);
+      if (el) el.value = values[key] ?? '';
+    };
+
+    setValue('adminSettingSchoolName', 'SCHOOL_NAME');
+    setValue('adminSettingTagline', 'TAGLINE');
+    setValue('adminSettingAcademicYear', 'ACADEMIC_YEAR');
+    setValue('adminSettingLogoUrl', 'LOGO_URL');
+
+    const editEl = document.getElementById('adminSettingAllowEditToday');
+    if (editEl) editEl.checked = ['true','1','yes'].includes(String(values.ALLOW_STUDENT_EDIT_TODAY ?? 'true').toLowerCase());
+
+    const points = [
+      ['adminSettingIbadahMax','IBADAH_MAX',30],
+      ['adminSettingStudyMax','STUDY_MAX',20],
+      ['adminSettingCharacterMax','CHARACTER_MAX',30],
+      ['adminSettingHealthMax','HEALTH_MAX',10],
+      ['adminSettingDigitalMax','DIGITAL_MAX',10]
+    ];
+    points.forEach(function(item) {
+      const el = document.getElementById(item[0]);
+      if (el) el.textContent = values[item[1]] ?? item[2];
+    });
+
+    const rewardPointFields = [
+      ['adminRewardPointMonthlyBestHabit','REWARD_MONTHLY_BEST_HABIT_POINTS'],
+      ['adminRewardPointConsistency','REWARD_CONSISTENCY_POINTS'],
+      ['adminRewardPointIbadah','REWARD_BEST_IBADAH_POINTS'],
+      ['adminRewardPointStudy','REWARD_BEST_STUDY_POINTS'],
+      ['adminRewardPointCharacter','REWARD_BEST_CHARACTER_POINTS'],
+      ['adminRewardPointHealth','REWARD_BEST_HEALTH_POINTS'],
+      ['adminRewardPointDigital','REWARD_BEST_DIGITAL_POINTS'],
+      ['adminRewardPointSpecial','REWARD_SPECIAL_POINTS']
+    ];
+    let rewardTotal = 0;
+    rewardPointFields.forEach(function(item) {
+      const el = document.getElementById(item[0]);
+      const value = Number(values[item[1]] ?? 0);
+      if (el) el.value = Number.isFinite(value) ? value : 0;
+      rewardTotal += Number.isFinite(value) ? value : 0;
+    });
+    const rewardTotalEl = document.getElementById('adminRewardPointsTotal');
+    if (rewardTotalEl) rewardTotalEl.textContent = rewardTotal;
+    syncRewardPointsForType();
+
+    setAdminSettingsMessage('✅ Settings loaded.', true);
+    setTimeout(function(){ setAdminSettingsMessage('', true); }, 1600);
+  } catch (error) {
+    setAdminSettingsMessage('❌ ' + (error?.message || 'Unable to load settings.'), false);
+  }
+}
+
+async function saveAdminSetting(key, elementId) {
+  const session = getAdminSession() || {};
+  const adminUsername = session.username || session.Username || (session.admin && (session.admin.username || session.admin.Username)) || '';
+  const el = document.getElementById(elementId);
+  if (!adminUsername || !el) return;
+
+  setAdminSettingsMessage('⏳ Saving…', true);
+  try {
+    const result = await apiRequest('updateSetting', {
+      adminUsername: adminUsername,
+      setting: key,
+      value: el.value
+    });
+    if (!result || result.success === false) throw new Error(result?.message || result?.error || 'Unable to save setting.');
+    setAdminSettingsMessage('✅ Setting saved successfully.', true);
+    await loadAdminSettings();
+  } catch (error) {
+    setAdminSettingsMessage('❌ ' + (error?.message || 'Unable to save setting.'), false);
+  }
+}
+
+async function saveAdminSettingPair() {
+  await saveAdminSetting('SCHOOL_NAME', 'adminSettingSchoolName');
+  await saveAdminSetting('TAGLINE', 'adminSettingTagline');
+}
+
+async function saveAdminStudentEditSetting() {
+  const el = document.getElementById('adminSettingAllowEditToday');
+  if (!el) return;
+  const session = getAdminSession() || {};
+  const adminUsername = session.username || session.Username || (session.admin && (session.admin.username || session.admin.Username)) || '';
+  if (!adminUsername) return;
+
+  setAdminSettingsMessage('⏳ Saving permission…', true);
+  try {
+    const result = await apiRequest('updateSetting', {
+      adminUsername: adminUsername,
+      setting: 'ALLOW_STUDENT_EDIT_TODAY',
+      value: el.checked ? 'true' : 'false'
+    });
+    if (!result || result.success === false) throw new Error(result?.message || result?.error || 'Unable to save permission.');
+    setAdminSettingsMessage('✅ Student permission saved.', true);
+  } catch (error) {
+    setAdminSettingsMessage('❌ ' + (error?.message || 'Unable to save permission.'), false);
+  }
+}
+
+async function saveAdminRewardPointSettings() {
+  const session = getAdminSession() || {};
+  const adminUsername = session.username || session.Username || (session.admin && (session.admin.username || session.admin.Username)) || '';
+  if (!adminUsername) {
+    setAdminSettingsMessage('❌ Admin session not found. Please login again.', false);
+    return;
+  }
+
+  const fields = [
+    ['REWARD_MONTHLY_BEST_HABIT_POINTS','adminRewardPointMonthlyBestHabit'],
+    ['REWARD_CONSISTENCY_POINTS','adminRewardPointConsistency'],
+    ['REWARD_BEST_IBADAH_POINTS','adminRewardPointIbadah'],
+    ['REWARD_BEST_STUDY_POINTS','adminRewardPointStudy'],
+    ['REWARD_BEST_CHARACTER_POINTS','adminRewardPointCharacter'],
+    ['REWARD_BEST_HEALTH_POINTS','adminRewardPointHealth'],
+    ['REWARD_BEST_DIGITAL_POINTS','adminRewardPointDigital'],
+    ['REWARD_SPECIAL_POINTS','adminRewardPointSpecial']
+  ];
+
+  setAdminSettingsMessage('⏳ Saving reward point settings…', true);
+  try {
+    for (const item of fields) {
+      const el = document.getElementById(item[1]);
+      const n = Number(el?.value || 0);
+      if (!Number.isFinite(n) || n < 0 || n > 1000) {
+        throw new Error('Reward points must be between 0 and 1000.');
+      }
+      const result = await apiRequest('updateSetting', {
+        adminUsername: adminUsername,
+        setting: item[0],
+        value: String(Math.round(n))
+      });
+      if (!result || result.success === false) {
+        throw new Error(result?.message || result?.error || 'Unable to save reward point settings.');
+      }
+    }
+    setAdminSettingsMessage('✅ Reward point settings saved successfully.', true);
+    await loadAdminSettings();
+  } catch (error) {
+    setAdminSettingsMessage('❌ ' + (error?.message || 'Unable to save reward point settings.'), false);
+  }
+}
+
+function getConfiguredRewardPoints(rewardType) {
+  const map = {
+    'Monthly Best Habit Award': 'REWARD_MONTHLY_BEST_HABIT_POINTS',
+    'Consistency Award': 'REWARD_CONSISTENCY_POINTS',
+    'Best Ibadah': 'REWARD_BEST_IBADAH_POINTS',
+    'Best Study': 'REWARD_BEST_STUDY_POINTS',
+    'Best Character': 'REWARD_BEST_CHARACTER_POINTS',
+    'Best Health': 'REWARD_BEST_HEALTH_POINTS',
+    'Best Digital Discipline': 'REWARD_BEST_DIGITAL_POINTS',
+    'Special Award': 'REWARD_SPECIAL_POINTS'
+  };
+  const key = map[rewardType];
+  const value = Number(adminSettingsCache[key] ?? 0);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function syncRewardPointsForType() {
+  const typeEl = document.getElementById('adminRewardType');
+  const pointsEl = document.getElementById('adminRewardPoints');
+  if (!typeEl || !pointsEl) return;
+  pointsEl.value = getConfiguredRewardPoints(typeEl.value);
+}
+
+(function initAdminSettings() {
+  try {
+    const section = document.getElementById('adminSettingsSection');
+    if (section) loadAdminSettings();
+  } catch (e) {
+    console.warn('Settings initialization failed:', e);
+  }
+})();
 
 
 function showAdminNotice(sectionName) {
